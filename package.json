@@ -1,0 +1,24 @@
+{
+  "name": "proyecto-ucadied",
+  "version": "1.0.0",
+  "description": "Digitalización de la gestión de las asociaciones de desarrollo de Desamparados",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app",
+    "server": "nodemon",
+    "client": "npm start --prefix vista",
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "build": "npm run build --prefix vista"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.18.1",
+    "mysql2": "^2.3.3",
+    "sequelize": "^6.21.4"
+  },
+  "devDependencies": {
+    "concurrently": "^7.3.0",
+    "nodemon": "^2.0.19"
+  }
+}
