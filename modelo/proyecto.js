@@ -1,14 +1,14 @@
 const type = require('sequelize');
 const sequelize = require('../conexion_base');
 
-module.exports = sequelize.define('usuario', {
+module.exports = sequelize.define('proyecto', {
         id: {
             type: type.INTEGER,
             primaryKey: true,
             autoIncrement: true
         },
-        email: type.STRING,
-        contrasenna: type.STRING,
-        tipo: type.STRING,
-        activo: type.BOOLEAN
+        inicio: type.DATE,
+        cierre: type.DATE,
+        nombre: type.STRING,
+        presupuesto: type.DOUBLE,
     });

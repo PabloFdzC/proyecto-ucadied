@@ -1,14 +1,12 @@
 const type = require('sequelize');
 const sequelize = require('../conexion_base');
 
-module.exports = sequelize.define('usuario', {
+module.exports = sequelize.define('junta_directiva', {
         id: {
             type: type.INTEGER,
             primaryKey: true,
             autoIncrement: true
         },
-        email: type.STRING,
-        contrasenna: type.STRING,
-        tipo: type.STRING,
-        activo: type.BOOLEAN
+        n_miembros: type.INTEGER,
+        forma_elegir: type.STRING
     });

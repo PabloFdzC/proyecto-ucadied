@@ -3,6 +3,8 @@ const express = require('express');
 
 const app = express();
 
+require("./creacion_base")
+
 app.set('port', 8080);
 
 
