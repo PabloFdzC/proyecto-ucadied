@@ -1,35 +1,32 @@
-const router = require('express').Router();
 const proyecto = require('../modelo/proyecto');
+const queries_generales = require('./QueriesGenerales');
 
-router.get('/:id_proyecto', async (req, res) => {
-    const proyectos = await proyecto.findAll({
-        where: {id: req.params.id_proyecto}
-    });
-    res.json(proyectos);
-});
+function consultar(params){
+    if(params.id_activo){
+        queries_generales.consultar(proyecto, {where: {
+            id: params.id_proyecto
+        }});
+    }
+    else{
+        queries_generales.consultar(proyecto, {});
+    }
+}
 
-router.get('/', async (req, res) => {
-    const proyectos = await proyecto.findAll();
-    res.json(proyectos);
-});
+function crear(info){
+    return queries_generales.crear(proyecto, info);
+}
 
-router.post('/', async (req, res) => {
-    const proyecto_creada = await proyecto.create(req.body);
-    res.json(proyecto_creada);
-});
+function modificar(id, info){
+    return queries_generales.modificar(proyecto, id, info)
+}
 
-router.put('/:id_proyecto', async (req, res) => {
-    await proyecto.update(req.body, {
-        where: {id: req.params.id_proyecto}
-    });
-    res.json({success: "Proyecto modificado"});
-});
+function eliminar(id){
+    return queries_generales.eliminar(proyecto, id);
+}
 
-router.delete('/:id_proyecto', async (req, res) => {
-    await proyecto.destroy({
-        where: {id: req.params.id_proyecto}
-    });
-    res.json({success: "Proyecto eliminado"});
-});
-
-module.exports = router;
+module.exports = {
+    consultar,
+    crear,
+    modificar,
+    eliminar
+}

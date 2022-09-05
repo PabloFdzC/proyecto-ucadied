@@ -1,35 +1,32 @@
-const router = require('express').Router();
 const activo = require('../modelo/activo');
+const queries_generales = require('./QueriesGenerales');
 
-router.get('/:id_activo', async (req, res) => {
-    const activos = await activo.findAll({
-        where: {id: req.params.id_activo}
-    });
-    res.json(activos);
-});
+function consultar(params){
+    if(params.id_activo){
+        queries_generales.consultar(activo, {where: {
+            id: params.id_activo
+        }});
+    }
+    else{
+        queries_generales.consultar(activo, {});
+    }
+}
 
-router.get('/', async (req, res) => {
-    const activos = await activo.findAll();
-    res.json(activos);
-});
+function crear(info){
+    return queries_generales.crear(activo, info);
+}
 
-router.post('/', async (req, res) => {
-    const activo_creada = await activo.create(req.body);
-    res.json(activo_creada);
-});
+function modificar(id, info){
+    return queries_generales.modificar(activo, id, info)
+}
 
-router.put('/:id_activo', async (req, res) => {
-    await activo.update(req.body, {
-        where: {id: req.params.id_activo}
-    });
-    res.json({success: "Activo modificado"});
-});
+function eliminar(id){
+    return queries_generales.eliminar(activo, id);
+}
 
-router.delete('/:id_activo', async (req, res) => {
-    await activo.destroy({
-        where: {id: req.params.id_activo}
-    });
-    res.json({success: "Activo eliminado"});
-});
-
-module.exports = router;
+module.exports = {
+    consultar,
+    crear,
+    modificar,
+    eliminar
+}

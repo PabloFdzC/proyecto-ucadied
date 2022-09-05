@@ -1,35 +1,32 @@
-const router = require('express').Router();
 const actividad = require('../modelo/actividad');
+const queries_generales = require('./QueriesGenerales');
 
-router.get('/:id_actividad', async (req, res) => {
-    const actividades = await actividad.findAll({
-        where: {id: req.params.id_actividad}
-    });
-    res.json(actividades);
-});
+function consultar(params){
+    if(params.id_actividad){
+        queries_generales.consultar(actividad, {where: {
+            id: params.id_actividad
+        }});
+    }
+    else{
+        queries_generales.consultar(actividad, {});
+    }
+}
 
-router.get('/', async (req, res) => {
-    const actividades = await actividad.findAll();
-    res.json(actividades);
-});
+function crear(info){
+    return queries_generales.crear(actividad, info);
+}
 
-router.post('/', async (req, res) => {
-    const actividad_creada = await actividad.create(req.body);
-    res.json(actividad_creada);
-});
+function modificar(id, info){
+    return queries_generales.modificar(actividad, id, info)
+}
 
-router.put('/:id_actividad', async (req, res) => {
-    await actividad.update(req.body, {
-        where: {id: req.params.id_actividad}
-    });
-    res.json({success: "Actividad modificada"});
-});
+function eliminar(id){
+    return queries_generales.eliminar(actividad, id);
+}
 
-router.delete('/:id_actividad', async (req, res) => {
-    await actividad.destroy({
-        where: {id: req.params.id_actividad}
-    });
-    res.json({success: "Actividad eliminada"});
-});
-
-module.exports = router;
+module.exports = {
+    consultar,
+    crear,
+    modificar,
+    eliminar
+}

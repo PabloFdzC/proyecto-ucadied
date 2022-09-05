@@ -1,13 +1,13 @@
 const router = require('express').Router();
 
-const ActividadRouter = require('./ActividadControlador');
-const ActivoRouter = require('./ActivoControlador');
-const JuntaDirectivaRouter = require('./JuntaDirectivaControlador');
-const OrganizacionRouter = require('./OrganizacionControlador');
-const PaginaRouter = require('./PaginaControlador');
-const PersonaRouter = require('./PersonaControlador');
-const ProyectoRouter = require('./ProyectoControlador');
-const UsuarioRouter = require('./UsuarioControlador');
+const ActividadRouter = require('./ActividadRutas');
+const ActivoRouter = require('./ActivoRutas');
+const JuntaDirectivaRouter = require('./JuntaDirectivaRutas');
+const OrganizacionRouter = require('./OrganizacionRutas');
+const PaginaRouter = require('./PaginaRutas');
+const PersonaRouter = require('./PersonaRutas');
+const ProyectoRouter = require('./ProyectoRutas');
+const UsuarioRouter = require('./UsuarioRutas');
 
 router.use('/actividad', ActividadRouter);
 router.use('/activo', ActivoRouter);

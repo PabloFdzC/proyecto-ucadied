@@ -1,35 +1,32 @@
-const router = require('express').Router();
 const persona = require('../modelo/persona');
+const queries_generales = require('./QueriesGenerales');
 
-router.get('/:id_persona', async (req, res) => {
-    const personas = await persona.findAll({
-        where: {id: req.params.id_persona}
-    });
-    res.json(personas);
-});
+function consultar(params){
+    if(params.id_persona){
+        queries_generales.consultar(persona, {where: {
+            id: params.id_persona
+        }});
+    }
+    else{
+        queries_generales.consultar(persona, {});
+    }
+}
 
-router.get('/', async (req, res) => {
-    const personas = await persona.findAll();
-    res.json(personas);
-});
+function crear(info){
+    return queries_generales.crear(persona, info);
+}
 
-router.post('/', async (req, res) => {
-    const persona_creada = await persona.create(req.body);
-    res.json(persona_creada);
-});
+function modificar(id, info){
+    return queries_generales.modificar(persona, id, info)
+}
 
-router.put('/:id_persona', async (req, res) => {
-    await persona.update(req.body, {
-        where: {id: req.params.id_persona}
-    });
-    res.json({success: "Persona modificada"});
-});
+function eliminar(id){
+    return queries_generales.eliminar(persona, id);
+}
 
-router.delete('/:id_persona', async (req, res) => {
-    await persona.destroy({
-        where: {id: req.params.id_persona}
-    });
-    res.json({success: "Persona eliminada"});
-});
-
-module.exports = router;
+module.exports = {
+    consultar,
+    crear,
+    modificar,
+    eliminar
+}

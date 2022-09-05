@@ -1,35 +1,31 @@
-const router = require('express').Router();
 const organizacion = require('../modelo/organizacion');
 
-router.get('/:id_organizacion', async (req, res) => {
-    const organizaciones = await organizacion.findAll({
-        where: {id: req.params.id_organizacion}
-    });
-    res.json(organizaciones);
-});
+function consultar(params){
+    if(params.id_organizacion){
+        queries_generales.consultar(organizacion, {where: {
+            id: req.params.id_organizacion
+        }});
+    }
+    else{
+        queries_generales.consultar(organizacion, {});
+    }
+}
 
-router.get('/', async (req, res) => {
-    const organizaciones = await organizacion.findAll();
-    res.json(organizaciones);
-});
+function crear(info){
+    return queries_generales.crear(organizacion, info);
+}
 
-router.post('/', async (req, res) => {
-    const organizacion_creada = await organizacion.create(req.body);
-    res.json(organizacion_creada);
-});
+function modificar(id, info){
+    return queries_generales.modificar(organizacion, id, info)
+}
 
-router.put('/:id_organizacion', async (req, res) => {
-    await organizacion.update(req.body, {
-        where: {id: req.params.id_organizacion}
-    });
-    res.json({success: "Organización modificada"});
-});
+function eliminar(id){
+    return queries_generales.eliminar(organizacion, id);
+}
 
-router.delete('/:id_organizacion', async (req, res) => {
-    await organizacion.destroy({
-        where: {id: req.params.id_organizacion}
-    });
-    res.json({success: "Organización eliminada"});
-});
-
-module.exports = router;
+module.exports = {
+    consultar,
+    crear,
+    modificar,
+    eliminar
+}

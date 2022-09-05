@@ -1,35 +1,32 @@
-const router = require('express').Router();
 const junta_directiva = require('../modelo/junta_directiva');
+const queries_generales = require('./QueriesGenerales');
 
-router.get('/:id_junta_directiva', async (req, res) => {
-    const juntas_directivas = await junta_directiva.findAll({
-        where: {id: req.params.id_junta_directiva}
-    });
-    res.json(juntas_directivas);
-});
+function consultar(params){
+    if(params.id_junta_directiva){
+        queries_generales.consultar(junta_directiva, {where: {
+            id: params.id_junta_directiva
+        }});
+    }
+    else{
+        queries_generales.consultar(junta_directiva, {});
+    }
+}
 
-router.get('/', async (req, res) => {
-    const juntas_directivas = await junta_directiva.findAll();
-    res.json(juntas_directivas);
-});
+function crear(info){
+    return queries_generales.crear(junta_directiva, info);
+}
 
-router.post('/', async (req, res) => {
-    const junta_directiva_creada = await junta_directiva.create(req.body);
-    res.json(junta_directiva_creada);
-});
+function modificar(id, info){
+    return queries_generales.modificar(junta_directiva, id, info)
+}
 
-router.put('/:id_junta_directiva', async (req, res) => {
-    await junta_directiva.update(req.body, {
-        where: {id: req.params.id_junta_directiva}
-    });
-    res.json({success: "Junta directiva modificada"});
-});
+function eliminar(id){
+    return queries_generales.eliminar(junta_directiva, id);
+}
 
-router.delete('/:id_junta_directiva', async (req, res) => {
-    await junta_directiva.destroy({
-        where: {id: req.params.id_junta_directiva}
-    });
-    res.json({success: "Junta directiva eliminada"});
-});
-
-module.exports = router;
+module.exports = {
+    consultar,
+    crear,
+    modificar,
+    eliminar
+}
