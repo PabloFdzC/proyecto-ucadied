@@ -11,7 +11,8 @@ const UsuarioRouter = require('./UsuarioRutas');
 
 router.use('/actividad', ActividadRouter);
 router.use('/activo', ActivoRouter);
-router.use('/junta_directiva', JuntaDirectivaRouter);
+router.use('/administrador', ActivoRouter);
+router.use('/juntaDirectiva', JuntaDirectivaRouter);
 router.use('/organizacion', OrganizacionRouter);
 router.use('/pagina', PaginaRouter);
 router.use('/persona', PersonaRouter);

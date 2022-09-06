@@ -41,7 +41,11 @@ function iniciarSesion(info){
         usuario_info = usuario_info[0];
         bcrypt.compare(info.contrasenna, usuario_info.contrasenna, (err, result) => {
             if(result){
-                return({success: "Se inicia sesión correctamente"});
+                return({
+                    id_usuario: usuario_info.id,
+                    tipo: usuario_info.tipo,
+                    success: "Se inicia sesión correctamente"
+                });
             }
             else{
                 return({error: "Email o contraseña incorrectos"});
