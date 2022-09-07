@@ -6,3 +6,24 @@ de react son un montón.
 
 Para correr el server pueden usar el comando npm run server y si
 lo quieren correr con react también es npm run dev
+
+Ya está lo de smart commits. Tienen que fijarse que el correo que
+usan para el Jira es el mismo que el que usan para hacer los commits,
+entonces si hacen el commit desde la consola se pueden fijar cuál
+tienen puesto con el comando:
+
+git config --list
+
+Y si tienen uno que no es lo cambian con:
+
+git config --global user.email "correo@micorreo.com"
+
+Ya cuando hacen el commit se pone:
+
+git commit -m "Llave-de-incidencia \#donde-lo-quieren-mover Explicación del commit"
+
+Por ejemplo:
+
+git commit -m "PU-22 \#listo Investigar sobre smart commits"
+
+Y luego ya hacen el push normal
