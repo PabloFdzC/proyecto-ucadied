@@ -24,6 +24,6 @@ git commit -m "Llave-de-incidencia \#Donde-lo-quieren-mover Explicación del"
 
 Por ejemplo:
 
-git commit -m "PU-22 \#Listo Investigar sobre smart commits"
+git commit -m "PU-22 \#Done Investigar sobre smart commits"
 
 Y luego ya hacen el push normal
