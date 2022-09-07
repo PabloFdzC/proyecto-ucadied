@@ -44,7 +44,6 @@ class UsuarioForm extends React.Component {
         manejarCambio(evento, this);
     }
 
-    // Aquí se mandaría la información al server
     async crearUsuario(evento){
         evento.preventDefault();
         const datos = this.state;
@@ -66,7 +65,7 @@ class UsuarioForm extends React.Component {
         if(!this.props.administrador){
             necesitaCuentaChck = (
             <div className="form-check">
-                <input className="form-check-input" type="checkbox" id="necesitaCuenta" name="necesitaCuenta" checked={this.state.necesitaCuenta} onChange={this.manejaCambio} />
+                <input className="form-check-input" type="checkbox" id="necesitaCuenta" checked={this.state.necesitaCuenta} onChange={this.manejaCambio} />
                 <label className="form-check-label" htmlFor="necesitaCuenta" >
                     ¿Necesita cuenta?
                 </label>

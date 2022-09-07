@@ -20,10 +20,10 @@ git config --global user.email "correo@micorreo.com"
 
 Ya cuando hacen el commit se pone:
 
-git commit -m "Llave-de-incidencia \#donde-lo-quieren-mover Explicación del commit"
+git commit -m "Llave-de-incidencia \#Donde-lo-quieren-mover Explicación del"
 
 Por ejemplo:
 
-git commit -m "PU-22 \#listo Investigar sobre smart commits"
+git commit -m "PU-22 \#Listo Investigar sobre smart commits"
 
 Y luego ya hacen el push normal
