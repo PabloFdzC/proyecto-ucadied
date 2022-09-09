@@ -16,10 +16,12 @@ if (app.get('env') === 'production') {
     sess.cookie.secure = true;
 }
 
-app.use('/', ApiRouter);
 app.use(session(sess));
 
+app.use('/', ApiRouter);
+
 app.set('port', 8080);
+
 
 
 app.listen(app.get('port'));

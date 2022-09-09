@@ -1,30 +1,62 @@
 const router = require('express').Router();
+const bodyParser = require('body-parser');
+const urlencodedParser  = bodyParser.urlencoded({ extended: false });
 const proyectoCtlr = require('./ProyectoControlador');
 
 
-router.get('/consultar/:id_proyecto', (req, res) => {
-    const proyectos = proyectoCtlr.consultar(req.params);
-    res.json(proyectos);
+router.get('/consultar/:id_proyecto', async (req, res) => {
+    try{
+        const proyectos = await proyectoCtlr.consultar(req.params);
+        res.json(proyectos);
+    }catch(err){
+        console.log(err);
+        res.status(400);
+        res.send("Algo salió mal");
+    }
 });
 
 router.get('/consultar', async (req, res) => {
-    const proyectos = proyectoCtlr.consultar(req.params);
-    res.json(proyectos);
+    try{
+        const proyectos = await proyectoCtlr.consultar(req.params);
+        res.json(proyectos);
+    }catch(err){
+        console.log(err);
+        res.status(400);
+        res.send("Algo salió mal");
+    }
 });
 
-router.post('/crear', async (req, res) => {
-    const proyecto_creado = proyectoCtlr.crear(req.body);
-    res.json(proyecto_creado);
+router.post('/crear', urlencodedParser, async (req, res) => {
+    try{
+        const proyecto_creado = await proyectoCtlr.crear(req.body);
+        res.json(proyecto_creado);
+    }catch(err){
+        console.log(err);
+        res.status(400);
+        res.send("Algo salió mal");
+    }
 });
 
-router.put('/modificar/:id_proyecto', async (req, res) => {
-    const resultado = proyectoCtlr.modificar(req.params.id_proyecto, req.body)
-    res.json(resultado);
+router.put('/modificar/:id_proyecto', urlencodedParser, async (req, res) => {
+    try{
+        const resultado = await proyectoCtlr.modificar(req.params.id_proyecto, req.body)
+        res.json(resultado);
+    }catch(err){
+        console.log(err);
+        res.status(400);
+        res.send("Algo salió mal");
+    }
 });
 
 router.delete('/eliminar/:id_proyecto', async (req, res) => {
-    const resultado = proyectoCtlr.eliminar(req.params.id_proyecto);
+    try{
+    const resultado = await proyectoCtlr.eliminar(req.params.id_proyecto);
     res.json(resultado);
+    }catch(err){
+        console.log(err);
+        res.status(400);
+        res.send("Algo salió mal");
+    }
 });
 
 module.exports = router;

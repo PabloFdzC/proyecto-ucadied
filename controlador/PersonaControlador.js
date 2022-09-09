@@ -1,27 +1,27 @@
 const persona = require('../modelo/persona');
 const queries_generales = require('./QueriesGenerales');
 
-function consultar(params){
+async function consultar(params){
     if(params.id_persona){
-        queries_generales.consultar(persona, {where: {
+        return await queries_generales.consultar(persona, {where: {
             id: params.id_persona
         }});
     }
     else{
-        queries_generales.consultar(persona, {});
+        return await queries_generales.consultar(persona, {});
     }
 }
 
-function crear(info){
-    return queries_generales.crear(persona, info);
+async function crear(info){
+    return await queries_generales.crear(persona, info);
 }
 
-function modificar(id, info){
-    return queries_generales.modificar(persona, id, info)
+async function modificar(id, info){
+    return await queries_generales.modificar(persona, id, info)
 }
 
-function eliminar(id){
-    return queries_generales.eliminar(persona, id);
+async function eliminar(id){
+    return await queries_generales.eliminar(persona, id);
 }
 
 module.exports = {

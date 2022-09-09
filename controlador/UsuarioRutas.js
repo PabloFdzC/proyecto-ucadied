@@ -1,37 +1,119 @@
 const router = require('express').Router();
+const bodyParser = require('body-parser');
+const urlencodedParser  = bodyParser.urlencoded({ extended: false });
 const usuarioCtrl = require('./UsuarioControlador');
 
-router.get('/consultar/:id_usuario', (req, res) => {
-    const usuario = usuarioCtrl.consultar(req.params);
-    res.json(usuario);
+router.get('/consultar/:id_usuario', async (req, res) => {
+    try{
+        if(req.session.idUsuario && req.session.idUsuario != -1){
+            const usuario = await usuarioCtrl.consultar(req.params);
+            res.json(usuario);
+        }
+        else{
+            res.status(400);
+            res.send("Sesión no iniciada");
+        }
+    }catch (err){
+        console.log(err);
+        res.status(400);
+        res.send("Algo salió mal");
+    }
 });
 
 router.get('/consultar', async (req, res) => {
-    const usuarios = usuarioCtrl.consultar(req.params);
-    res.json(usuarios);
+    try{
+        if(req.session.idUsuario && req.session.idUsuario != -1){
+            const usuarios = await usuarioCtrl.consultar(req.params);
+            res.json(usuarios);
+        }
+        else{
+            res.status(400);
+            res.send("Sesión no iniciada");
+        }
+    }catch (err){
+        console.log(err);
+        res.status(400);
+        res.send("Algo salió mal");
+    }
 });
 
-router.post('/crear', async (req, res) => {
-    req.body.tipo = "Usuario";
-    const usuario_creado = usuarioCtrl.crear(req.body);
-    res.json(usuario_creado);
+router.post('/crear', urlencodedParser, async (req, res) => {
+    try{
+        if(req.session.idUsuario && req.session.idUsuario != -1){
+            req.body.tipo = "Usuario";
+            const usuario_creado = await usuarioCtrl.crear(req.body);
+            res.json(usuario_creado);
+        }
+        else{
+            res.status(400);
+            res.send("Sesión no iniciada");
+        }
+    }catch (err){
+        console.log(err);
+        res.status(400);
+        res.send("Algo salió mal");
+    }
 });
 
-router.post('/iniciarSesion', async (req, res) => {
-    const resultado = usuarioCtrl.iniciarSesion(req.body);
-    req.session.id = resultado.id;
-    req.session.tipoUsuario = resultado.tipo;
-    res.json(resultado);
+router.post('/iniciarSesion', urlencodedParser, async (req, res) => {
+    try{
+        const resultado = await usuarioCtrl.iniciarSesion(req.body);
+        if(resultado.success){
+            req.session.idUsuario = resultado.id_usuario;
+            req.session.tipoUsuario = resultado.tipo;
+        }
+        res.json(resultado);
+    }catch (err){
+        console.log(err);
+        res.status(400);
+        res.send("Algo salió mal");
+    }
 });
 
-router.put('/modificar/:id_usuario', async (req, res) => {
-    const resultado = usuarioCtrl.modificar(req.params.id_usuario, req.body)
-    res.json(resultado);
+router.post('/cerrarSesion', async (req, res) => {
+    try{
+        req.session.idUsuario = -1;
+        req.session.tipoUsuario = "";
+        res.json({success: "Sesión cerrada"});
+    }catch (err){
+        console.log(err);
+        res.status(400);
+        res.send("Algo salió mal");
+    }
+});
+
+router.put('/modificar/:id_usuario', urlencodedParser, async (req, res) => {
+    try{
+        if(req.session.idUsuario && req.session.idUsuario != -1){
+            const resultado = await usuarioCtrl.modificar(req.params.id_usuario, req.body)
+            res.json(resultado);
+        }
+        else{
+            res.status(400);
+            res.send("Sesión no iniciada");
+        }
+    }catch (err){
+        console.log(err);
+        res.status(400);
+        res.send("Algo salió mal");
+    }
 });
 
 router.delete('/eliminar/:id_usuario', async (req, res) => {
-    const resultado = usuarioCtrl.eliminar(req.params.id_usuario);
-    res.json(resultado);
+    try{
+        if(req.session.idUsuario && req.session.idUsuario != -1){
+            const resultado = await usuarioCtrl.eliminar(req.params.id_usuario);
+            res.json(resultado);
+        }
+        else{
+            res.status(400);
+            res.send("Sesión no iniciada");
+        }
+    }catch (err){
+        console.log(err);
+        res.status(400);
+        res.send("Algo salió mal");
+    }
 });
 
 module.exports = router;
