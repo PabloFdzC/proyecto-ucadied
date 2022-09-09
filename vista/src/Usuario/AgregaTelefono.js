@@ -1,30 +1,37 @@
 import React from 'react';
-import manejarCambio from '../Utilidades/manejarCambio';
+import Validacion from '../Utilidades/Validacion';
 
 class AgregaTelefono extends React.Component {
     constructor(props){
         super(props);
         this.agregarTelefono = this.props.agregarTelefono;
+        this.error = this.props.error;
         this.state = {
-            telefono: ""
+            telefono: "",
+            error: ""
         };
+
         this.manejaCambio = this.manejaCambio.bind(this);
     }
 
     manejaCambio(evento){
-        manejarCambio(evento, this);
+        const objetivo = evento.target;
+        const valor = objetivo.value;
+        this.setState({telefono:valor});
     }
 
     render(){
         return (
-            <div className="mb-3">
-                <label htmlFor="telefono" className="form-label">Teléfonos</label>
+            <div className="mb-3 position-relative">
+                <label htmlFor="telefono" className="form-label">Teléfonos </label>
                 <div className="row">
-                    <input type="text" className="form-control col" key="telefono" value={this.state.telefono} onChange={this.manejaCambio} name="telefono" />
+                    <div className="col">
+                        <input type="text" className={this.props.error.length > 0 ? "form-control is-invalid":"form-control"} key="telefono" value={this.state.telefono} onChange={this.manejaCambio} name="telefono" />
+                        <div className="invalid-tooltip">
+                            {this.props.error}
+                        </div>
+                    </div>
                     <button type="button" className="btn btn-primary col-1" onClick={() => this.props.agregarTelefono(this.state.telefono)}>+</button>
-                </div>
-                <div className="invalid-tooltip">
-                    Se ocupa al menos un teléfono.
                 </div>
             </div>
         );

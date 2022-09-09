@@ -1,15 +1,28 @@
 import React from 'react';
 import { postear } from "../QueriesGenerales";
 import manejarCambio from '../Utilidades/manejarCambio';
+import Validacion from '../Utilidades/Validacion';
 
 class IniciarSesionForm extends React.Component {
     constructor(props){
         super(props);
 
         this.state = {
-            email:"",
-            contrasenna:"",
+            campos:{
+                email:"",
+                contrasenna:"",
+            },
+            errores:{
+                hayError:false,
+                email:"",
+                contrasenna:"",
+            }
         }
+
+        this.validacion = new Validacion({
+            email: "requerido|email",
+            contrasenna: "requerido",
+        }, this);
 
         this.manejaCambio = this.manejaCambio.bind(this);
         this.iniciarSesion = this.iniciarSesion.bind(this);
@@ -22,29 +35,31 @@ class IniciarSesionForm extends React.Component {
     // Aquí se mandaría la información al server
     async iniciarSesion(evento){
         evento.preventDefault();
-        const datos = new FormData(evento.target);
-        try{
-            await postear("/iniciarSesion", datos);
-        }catch(error){
-            //console.log(error);
+        this.validacion.validarCampos(this.state.campos);
+        if(!this.state.errores.hayError){
+            try{
+                await postear("/iniciarSesion", this.state.campos);
+            }catch(error){
+                console.log(error);
+            }
         }
     }
 
     render(){
         return (
             <form onSubmit={this.iniciarSesion} className="needs-validation" noValidate>
-                <div className="mb-3">
+                <div className="mb-3 position-relative">
                     <label htmlFor="email" className="form-label">Email</label>
-                    <input type="email" className="form-control" key="email" name="email" required onChange={this.manejaCambio} />
+                    <input type="email" className={this.state.errores.email.length > 0 ? "form-control is-invalid":"form-control"} key="email" name="email" value={this.state.campos.email} required onChange={this.manejaCambio} />
                     <div className="invalid-tooltip">
-                        Se ocupa un email.
+                        {this.state.errores.email}
                     </div>
                 </div>
-                <div className="mb-3">
+                <div className="mb-3 position-relative">
                     <label htmlFor="contraseña" className="form-label">contraseña</label>
-                    <input type="password" className="form-control" key="contraseña" name="contrasenna" required onChange={this.manejaCambio} />
+                    <input type="password" className={this.state.errores.contrasenna.length > 0 ? "form-control is-invalid":"form-control"} key="contraseña" name="contrasenna" value={this.state.campos.contrasenna} required onChange={this.manejaCambio} />
                     <div className="invalid-tooltip">
-                        Se ocupa una contraseña.
+                        {this.state.errores.contrasenna}
                     </div>
                 </div>
                 <button type="submit" className="btn btn-primary">Iniciar Sesión</button>

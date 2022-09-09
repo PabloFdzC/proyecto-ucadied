@@ -11,7 +11,7 @@ class Afiliados extends React.Component {
 
     async cargarAfiliados(){
         try{
-            await obtener("/usuario/", {});
+            await obtener("/usuario/consultar", {});
         }catch(error){
             //console.log(error);
         }

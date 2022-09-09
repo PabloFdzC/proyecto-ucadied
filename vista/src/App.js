@@ -1,11 +1,11 @@
 import { Route, Routes, BrowserRouter } from 'react-router-dom';
 
-import IniciarSesionForm from './Usuario/IniciarSesionForm.js';
-import Navegacion from './Utilidades/Navegacion.js';
-import MiembroJuntaDirectivaForm from './Organizacion/MiembroJuntaDirectivaForm.js';
-import Afiliados from './Usuario/Afiliados.js';
-import Asociaciones from './Organizacion/Asociaciones.js';
-import CrearAdministrador from './Administrador/CrearAdministrador.js'
+import IniciarSesionForm from './Usuario/IniciarSesionForm';
+import Navegacion from './Utilidades/Navegacion';
+import JuntaDirectiva from './Organizacion/JuntaDirectiva';
+import Afiliados from './Usuario/Afiliados';
+import Asociaciones from './Organizacion/Asociaciones';
+import CrearAdministrador from './Administrador/CrearAdministrador'
 
 
 function App() {
@@ -16,7 +16,7 @@ function App() {
         <Routes>
           <Route path="/" element={<div>HOLA</div>} />
           <Route path="/iniciarSesion" element={<IniciarSesionForm />} />
-          <Route path="/presidencia/juntaDirectiva" element={<MiembroJuntaDirectivaForm />} />
+          <Route path="/presidencia/juntaDirectiva" element={<JuntaDirectiva />} />
 
           <Route path="/presidencia/afiliados" element={<Afiliados />} />
           <Route path="/presidencia/asociaciones" element={<Asociaciones />} />

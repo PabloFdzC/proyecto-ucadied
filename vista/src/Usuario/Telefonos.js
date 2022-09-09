@@ -18,7 +18,7 @@ class Telefonos extends React.Component {
                     <div className="col" key={"tCont"-i}>
                         <div className="row" key={"tCont2"-i}>
                             <span className="col-3"  key={"t-"+telefono}>{telefono}</span>
-                            <button className="btn btn-danger col-2" key={telefono} onClick={() => this.props.eliminarTelefono(telefono)}>X</button>
+                            <button type="button" className="btn btn-danger col-2" key={telefono} onClick={() => this.props.eliminarTelefono(telefono)}>X</button>
                         </div>
                     </div>
                     ))}
