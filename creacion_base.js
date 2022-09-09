@@ -12,9 +12,14 @@ const puesto_jd = require("./modelo/puesto_jd");
 const reserva_activo = require("./modelo/reserva_activo");
 const usuario = require("./modelo/usuario");
 const sequelize = require('./conexion_base');
-const organizacion_x_usuario = require('./modelo/organizacion_x_usuario');
+const organizacion_x_persona = require('./modelo/organizacion_x_persona');
+const proyecto_x_persona = require('./modelo/proyecto_x_persona');
 
 organizacion.hasOne(junta_directiva, {
+  foreignKey: 'id_organizacion'
+});
+
+junta_directiva.belongsTo(organizacion, {
   foreignKey: 'id_organizacion'
 });
 
@@ -22,7 +27,15 @@ organizacion.hasMany(activo, {
   foreignKey: 'id_organizacion'
 });
 
+activo.belongsTo(organizacion, {
+  foreignKey: 'id_organizacion'
+});
+
 organizacion.hasMany(pagina, {
+  foreignKey: 'id_organizacion'
+});
+
+pagina.belongsTo(organizacion, {
   foreignKey: 'id_organizacion'
 });
 
@@ -30,7 +43,15 @@ organizacion.hasMany(proyecto, {
   foreignKey: 'id_organizacion'
 });
 
+proyecto.belongsTo(organizacion, {
+  foreignKey: 'id_organizacion'
+});
+
 organizacion.hasOne(organizacion, {
+  foreignKey: 'id_organizacion'
+});
+
+organizacion.belongsTo(organizacion, {
   foreignKey: 'id_organizacion'
 });
 
@@ -38,7 +59,15 @@ persona.hasOne(usuario, {
   foreignKey: 'id_persona'
 });
 
+usuario.belongsTo(persona, {
+  foreignKey: 'id_persona'
+});
+
 usuario.hasMany(actividad, {
+  foreignKey: 'id_usuario'
+});
+
+actividad.belongsTo(usuario, {
   foreignKey: 'id_usuario'
 });
 
@@ -46,7 +75,15 @@ usuario.hasOne(puesto_jd, {
   foreignKey: 'id_usuario'
 });
 
+puesto_jd.belongsTo(usuario, {
+  foreignKey: 'id_usuario'
+});
+
 junta_directiva.hasMany(puesto_jd, {
+  foreignKey: 'id_junta_directiva'
+});
+
+puesto_jd.belongsTo(junta_directiva, {
   foreignKey: 'id_junta_directiva'
 });
 
@@ -54,7 +91,15 @@ pagina.hasMany(componente, {
   foreignKey: 'id_pagina'
 });
 
+componente.belongsTo(pagina, {
+  foreignKey: 'id_pagina'
+});
+
 componente.hasOne(componente, {
+  foreignKey: 'id_componente'
+});
+
+componente.belongsTo(componente, {
   foreignKey: 'id_componente'
 });
 
@@ -62,12 +107,24 @@ proyecto.hasMany(gasto, {
   foreignKey: 'id_proyecto'
 });
 
+gasto.belongsTo(proyecto, {
+  foreignKey: 'id_proyecto'
+});
+
 actividad.hasMany(reserva_activo, {
   foreignKey: 'id_actividad'
 });
 
-activo.hasMany(reserva_activo, {
+reserva_activo.belongsTo(actividad, {
   foreignKey: 'id_actividad'
+});
+
+activo.hasMany(reserva_activo, {
+  foreignKey: 'id_activo'
+});
+
+reserva_activo.belongsTo(activo, {
+  foreignKey: 'id_activo'
 });
 
 sequelize.sync({force: false})

@@ -1,6 +1,7 @@
 const router = require('express').Router();
 
 const ActividadRouter = require('./ActividadRutas');
+const AdministradorRouter = require('./AdministradorRutas');
 const ActivoRouter = require('./ActivoRutas');
 const JuntaDirectivaRouter = require('./JuntaDirectivaRutas');
 const OrganizacionRouter = require('./OrganizacionRutas');
@@ -10,6 +11,7 @@ const ProyectoRouter = require('./ProyectoRutas');
 const UsuarioRouter = require('./UsuarioRutas');
 
 router.use('/actividad', ActividadRouter);
+router.use('/administrador', AdministradorRouter);
 router.use('/activo', ActivoRouter);
 router.use('/administrador', ActivoRouter);
 router.use('/juntaDirectiva', JuntaDirectivaRouter);
