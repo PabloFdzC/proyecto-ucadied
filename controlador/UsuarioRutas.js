@@ -99,6 +99,23 @@ router.put('/modificar/:id_usuario', urlencodedParser, async (req, res) => {
     }
 });
 
+router.put('/modificarContrasenna/:id_usuario', urlencodedParser, async (req, res) => {
+    try{
+        if(req.session.idUsuario && req.session.idUsuario != -1){
+            const resultado = await usuarioCtrl.modificar(req.params.id_usuario, req.body)
+            res.json(resultado);
+        }
+        else{
+            res.status(400);
+            res.send("Sesión no iniciada");
+        }
+    }catch (err){
+        console.log(err);
+        res.status(400);
+        res.send("Algo salió mal");
+    }
+});
+
 router.delete('/eliminar/:id_usuario', async (req, res) => {
     try{
         if(req.session.idUsuario && req.session.idUsuario != -1){

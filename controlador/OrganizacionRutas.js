@@ -89,4 +89,55 @@ router.delete('/eliminar/:id_organizacion', async (req, res) => {
     }
 });
 
+router.post('/agregarMiembro', urlencodedParser, async (req, res) => {
+    try{
+        if(req.session.idUsuario && req.session.idUsuario != -1){
+            const miembro_agregado = await organizacionCtrl.agregarMiembro(req.body);
+            res.json(miembro_agregado);
+        }
+        else{
+            res.status(400);
+            res.send("Sesión no iniciada");
+        }
+    }catch(err){
+        console.log(err);
+        res.status(400);
+        res.send("Algo salió mal");
+    }
+});
+
+router.delete('/eliminarMiembro', urlencodedParser, async (req, res) => {
+    try{
+        if(req.session.idUsuario && req.session.idUsuario != -1){
+            const resultado = await organizacionCtrl.eliminarMiembro(req.body.id_organizacion, req.body.id_persona);
+            res.json(resultado);
+        }
+        else{
+            res.status(400);
+            res.send("Sesión no iniciada");
+        }
+    }catch(err){
+        console.log(err);
+        res.status(400);
+        res.send("Algo salió mal");
+    }
+});
+
+router.get('/consultarMiembros/:id_organizacion', urlencodedParser, async (req, res) => {
+    try{
+        if(req.session.idUsuario && req.session.idUsuario != -1){
+            const miembros = await organizacionCtrl.consultarMiembros(req.params.id_organizacion);
+            res.json(miembros);
+        }
+        else{
+            res.status(400);
+            res.send("Sesión no iniciada");
+        }
+    }catch(err){
+        console.log(err);
+        res.status(400);
+        res.send("Algo salió mal");
+    }
+});
+
 module.exports = router;

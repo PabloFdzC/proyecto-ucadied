@@ -41,8 +41,25 @@ router.get('/consultar', async (req, res) => {
 router.get('/consultarPuestos/:id_junta_directiva', async (req, res) => {
     try{
         if(req.session.idUsuario && req.session.idUsuario != -1){
-            const juntas = await JuntaDirectivaCtlr.consultar_puestos(req.params.id_junta_directiva);
-            res.json(juntas);
+            const puestos = await JuntaDirectivaCtlr.consultar_puestos(req.params.id_junta_directiva);
+            res.json(puestos);
+        }
+        else{
+            res.status(400);
+            res.send("Sesión no iniciada");
+        }
+    }catch(err){
+        console.log(err);
+        res.status(400);
+        res.send("Algo salió mal");
+    }
+});
+
+router.get('/consultarPuesto/:id_puesto', async (req, res) => {
+    try{
+        if(req.session.idUsuario && req.session.idUsuario != -1){
+            const puesto = await JuntaDirectivaCtlr.consultar_puesto(req.params.id_puesto);
+            res.json(puesto);
         }
         else{
             res.status(400);
@@ -77,6 +94,23 @@ router.post('/crearPuesto', urlencodedParser, async (req, res) => {
         if(req.session.idUsuario && req.session.idUsuario != -1){
             const puesto_creado = await JuntaDirectivaCtlr.crear_puesto(req.body);
             res.json(puesto_creado);
+        }
+        else{
+            res.status(400);
+            res.send("Sesión no iniciada");
+        }
+    }catch(err){
+        console.log(err);
+        res.status(400);
+        res.send("Algo salió mal");
+    }
+});
+
+router.delete('/eliminarPuesto/:id_puesto', async (req, res) => {
+    try{
+        if(req.session.idUsuario && req.session.idUsuario != -1){
+            const resultado = await JuntaDirectivaCtlr.eliminar_puesto(req.params.id_puesto);
+            res.json(resultado);
         }
         else{
             res.status(400);
@@ -127,6 +161,40 @@ router.delete('/eliminar/:id_junta_directiva', async (req, res) => {
     try{
         if(req.session.idUsuario && req.session.idUsuario != -1){
             const resultado = await JuntaDirectivaCtlr.eliminar(req.params.id_junta_directiva);
+            res.json(resultado);
+        }
+        else{
+            res.status(400);
+            res.send("Sesión no iniciada");
+        }
+    }catch(err){
+        console.log(err);
+        res.status(400);
+        res.send("Algo salió mal");
+    }
+});
+
+router.post('/agregarMiembro', urlencodedParser, async (req, res) => {
+    try{
+        if(req.session.idUsuario && req.session.idUsuario != -1){
+            const miembro_agregado = await JuntaDirectivaCtlr.agregar_miembro(req.body);
+            res.json(miembro_agregado);
+        }
+        else{
+            res.status(400);
+            res.send("Sesión no iniciada");
+        }
+    }catch(err){
+        console.log(err);
+        res.status(400);
+        res.send("Algo salió mal");
+    }
+});
+
+router.delete('/eliminarMiembro/:id_puesto', async (req, res) => {
+    try{
+        if(req.session.idUsuario && req.session.idUsuario != -1){
+            const resultado = await JuntaDirectivaCtlr.eliminar_miembro(req.params.id_puesto);
             res.json(resultado);
         }
         else{

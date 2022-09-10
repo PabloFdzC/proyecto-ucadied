@@ -89,7 +89,7 @@ async function eliminar(id){
     const info_usuario = await consultar({id_usuario: id});
     if(info_usuario.length === 1){
         await personaCtrl.eliminar(info_usuario[0].id_persona);
-        return await queries_generales.eliminar(usuario, id);
+        return await queries_generales.eliminar(usuario, {id});
     }
     else{
         return {error: "No se pudo eliminar el usuario"}

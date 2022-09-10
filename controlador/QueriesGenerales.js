@@ -16,9 +16,9 @@ async function modificar(modelo, id, info){
     return {success: "Objeto modificado"};
 }
 
-async function eliminar(modelo, id){
+async function eliminar(modelo, filtros){
     await modelo.destroy({
-        where: {id: id}
+        where: filtros
     });
     return {success: "Objeto eliminado"};
 }

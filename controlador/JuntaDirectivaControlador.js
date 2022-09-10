@@ -13,9 +13,15 @@ async function consultar(params){
     }
 }
 
-async function consultar_puestos(id_junta){
+async function consultar_puestos(id_junta_directiva){
     return await queries_generales.consultar(puesto_jd, {where: {
-        id_junta_directiva: id_junta
+        id_junta_directiva
+    }});
+}
+
+async function consultar_puesto(id){
+    return await queries_generales.consultar(puesto_jd, {where: {
+        id
     }});
 }
 
@@ -28,24 +34,39 @@ async function crear_puesto(info){
 }
 
 async function modificar_puesto(id, info){
-    return await queries_generales.modificar(puesto_jd, id, info)
+    return await queries_generales.modificar(puesto_jd, id, info);
 }
 
+async function eliminar_puesto(id){
+    return await queries_generales.eliminar(puesto_jd, {id});
+}
 
 async function modificar(id, info){
-    return await queries_generales.modificar(junta_directiva, id, info)
+    return await queries_generales.modificar(junta_directiva, id, info);
 }
 
 async function eliminar(id){
-    return await queries_generales.eliminar(junta_directiva, id);
+    return await queries_generales.eliminar(junta_directiva, {id});
+}
+
+async function agregar_miembro(info){
+    return await queries_generales.modificar(puesto_jd, info.id_puesto, {id_usuario: info.id_usuario});
+}
+
+async function eliminar_miembro(id_puesto){
+    return await queries_generales.modificar(puesto_jd, id_puesto, {id_usuario: null});
 }
 
 module.exports = {
     consultar,
     consultar_puestos,
+    consultar_puesto,
     crear,
     crear_puesto,
     modificar_puesto,
+    eliminar_puesto,
     modificar,
-    eliminar
+    eliminar,
+    agregar_miembro,
+    eliminar_miembro
 }

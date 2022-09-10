@@ -21,7 +21,7 @@ async function modificar(id, info){
 }
 
 async function eliminar(id){
-    return await queries_generales.eliminar(persona, id);
+    return await queries_generales.eliminar(persona, {id});
 }
 
 module.exports = {
