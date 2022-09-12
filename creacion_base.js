@@ -147,20 +147,12 @@ persona.belongsToMany(proyecto, {
   foreignKey: 'id_proyecto'
 });
 
-organizacion.hasMany(organizacion_x_persona, {
+organizacion.hasMany(persona, {
   foreignKey: 'id_organizacion'
 });
 
-organizacion_x_persona.belongsTo(organizacion, {
+persona.belongsTo(organizacion, {
   foreignKey: 'id_organizacion'
-});
-
-persona.hasMany(organizacion_x_persona, {
-  foreignKey: 'id_persona'
-});
-
-organizacion_x_persona.belongsTo(persona, {
-  foreignKey: 'id_persona'
 });
 
 proyecto.hasMany(proyecto_x_persona, {
