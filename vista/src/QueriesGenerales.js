@@ -1,21 +1,35 @@
 import axios from 'axios'
 
-export async function postear(url, datos){
-    const resp = await axios.post(url, datos);
-    return resp;
+class QueriesGenerales {
+    constructor(){
+        this.http = axios.create({
+            baseURL: "http://localhost:8080/",
+            headers: {
+            "Content-type": "application/json"
+            }
+        })
+    }
+    
+
+    async postear(url, datos){
+        const resp = await this.http.post(url, datos);
+        return resp;
+    }
+
+    async obtener(url, datos){
+        const resp = await this.http.get(url, datos);
+        return resp;
+    }
+
+    async modificar(url, datos){
+        const resp = await this.http.put(url, datos);
+        return resp;
+    }
+
+    async eliminar(url, datos){
+        const resp = await this.http.delete(url, datos);
+        return resp;    
+    }
 }
 
-export async function obtener(url, datos){
-    const resp = await axios.get(url, datos);
-    return resp;
-}
-
-export async function modificar(url, datos){
-    const resp = await axios.put(url, datos);
-    return resp;
-}
-
-export async function eliminar(url, datos){
-    const resp = await axios.delete(url, datos);
-    return resp;    
-}
+export default QueriesGenerales;

@@ -1,17 +1,18 @@
 import React from 'react';
-import { obtener } from "../QueriesGenerales";
+import QueriesGenerales from "../QueriesGenerales";
 
 import Tabla from '../Utilidades/Tabla.js'
 
 class Afiliados extends React.Component {
     constructor(props){
         super(props);
+        this.queriesGenerales = new QueriesGenerales();
         this.cargarAfiliados = this.cargarAfiliados.bind(this);
     }
 
     async cargarAfiliados(){
         try{
-            await obtener("/usuario/consultar", {});
+            await this.queriesGenerales.obtener("/usuario/consultar", {});
         }catch(error){
             //console.log(error);
         }

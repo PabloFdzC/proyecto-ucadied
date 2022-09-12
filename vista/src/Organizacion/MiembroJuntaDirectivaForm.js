@@ -1,11 +1,12 @@
 import React from 'react';
-import { postear } from "../QueriesGenerales";
+import QueriesGenerales from "../QueriesGenerales";
 import Validacion from '../Utilidades/Validacion';
 import manejarCambio from '../Utilidades/manejarCambio';
 
 class MiembroJuntaDirectivaForm extends React.Component {
     constructor(props){
         super(props);
+        this.queriesGenerales = new QueriesGenerales();
         this.campos = props.campos;
         var campos = {
             nombre: "",
@@ -49,7 +50,7 @@ class MiembroJuntaDirectivaForm extends React.Component {
         this.validacion.validarCampos(this.state.campos);
         if(!this.state.errores.hayError){
             try{
-                await postear("/juntaDirectiva/agregarMiembro", this.state.campos);
+                await this.queriesGenerales.postear("/juntaDirectiva/agregarMiembro", this.state.campos);
             }catch(error){
                 console.log(error);
             }

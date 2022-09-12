@@ -17,7 +17,6 @@ function App() {
           <Route path="/" element={<div>HOLA</div>} />
           <Route path="/iniciarSesion" element={<IniciarSesionForm />} />
           <Route path="/presidencia/juntaDirectiva" element={<JuntaDirectiva />} />
-
           <Route path="/presidencia/afiliados" element={<Afiliados />} />
           <Route path="/presidencia/asociaciones" element={<Asociaciones />} />
           <Route path="/administrador" element={<CrearAdministrador />} />

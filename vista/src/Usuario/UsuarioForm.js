@@ -1,5 +1,5 @@
 import React from 'react';
-import { postear } from "../QueriesGenerales";
+import QueriesGenerales from "../QueriesGenerales";
 import manejarCambio from '../Utilidades/manejarCambio';
 import AgregaTelefono from './AgregaTelefono';
 import Telefonos from './Telefonos';
@@ -10,6 +10,8 @@ class UsuarioForm extends React.Component {
         super(props);
         this.url = props.url;
         this.administrador = props.administrador;
+
+        this.queriesGenerales = new QueriesGenerales();
         // Este de campos es importante para cuando vamos a editar
         // la información de algún usuario se autocompleten los campos
         this.campos = props.campos;
@@ -119,13 +121,14 @@ class UsuarioForm extends React.Component {
         // la hora de postear lo demás lo pone igual a como lo tiene
         this.validacion.validarCampos(this.state.campos);
         if(!this.state.errores.hayError){
-            let url = "/usuario";
+            let url = "usuario";
             if(this.administrador){
-                url = "/administrador"
+                url = "administrador"
             }
             try{
                 // Esta que en lugar de pasar datos pasa this.state.campos
-                await postear(url+"/crear", this.state.campos);
+                const res = await this.queriesGenerales.postear(url+"/crear", this.state.campos);
+                console.log(res);
             }catch(error){
                 console.log(error);
             }

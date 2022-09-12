@@ -1,12 +1,12 @@
 import React from 'react';
-import { postear } from "../QueriesGenerales";
+import QueriesGenerales from "../QueriesGenerales";
 import manejarCambio from '../Utilidades/manejarCambio';
 import Validacion from '../Utilidades/Validacion';
 
 class IniciarSesionForm extends React.Component {
     constructor(props){
         super(props);
-
+        this.queriesGenerales = QueriesGenerales();
         this.state = {
             campos:{
                 email:"",
@@ -38,7 +38,7 @@ class IniciarSesionForm extends React.Component {
         this.validacion.validarCampos(this.state.campos);
         if(!this.state.errores.hayError){
             try{
-                await postear("/iniciarSesion", this.state.campos);
+                await this.queriesGenerales.postear("/iniciarSesion", this.state.campos);
             }catch(error){
                 console.log(error);
             }

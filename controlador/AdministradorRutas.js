@@ -1,9 +1,15 @@
 const router = require('express').Router();
-const bodyParser = require('body-parser');
-const urlencodedParser  = bodyParser.urlencoded({ extended: false });
+
+// estos no son necesarios ponerlos en todos si uno pone
+// app.use(express.json()); en app.js
+
+//const bodyParser = require('body-parser');
+//const urlencodedParser  = bodyParser.urlencoded({ extended: false });
+
 const usuarioCtrl = require('./UsuarioControlador');
 
-router.post('/crear', urlencodedParser, async (req, res) => {
+
+router.post('/crear',  async (req, res) => {
     try{
         if(req.session.tipoUsuario && req.session.tipoUsuario === "Administrador"){
             req.body.tipo = "Administrador";
@@ -18,6 +24,8 @@ router.post('/crear', urlencodedParser, async (req, res) => {
         console.log(err);
         res.status(400);
         res.send("Algo salió mal");
+    }finally{
+        res.end();
     }
 });
 
