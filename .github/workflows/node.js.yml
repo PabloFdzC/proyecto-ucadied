@@ -84,7 +84,7 @@ jobs:
         key: ${{ secrets.VM_SSH_PRIVATE_KEY }}
         port: 22
         source: "proyecto-ucadied.zip"
-        target: "app"
+        target: "proyecto-ucadied"
         strip_components: 0
 
     - name: 'Correr App'
@@ -95,6 +95,6 @@ jobs:
         key: ${{ secrets.VM_SSH_PRIVATE_KEY }}
         port: 22
         script: |
-          cd app 
+          cd proyecto-ucadied 
           sudo unzip -o proyecto-ucadied.zip
           sudo systemctl restart myapp
