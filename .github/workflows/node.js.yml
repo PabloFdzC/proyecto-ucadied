@@ -60,6 +60,7 @@ jobs:
       with:
         host: ${{ secrets.INSTANCE_IP }}
         username: opc
+        passphrase: ${{ secrets.VM_SSH_PRIVATE_KEY_PASSPHRASE }}
         key: ${{ secrets.VM_SSH_PRIVATE_KEY }}
         script: |
           pid=`lsof -i tcp:8080 | tail -n +2 | awk '{print $2}'`
@@ -80,6 +81,7 @@ jobs:
       with:
         host: ${{ secrets.INSTANCE_IP }}
         username: opc
+        passphrase: ${{ secrets.VM_SSH_PRIVATE_KEY_PASSPHRASE }}
         key: ${{ secrets.VM_SSH_PRIVATE_KEY }}
         source: "proyecto-ucadied.zip"
         target: "app"
@@ -90,6 +92,7 @@ jobs:
       with:
         host: ${{ secrets.INSTANCE_IP }}
         username: opc
+        passphrase: ${{ secrets.VM_SSH_PRIVATE_KEY_PASSPHRASE }}
         key: ${{ secrets.VM_SSH_PRIVATE_KEY }}
         script: |
           cd app 
