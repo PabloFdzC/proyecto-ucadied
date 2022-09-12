@@ -126,16 +126,6 @@ reserva_activo.belongsTo(activo, {
   foreignKey: 'id_activo'
 });
 
-organizacion.belongsToMany(persona, {
-  through: organizacion_x_persona,
-  foreignKey: 'id_persona'
-});
-
-persona.belongsToMany(organizacion, {
-  through: organizacion_x_persona,
-  foreignKey: 'id_organizacion'
-});
-
 proyecto.belongsToMany(persona, {
   through: proyecto_x_persona,
   foreignKey: 'id_persona'
