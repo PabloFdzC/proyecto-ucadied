@@ -96,5 +96,5 @@ jobs:
         port: 22
         script: |
           cd app 
-          sudo unzip proyecto-ucadied.zip
-          NODE_ENV=production node app.js
+          sudo unzip -o proyecto-ucadied.zip
+          sudo systemctl restart myapp
