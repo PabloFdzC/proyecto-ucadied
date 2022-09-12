@@ -3,7 +3,7 @@
 name: Despliegue
 on:
   workflow_run:
-      workflows: [Node.js CI]
+      workflows: ["Node.js CI"]
       branches: ["main"]
       types:
         - completed
