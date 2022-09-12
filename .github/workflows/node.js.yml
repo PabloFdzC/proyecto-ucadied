@@ -85,7 +85,7 @@ jobs:
         port: 22
         source: "proyecto-ucadied.zip"
         target: "app"
-        strip_components: 2
+        strip_components: 0
 
     - name: 'Correr App'
       uses: appleboy/ssh-action@master
