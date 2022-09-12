@@ -33,7 +33,7 @@ jobs:
     - run: npm test --if-present
     
     - name: Zip artifact para despliegue
-      run: zip proyecto-ucadied.zip ./* -r
+      run: zip proyecto-ucadied.zip ./* -r -T -x "./vista/public" "./vista/node_modules" "./vista/src" "./vista/*.json" "./vista/*.md"
 
     - name: Subir artifact para trabajo de despliegue
       uses: actions/upload-artifact@v2
