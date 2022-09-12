@@ -12,7 +12,6 @@ const puesto_jd = require("./modelo/puesto_jd");
 const reserva_activo = require("./modelo/reserva_activo");
 const usuario = require("./modelo/usuario");
 const sequelize = require('./conexion_base');
-const organizacion_x_persona = require('./modelo/organizacion_x_persona');
 const proyecto_x_persona = require('./modelo/proyecto_x_persona');
 
 organizacion.hasOne(junta_directiva, {
