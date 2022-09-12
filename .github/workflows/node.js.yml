@@ -84,7 +84,7 @@ jobs:
         key: ${{ secrets.VM_SSH_PRIVATE_KEY }}
         port: 22
         source: "proyecto-ucadied.zip"
-        target: "proyecto-ucadied"
+        target: "/var/node/proyecto-ucadied"
         strip_components: 0
 
     - name: 'Correr App'
