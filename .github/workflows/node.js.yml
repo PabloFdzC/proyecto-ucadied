@@ -95,7 +95,7 @@ jobs:
         key: ${{ secrets.VM_SSH_PRIVATE_KEY }}
         port: 22
         script: |
-          mkdir -p /var/node/proyecto-ucadied
+          sudo mkdir -p /var/node/proyecto-ucadied
           cd /var/node/proyecto-ucadied 
           sudo unzip -o proyecto-ucadied.zip
           sudo chmod a+x app.js
