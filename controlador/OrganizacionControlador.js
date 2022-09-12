@@ -1,5 +1,4 @@
 const organizacion = require('../modelo/organizacion');
-const organizacion_x_persona = require('../modelo/organizacion_x_persona');
 const persona = require('../modelo/persona');
 const queries_generales = require('./QueriesGenerales');
 
@@ -27,19 +26,15 @@ async function eliminar(id){
 }
 
 async function agregarMiembro(info){
-    return await queries_generales.crear(organizacion_x_persona, info);
+    return await queries_generales.modificar(persona, info.id_persona, {id_organizacion: info.id_organizacion});
 }
 
-async function eliminarMiembro(id_organizacion, id_persona){
-    return await queries_generales.eliminar(organizacion_x_persona, {
-        id_organizacion,
-        id_persona
-    });
+async function eliminarMiembro(id_persona){
+    return await queries_generales.modificar(persona, id_persona, {id_organizacion: null});
 }
 
 async function consultarMiembros(id_organizacion){
-    return await queries_generales.consultar(organizacion_x_persona, {
-        include: [{model: persona}],
+    return await queries_generales.consultar(persona, {
         where: {
             id_organizacion
         }
