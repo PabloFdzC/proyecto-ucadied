@@ -42,6 +42,13 @@ async function consultar(params){
             }});
         return info_usuario;
     }
+    else if(params.admin){
+        const usuarios = await queries_generales.consultar(usuario, {
+            where: {
+                tipo: "Administrador"
+            }});
+        return usuarios;
+    }
     else{
         const usuarios = await queries_generales.consultar(usuario, {
             include: [{model: persona}]});

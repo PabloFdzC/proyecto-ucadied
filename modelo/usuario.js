@@ -7,7 +7,10 @@ module.exports = sequelize.define('usuario', {
             primaryKey: true,
             autoIncrement: true
         },
-        email: type.STRING,
+        email: {
+            type: type.STRING,
+            unique: true
+        },
         contrasenna: type.STRING,
         tipo: type.ENUM('Administrador', 'Usuario'),
         activo: type.BOOLEAN

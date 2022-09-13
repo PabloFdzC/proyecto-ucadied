@@ -17,8 +17,16 @@ router.post('/crear',  async (req, res) => {
             res.json(usuario_creado);
         }
         else{
-            res.status(400);
-            res.send("Usuario no administrador");
+            const admins = await usuarioCtrl.consultar({admin: true});
+            if(admins.length === 0){
+                req.body.tipo = "Administrador";
+                const usuario_creado = await usuarioCtrl.crear(req.body);
+                res.json(usuario_creado);
+            } 
+            else{
+                res.status(400);
+                res.send("Usuario no administrador");
+            }
         }
     }catch(err){
         console.log(err);

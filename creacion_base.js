@@ -70,7 +70,7 @@ actividad.belongsTo(usuario, {
   foreignKey: 'id_usuario'
 });
 
-usuario.hasOne(puesto_jd, {
+usuario.hasMany(puesto_jd, {
   foreignKey: 'id_usuario'
 });
 

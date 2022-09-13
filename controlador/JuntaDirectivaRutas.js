@@ -191,10 +191,10 @@ router.post('/agregarMiembro', urlencodedParser, async (req, res) => {
     }
 });
 
-router.delete('/eliminarMiembro/:id_puesto', async (req, res) => {
+router.delete('/eliminarMiembro', urlencodedParser, async (req, res) => {
     try{
         if(req.session.idUsuario && req.session.idUsuario != -1){
-            const resultado = await JuntaDirectivaCtlr.eliminar_miembro(req.params.id_puesto);
+            const resultado = await JuntaDirectivaCtlr.eliminar_miembro(req.body.id_puesto);
             res.json(resultado);
         }
         else{

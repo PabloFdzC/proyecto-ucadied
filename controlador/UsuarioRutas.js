@@ -50,8 +50,14 @@ router.post('/crear', urlencodedParser, async (req, res) => {
         }
     }catch (err){
         console.log(err);
-        res.status(400);
-        res.send("Algo salió mal");
+        if (error.name === 'SequelizeUniqueConstraintError') {
+            res.status(400)
+            res.send("Ya existe un usuario con ese correo");
+        }
+        else{
+            res.status(400);
+            res.send("Algo salió mal");
+        }
     }
 });
 
