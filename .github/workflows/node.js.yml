@@ -33,7 +33,7 @@ jobs:
     - run: npm test --if-present
     
     - name: Zip artifact para despliegue
-      run: zip proyecto-ucadied.zip ./* -r -T -x vista/public vista/node_modules vista/src vista/*.json vista/*.md
+      run: zip proyecto-ucadied.zip ./* -r -T -x /vista/public/\* /vista/node_modules/\* /vista/src/\* /vista/*.json /vista/*.md
 
     - name: Subir artifact para trabajo de despliegue
       uses: actions/upload-artifact@v2
@@ -97,6 +97,6 @@ jobs:
         script: |
           sudo mkdir -p /var/node/proyecto-ucadied
           cd /var/node/proyecto-ucadied 
-          sudo unzip ~/proyecto-ucadied/proyecto-ucadied.zip -o
+          sudo unzip -o -p ~/proyecto-ucadied/proyecto-ucadied.zip
           sudo chmod a+x app.js
           sudo systemctl restart myapp
