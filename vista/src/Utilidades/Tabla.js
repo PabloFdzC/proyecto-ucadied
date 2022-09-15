@@ -13,15 +13,15 @@ class Tabla extends React.Component {
                 <thead>
                     <tr>
                     {this.props.titulos.map(titulo =>
-                        <th scope="col" key={titulo}>{titulo}</th>
+                        <th scope="col" key={titulo.llave}>{titulo.valor}</th>
                         )}
                     </tr>
                 </thead>
                 <tbody>
                 {this.props.datos.map((dato, i) =>
                         <tr key={i}>
-                            {dato.map((d, j) =>
-                                <td key={i+"-"+j}>{d}</td>)}
+                            {this.props.titulos.map((t, j) =>
+                                <td key={i+"-"+j}>{this.props.datos[i][t.llave]}</td>)}
                         </tr>
                         )}
                 </tbody>

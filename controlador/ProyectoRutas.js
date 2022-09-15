@@ -1,6 +1,6 @@
 const router = require('express').Router();
 const bodyParser = require('body-parser');
-const urlencodedParser  = bodyParser.urlencoded({ extended: false });
+const jsonParser  = bodyParser.json({ extended: false });
 const proyectoCtlr = require('./ProyectoControlador');
 
 
@@ -26,7 +26,7 @@ router.get('/consultar', async (req, res) => {
     }
 });
 
-router.post('/crear', urlencodedParser, async (req, res) => {
+router.post('/crear', jsonParser, async (req, res) => {
     try{
         const proyecto_creado = await proyectoCtlr.crear(req.body);
         res.json(proyecto_creado);
@@ -37,7 +37,7 @@ router.post('/crear', urlencodedParser, async (req, res) => {
     }
 });
 
-router.put('/modificar/:id_proyecto', urlencodedParser, async (req, res) => {
+router.put('/modificar/:id_proyecto', jsonParser, async (req, res) => {
     try{
         const resultado = await proyectoCtlr.modificar(req.params.id_proyecto, req.body)
         res.json(resultado);

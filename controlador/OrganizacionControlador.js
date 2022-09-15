@@ -33,6 +33,9 @@ async function consultarTipo(esUnion){
 }
 
 async function crear(info){
+    if(isNaN(info.id_organizacion) || info.id_organizacion == ""){
+        info.id_organizacion = null;
+    }
     const organizacion_creada = await queries_generales.crear(organizacion, info);
     if(!info.id_organizacion){
        await  modificar(organizacion_creada.id, {id_organizacion: organizacion_creada.id});

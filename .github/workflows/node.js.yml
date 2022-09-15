@@ -98,5 +98,4 @@ jobs:
           sudo mkdir -p /var/node/proyecto-ucadied
           cd /var/node/proyecto-ucadied 
           sudo unzip -o ~/proyecto-ucadied/proyecto-ucadied.zip
-          sudo chmod a+x app.js
           sudo systemctl restart myapp

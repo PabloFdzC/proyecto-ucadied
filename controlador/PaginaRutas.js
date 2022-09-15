@@ -1,6 +1,6 @@
 const router = require('express').Router();
 const bodyParser = require('body-parser');
-const urlencodedParser  = bodyParser.urlencoded({ extended: false });
+const jsonParser  = bodyParser.json({ extended: false });
 const paginaCtlr = require('./PaginaControlador');
 
 router.get('/consultar/:id_pagina', async (req, res) => {
@@ -25,7 +25,7 @@ router.get('/consultar', async (req, res) => {
     }
 });
 
-router.post('/crear', urlencodedParser, async (req, res) => {
+router.post('/crear', jsonParser, async (req, res) => {
     try{
         const pagina_creada = await paginaCtlr.crear(req.body);
         res.json(pagina_creada);
@@ -36,7 +36,7 @@ router.post('/crear', urlencodedParser, async (req, res) => {
     }
 });
 
-router.put('/modificar/:id_pagina', urlencodedParser, async (req, res) => {
+router.put('/modificar/:id_pagina', jsonParser, async (req, res) => {
     try{
         const resultado = await paginaCtlr.modificar(req.params.id_pagina, req.body);
         res.json(resultado);

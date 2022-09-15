@@ -1,6 +1,7 @@
 const router = require('express').Router();
+
 const bodyParser = require('body-parser');
-const urlencodedParser  = bodyParser.urlencoded({ extended: false });
+const jsonParser  = bodyParser.json({ extended: false });
 const usuarioCtrl = require('./UsuarioControlador');
 
 router.get('/consultar/:id_usuario', async (req, res) => {
@@ -37,7 +38,7 @@ router.get('/consultar', async (req, res) => {
     }
 });
 
-router.post('/crear', urlencodedParser, async (req, res) => {
+router.post('/crear', jsonParser, async (req, res) => {
     try{
         if(req.session.idUsuario && req.session.idUsuario != -1){
             req.body.tipo = "Usuario";
@@ -61,7 +62,7 @@ router.post('/crear', urlencodedParser, async (req, res) => {
     }
 });
 
-router.post('/iniciarSesion', urlencodedParser, async (req, res) => {
+router.post('/iniciarSesion', jsonParser, async (req, res) => {
     try{
         const resultado = await usuarioCtrl.iniciarSesion(req.body);
         if(resultado.success){
@@ -88,7 +89,7 @@ router.post('/cerrarSesion', async (req, res) => {
     }
 });
 
-router.put('/modificar/:id_usuario', urlencodedParser, async (req, res) => {
+router.put('/modificar/:id_usuario', jsonParser, async (req, res) => {
     try{
         if(req.session.idUsuario && req.session.idUsuario != -1){
             const resultado = await usuarioCtrl.modificar(req.params.id_usuario, req.body)
@@ -105,7 +106,7 @@ router.put('/modificar/:id_usuario', urlencodedParser, async (req, res) => {
     }
 });
 
-router.put('/modificarContrasenna/:id_usuario', urlencodedParser, async (req, res) => {
+router.put('/modificarContrasenna/:id_usuario', jsonParser, async (req, res) => {
     try{
         if(req.session.idUsuario && req.session.idUsuario != -1){
             const resultado = await usuarioCtrl.modificar(req.params.id_usuario, req.body)

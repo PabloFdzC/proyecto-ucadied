@@ -9,9 +9,9 @@ module.exports = sequelize.define('usuario', {
         },
         email: {
             type: type.STRING,
-            unique: true
         },
         contrasenna: type.STRING,
         tipo: type.ENUM('Administrador', 'Usuario'),
-        activo: type.BOOLEAN
-    });
+        activo: type.BOOLEAN,
+    },
+    {indexes:[{unique:true, fields: ['email']}]});

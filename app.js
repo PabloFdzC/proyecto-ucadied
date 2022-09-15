@@ -6,15 +6,20 @@ const ApiRouter = require('./controlador/api');
 const session = require('express-session');
 
 const app = express();
-app.use(cors());
-app.use(express.json());
+app.use(cors({
+    origin: true,
+    optionsSuccessStatus: 200,
+    credentials: true,
+}));
 
 require("./creacion_base");
 
 var sess = {
-secret: 'keyboard cat',
-cookie: {}
-}
+    secret: 'm!S3ssi0nn0de',
+    resave: false,
+    saveUninitialized: true,
+    cookie: {  }
+  }
 
 if (app.get('env') === 'production') {
     app.set('trust proxy', 1);

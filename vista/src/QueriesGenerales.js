@@ -6,7 +6,8 @@ class QueriesGenerales {
             baseURL: "http://localhost:8080/",
             headers: {
             "Content-type": "application/json"
-            }
+            },
+            withCredentials: true
         })
     }
     
@@ -17,7 +18,7 @@ class QueriesGenerales {
     }
 
     async obtener(url, datos){
-        const resp = await this.http.get(url, datos);
+        const resp = await this.http.get(url, {params:datos});
         return resp;
     }
 

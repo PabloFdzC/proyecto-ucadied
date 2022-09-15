@@ -68,6 +68,7 @@ async function iniciarSesion(info){
             return {
                 id_usuario: usuario_info.id,
                 tipo: usuario_info.tipo,
+                usuario_info:usuario_info,
                 success: "Se inicia sesión correctamente"
             };
         }

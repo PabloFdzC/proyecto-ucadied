@@ -1,6 +1,6 @@
 const router = require('express').Router();
 const bodyParser = require('body-parser');
-const urlencodedParser  = bodyParser.urlencoded({ extended: false });
+const jsonParser  = bodyParser.json({ extended: false });
 const activoCtlr = require('./ActivoControlador');
 
 
@@ -27,7 +27,7 @@ router.get('/consultar', async (req, res) => {
     }
 });
 
-router.post('/crear', urlencodedParser , async (req, res) => {
+router.post('/crear', jsonParser , async (req, res) => {
     try{
         console.log(req.body);
         const activo_creado = await activoCtlr.crear(req.body);
@@ -39,7 +39,7 @@ router.post('/crear', urlencodedParser , async (req, res) => {
     }
 });
 
-router.put('/modificar/:id_activo', urlencodedParser, async (req, res) => {
+router.put('/modificar/:id_activo', jsonParser, async (req, res) => {
     try{
         const resultado = await activoCtlr.modificar(req.params.id_activo, req.body)
         res.json(resultado);

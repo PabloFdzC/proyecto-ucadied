@@ -1,6 +1,6 @@
 const router = require('express').Router();
 const bodyParser = require('body-parser');
-const urlencodedParser  = bodyParser.urlencoded({ extended: false });
+const jsonParser  = bodyParser.json({ extended: false });
 const JuntaDirectivaCtlr = require('./JuntaDirectivaControlador');
 
 
@@ -72,7 +72,7 @@ router.get('/consultarPuesto/:id_puesto', async (req, res) => {
     }
 });
 
-router.post('/crear', urlencodedParser, async (req, res) => {
+router.post('/crear', jsonParser, async (req, res) => {
     try{
         if(req.session.idUsuario && req.session.idUsuario != -1){
             const junta_directiva_creada = await JuntaDirectivaCtlr.crear(req.body);
@@ -89,7 +89,7 @@ router.post('/crear', urlencodedParser, async (req, res) => {
     }
 });
 
-router.post('/crearPuesto', urlencodedParser, async (req, res) => {
+router.post('/crearPuesto', jsonParser, async (req, res) => {
     try{
         if(req.session.idUsuario && req.session.idUsuario != -1){
             const puesto_creado = await JuntaDirectivaCtlr.crear_puesto(req.body);
@@ -123,7 +123,7 @@ router.delete('/eliminarPuesto/:id_puesto', async (req, res) => {
     }
 });
 
-router.put('/modificarPuesto/:id_puesto', urlencodedParser, async (req, res) => {
+router.put('/modificarPuesto/:id_puesto', jsonParser, async (req, res) => {
     try{
         if(req.session.idUsuario && req.session.idUsuario != -1){
             const resultado = await JuntaDirectivaCtlr.modificar_puesto(req.params.id_puesto, req.body)
@@ -140,7 +140,7 @@ router.put('/modificarPuesto/:id_puesto', urlencodedParser, async (req, res) => 
     }
 });
 
-router.put('/modificar/:id_junta_directiva', urlencodedParser, async (req, res) => {
+router.put('/modificar/:id_junta_directiva', jsonParser, async (req, res) => {
     try{
         if(req.session.idUsuario && req.session.idUsuario != -1){
             const resultado = await JuntaDirectivaCtlr.modificar(req.params.id_junta_directiva, req.body)
@@ -174,7 +174,7 @@ router.delete('/eliminar/:id_junta_directiva', async (req, res) => {
     }
 });
 
-router.post('/agregarMiembro', urlencodedParser, async (req, res) => {
+router.post('/agregarMiembro', jsonParser, async (req, res) => {
     try{
         if(req.session.idUsuario && req.session.idUsuario != -1){
             const miembro_agregado = await JuntaDirectivaCtlr.agregar_miembro(req.body);
@@ -191,7 +191,7 @@ router.post('/agregarMiembro', urlencodedParser, async (req, res) => {
     }
 });
 
-router.delete('/eliminarMiembro', urlencodedParser, async (req, res) => {
+router.delete('/eliminarMiembro', jsonParser, async (req, res) => {
     try{
         if(req.session.idUsuario && req.session.idUsuario != -1){
             const resultado = await JuntaDirectivaCtlr.eliminar_miembro(req.body.id_puesto);

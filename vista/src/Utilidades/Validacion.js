@@ -17,6 +17,7 @@ class Validacion {
                 }
             }
             if (reglasDeCampo.indexOf("seleccionado") > -1){
+                console.log(c+"-"+campos[c]);
                 if(this.validaVacio(campos[c])){
                     errores[c] = "Debe seleccionar una opción."
                     errores.hayError = true;

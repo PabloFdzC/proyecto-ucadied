@@ -1,6 +1,6 @@
 const router = require('express').Router();
 const bodyParser = require('body-parser');
-const urlencodedParser  = bodyParser.urlencoded({ extended: false });
+const jsonParser  = bodyParser.json({ extended: false });
 const personaCtrl = require('./PersonaControlador');
 
 router.get('/consultar/:id_persona', async (req, res) => {
@@ -37,7 +37,7 @@ router.get('/consultar', async (req, res) => {
     }
 });
 
-router.post('/crear', urlencodedParser, async (req, res) => {
+router.post('/crear', jsonParser, async (req, res) => {
     try{
         if(req.session.idUsuario && req.session.idUsuario != -1){
             const persona_creada = await personaCtrl.crear(req.body);
@@ -54,7 +54,7 @@ router.post('/crear', urlencodedParser, async (req, res) => {
     }
 });
 
-router.put('/modificar/:id_persona', urlencodedParser, async (req, res) => {
+router.put('/modificar/:id_persona', jsonParser, async (req, res) => {
     try{
         if(req.session.idUsuario && req.session.idUsuario != -1){
             const resultado = await personaCtrl.modificar(req.params.id_persona, req.body)

@@ -47,11 +47,17 @@ proyecto.belongsTo(organizacion, {
 });
 
 organizacion.hasOne(organizacion, {
-  foreignKey: 'id_organizacion'
+  foreignKey: {
+    name:'id_organizacion',
+    allowNull: true
+  }
 });
 
 organizacion.belongsTo(organizacion, {
-  foreignKey: 'id_organizacion'
+  foreignKey: {
+    name:'id_organizacion',
+    allowNull: true
+  }
 });
 
 persona.hasOne(usuario, {

@@ -1,6 +1,6 @@
 const router = require('express').Router();
 const bodyParser = require('body-parser');
-const urlencodedParser  = bodyParser.urlencoded({ extended: false });
+const jsonParser  = bodyParser.json({ extended: false });
 const organizacionCtrl = require('./OrganizacionControlador');
 
 
@@ -37,7 +37,7 @@ router.get('/consultarTipo/:esUnion', async (req, res) => {
     }
 });
 
-router.post('/crear', urlencodedParser, async (req, res) => {
+router.post('/crear', jsonParser, async (req, res) => {
     try{
         if(req.session.tipoUsuario && req.session.tipoUsuario === "Administrador"){
             const organizacion_creada = await organizacionCtrl.crear(req.body);
@@ -45,7 +45,7 @@ router.post('/crear', urlencodedParser, async (req, res) => {
         }
         else{
             res.status(400);
-            res.send("Usuario no administrador");
+            res.send("Usuario no administrador"+ req.session.tipoUsuario);
         }
     }catch(err){
         console.log(err);
@@ -54,7 +54,7 @@ router.post('/crear', urlencodedParser, async (req, res) => {
     }
 });
 
-router.put('/modificar/:id_organizacion', urlencodedParser, async (req, res) => {
+router.put('/modificar/:id_organizacion', jsonParser, async (req, res) => {
     try{
         if(req.session.idUsuario && req.session.idUsuario != -1){
             const resultado = await organizacionCtrl.modificar(req.params.id_organizacion, req.body)
@@ -88,7 +88,7 @@ router.delete('/eliminar/:id_organizacion', async (req, res) => {
     }
 });
 
-router.post('/agregarMiembro', urlencodedParser, async (req, res) => {
+router.post('/agregarMiembro', jsonParser, async (req, res) => {
     try{
         if(req.session.idUsuario && req.session.idUsuario != -1){
             const miembro_agregado = await organizacionCtrl.agregarMiembro(req.body);
@@ -105,7 +105,7 @@ router.post('/agregarMiembro', urlencodedParser, async (req, res) => {
     }
 });
 
-router.delete('/eliminarMiembro', urlencodedParser, async (req, res) => {
+router.delete('/eliminarMiembro', jsonParser, async (req, res) => {
     try{
         if(req.session.idUsuario && req.session.idUsuario != -1){
             const resultado = await organizacionCtrl.eliminarMiembro(req.body.id_persona);
@@ -122,7 +122,7 @@ router.delete('/eliminarMiembro', urlencodedParser, async (req, res) => {
     }
 });
 
-router.get('/consultarMiembros/:id_organizacion', urlencodedParser, async (req, res) => {
+router.get('/consultarMiembros/:id_organizacion', jsonParser, async (req, res) => {
     try{
         if(req.session.idUsuario && req.session.idUsuario != -1){
             const miembros = await organizacionCtrl.consultarMiembros(req.params.id_organizacion);
