@@ -160,7 +160,7 @@ proyecto_x_persona.belongsTo(persona, {
   foreignKey: 'id_persona'
 });
 
-sequelize.sync({force: false})
+sequelize.sync({ alter: true })
 .then(() => {
   console.log("Tablas sincronizadas");
 })

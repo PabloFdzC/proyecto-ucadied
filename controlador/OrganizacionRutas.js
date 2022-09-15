@@ -6,14 +6,8 @@ const organizacionCtrl = require('./OrganizacionControlador');
 
 router.get('/consultar/:id_organizacion', async (req, res) => {
     try{
-        if(req.session.idUsuario && req.session.idUsuario != -1){
-            const organizaciones = await organizacionCtrl.consultar(req.params);
-            res.json(organizaciones);
-        }
-        else{
-            res.status(400);
-            res.send("Sesión no iniciada");
-        }
+        const organizaciones = await organizacionCtrl.consultar(req.params);
+        res.json(organizaciones);
     }catch(err){
         console.log(err);
         res.status(400);
@@ -23,14 +17,19 @@ router.get('/consultar/:id_organizacion', async (req, res) => {
 
 router.get('/consultar', async (req, res) => {
     try{
-        if(req.session.idUsuario && req.session.idUsuario != -1){
-            const organizaciones = await organizacionCtrl.consultar(req.params);
-            res.json(organizaciones);
-        }
-        else{
-            res.status(400);
-            res.send("Sesión no iniciada");
-        }
+        const organizaciones = await organizacionCtrl.consultar(req.params);
+        res.json(organizaciones);
+    }catch(err){
+        console.log(err);
+        res.status(400);
+        res.send("Algo salió mal");
+    }
+});
+
+router.get('/consultarTipo/:esUnion', async (req, res) => {
+    try{
+        const organizaciones = await organizacionCtrl.consultarTipo(req.params.esUnion);
+        res.json(organizaciones);
     }catch(err){
         console.log(err);
         res.status(400);

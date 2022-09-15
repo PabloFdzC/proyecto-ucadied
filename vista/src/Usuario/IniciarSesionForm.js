@@ -38,7 +38,7 @@ class IniciarSesionForm extends React.Component {
         this.validacion.validarCampos(this.state.campos);
         if(!this.state.errores.hayError){
             try{
-                await this.queriesGenerales.postear("/iniciarSesion", this.state.campos);
+                await this.queriesGenerales.postear("/usuario/iniciarSesion", this.state.campos);
             }catch(error){
                 console.log(error);
             }
