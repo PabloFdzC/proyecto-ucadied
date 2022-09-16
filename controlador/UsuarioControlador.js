@@ -56,6 +56,23 @@ async function consultar(params){
     }
 }
 
+async function consultarTipo(esAdmin){
+    if(esAdmin === '1'){
+        return await queries_generales.consultar(usuario, {
+            include: [{model: persona}],
+            where: {
+                tipo: "Administrador"
+            }});
+    }
+    else{
+        return await queries_generales.consultar(usuario, {
+            include: [{model: persona}],
+            where: {
+                tipo: "Usuario"
+            }});
+    }
+}
+
 async function iniciarSesion(info){
     var usuario_info = await queries_generales.consultar(usuario, {where: 
     {
@@ -106,6 +123,7 @@ async function eliminar(id){
 
 module.exports = {
     consultar,
+    consultarTipo,
     crear,
     modificar,
     eliminar,
