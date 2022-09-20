@@ -68,8 +68,8 @@ jobs:
             echo "Process not found"
           else
             kill -9 $pid
+            sudo rm -rf /var/node/proyecto-ucadied
           fi
-          sudo mkdir -p /app
     - name: 'Descargar artifact del build'
       uses: actions/download-artifact@v2
       with:
