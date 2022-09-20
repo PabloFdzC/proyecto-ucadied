@@ -1,22 +1,24 @@
 const router = require('express').Router();
 
 const bodyParser = require('body-parser');
-const urlencodedParser  = bodyParser.urlencoded({ extended: false });
+const jsonParser  = bodyParser.json({ extended: false });
 
 const usuarioCtrl = require('./UsuarioControlador');
 
 
-router.post('/crear', urlencodedParser,  async (req, res) => {
+router.post('/crear', jsonParser,  async (req, res) => {
     try{
         if(req.session.tipoUsuario && req.session.tipoUsuario === "Administrador"){
             req.body.tipo = "Administrador";
+            req.body.id_organizacion = null;
             const usuario_creado = await usuarioCtrl.crear(req.body);
             res.json(usuario_creado);
         }
         else{
-            const admins = await usuarioCtrl.consultar({admin: true});
-            if(admins.length === 0){
+            const existeAdministrador = await usuarioCtrl.existeAdministrador();
+            if(!existeAdministrador){
                 req.body.tipo = "Administrador";
+                req.body.id_organizacion = null;
                 const usuario_creado = await usuarioCtrl.crear(req.body);
                 res.json(usuario_creado);
             } 
@@ -32,6 +34,11 @@ router.post('/crear', urlencodedParser,  async (req, res) => {
     }finally{
         res.end();
     }
+});
+
+router.get('/existeAdministrador', async (req, res) => {
+    const existeAdministrador = await usuarioCtrl.existeAdministrador();
+    res.send({existeAdministrador});
 });
 
 module.exports = router;

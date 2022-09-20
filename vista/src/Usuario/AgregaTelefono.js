@@ -24,16 +24,14 @@ class AgregaTelefono extends React.Component {
         return (
             <div className="mb-3 position-relative">
                 <label htmlFor="telefono" className="form-label">Teléfonos </label>
-                <div className="row justify-content-between" style={{maxWidth:"100%"}}>
-                    <div className="col-11">
+                <div className="d-flex justify-content-between">
+                    <div className="align-self-stretch">
                         <input type="text" className={this.props.error.length > 0 ? "form-control is-invalid":"form-control"} key="telefono" value={this.state.telefono} onChange={this.manejaCambio} name="telefono" />
                         <div className="invalid-tooltip">
                             {this.props.error}
                         </div>
                     </div>
-                    <div className="col-1">
                     <button type="button" className="btn btn-primary" onClick={() => this.props.agregarTelefono(this.state.telefono)}><i className="lni lni-plus"></i></button>
-                    </div>
                 </div>
             </div>
         );

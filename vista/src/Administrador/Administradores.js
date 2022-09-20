@@ -4,6 +4,7 @@ import { Navigate } from "react-router-dom";
 import {usuarioContexto} from '../usuarioContexto';
 import Tabla from '../Utilidades/Tabla.js'
 import QueriesGenerales from "../QueriesGenerales";
+import utilidadesUsuario from '../Usuario/utilidadesUsuario';
 
 class Administradores extends React.Component {
     constructor(props){
@@ -14,20 +15,39 @@ class Administradores extends React.Component {
         }
         this.administradoresPedidos = false;
         this.titulos = [
+            {llave:"nombre",valor:"Nombre"},
+            {llave:"sexo",valor:"Sexo"},
             {llave:"email",valor:"Email"},
-            {llave:"tipo",valor:"Tipo"},
+            {llave:"fecha_nacimiento",valor:"Fecha de nacimiento"},
+            {llave:"profesion",valor:"Profesión"},
+            {llave:"nacionalidad",valor:"Nacionalidad"},
+            {llave:"telefonos",valor:"Teléfonos"},
         ];
+        this.avisaCreado = this.avisaCreado.bind(this);
     }
     // Hay que hacer que se puedan pedir solo administradores con información importante
     async cargarAdministradores(){
         try{
-            const resp = await this.queriesGenerales.obtener("/usuario/consultar", {});
+            const resp = await this.queriesGenerales.obtener("/usuario/consultarTipo/1", {});
+            var usuarios = utilidadesUsuario.moverDatosPersonas(resp.data);
             this.setState({
-                administradores:this.state.administradores.concat(resp.data),
+                administradores:this.state.administradores.concat(usuarios),
             });
         } catch(err){
             console.log(err);
         }
+    }
+
+    async avisaCreado(usuario){
+        if(usuario.persona){
+            usuario = utilidadesUsuario.moverDatosPersona(usuario, false);
+        } else {
+            usuario = utilidadesUsuario.moverDatosUsuario(usuario, true);
+        }
+        var administradores = this.state.administradores;
+        this.setState({
+            administradores:administradores.concat(usuario),
+        });
     }
 
     componentDidMount() {
@@ -43,29 +63,26 @@ class Administradores extends React.Component {
         //         {({usuario})=>{
         //             if(usuario.tipo === "Administrador"){
                         return (
-                            <div>
-                                <div className="container-fluid">
-                                    <div className="row align-items-center justify-content-between m-3">
-                                        <div className="col-8">
-                                            <h1>Administradores</h1>
-                                        </div>
-                                        <div className="col-3">
-                                            <button className="btn btn-primary"><i className="lni lni-plus"></i>  Agregar administrador</button>
-                                        </div>
-                                    </div>
-                                    <div className="row">
-                                        <Tabla titulos={this.titulos} datos={this.state.administradores} />
+                            <>
+                                <div className="d-flex align-items-center justify-content-between m-3">
+                                    <h1>Administradores</h1>
+                                    <button className="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal"><i className="lni lni-plus"></i>  Agregar administrador</button>
+                                </div>
+                                <div className="row" style={{height:"inherit"}}>
+                                    <div style={{backgroundColor:"#137E31", color:"#FFFFFF"}}>
+                                        <Tabla titulos={this.titulos} datos={this.state.administradores} style={{color:"#FFFFFF"}} />
                                     </div>
                                 </div>
-                                <div className="row" style={{backgroundColor:"#137E31", color:"#FFFFFF"}}>
-                                    <div className="row">
-                                        <h2 className="text-center">Agregar administrador</h2>
-                                    </div>
-                                    <div className="row">
-                                        <UsuarioForm administrador={true} />
+                                <div className="modal fade" id="exampleModal" tabIndex="-1" aria-labelledby="modalAgregarAdministrador" aria-hidden="true">
+                                    <div className="modal-dialog modal-dialog-scrollable modal-lg">
+                                        <div className="modal-content p-3" style={{backgroundColor:"#137E31", color:"#FFFFFF"}}>
+                                            <div className="modal-body">
+                                                <UsuarioForm administrador={true} titulo={"Agregar Administrador"} avisaCreado={this.avisaCreado} />
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
+                            </>
                         );
             //         } else {
             //             return (<Navigate to='/iniciarSesion' replace={true}/>);

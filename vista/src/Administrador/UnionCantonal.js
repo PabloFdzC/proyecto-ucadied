@@ -16,11 +16,13 @@ class UnionCantonal extends React.Component {
         this.unionesPedidas = false;
         this.titulos = [
             {llave:"nombre",valor:"Asociación"},
-            {llave:"cedula",valor:"Cédula"},
+            {llave:"cedula",valor:"Cédula Jurídica"},
             {llave:"domicilio",valor:"Domicilio"},
             {llave:"territorio",valor:"Territorio"},
-            {llave:"telefonos",valor:"Telefonos"},
+            {llave:"telefonos",valor:"Teléfonos"},
         ];
+
+        this.avisaCreado = this.avisaCreado.bind(this);
     }
 
     async cargarUniones(){
@@ -30,50 +32,6 @@ class UnionCantonal extends React.Component {
             this.setState({
                 uniones:uniones.concat(resp.data),
             });
-            // this.setState({
-            //     uniones:uniones.concat([{
-            //         nombre:"Asociacion",
-            //         cedula:"111111111",
-            //         domicilio:"lugar",
-            //         territorio:"lugar",
-            //         telefonos:["2222222222","3333333333"]
-            //     },
-            //     {
-            //         nombre:"Asociacion",
-            //         cedula:"111111111",
-            //         domicilio:"lugar",
-            //         territorio:"lugar",
-            //         telefonos:["2222222222","3333333333"]
-            //     },
-            //     {
-            //         nombre:"Asociacion",
-            //         cedula:"111111111",
-            //         domicilio:"lugar",
-            //         territorio:"lugar",
-            //         telefonos:["2222222222","3333333333"]
-            //     },
-            //     {
-            //         nombre:"Asociacion",
-            //         cedula:"111111111",
-            //         domicilio:"lugar",
-            //         territorio:"lugar",
-            //         telefonos:["2222222222","3333333333"]
-            //     },
-            //     {
-            //         nombre:"Asociacion",
-            //         cedula:"111111111",
-            //         domicilio:"lugar",
-            //         territorio:"lugar",
-            //         telefonos:["2222222222","3333333333"]
-            //     },
-            //     {
-            //         nombre:"Asociacion",
-            //         cedula:"111111111",
-            //         domicilio:"lugar",
-            //         territorio:"lugar",
-            //         telefonos:["2222222222","3333333333"]
-            //     },]),
-            // });
         } catch(err){
             console.log(err);
         }
@@ -86,35 +44,39 @@ class UnionCantonal extends React.Component {
         }
     }
 
+    async avisaCreado(union){
+        var uniones = this.state.uniones;
+        this.setState({
+            uniones:uniones.concat(union),
+        });
+    }
+
     render(){
         return (
             <usuarioContexto.Consumer >
                 {({usuario})=>{
                     if(usuario.tipo === "Administrador"){
                         return (
-                            <div>
-                                <div className="row align-items-center justify-content-between m-3">
-                                    <div className="col-8">
-                                        <h1>Uniones Cantonales</h1>
-                                    </div>
-                                    <div className="col-2">
-                                        <button className="btn btn-primary"><i className="lni lni-plus"></i>  Agregar unión</button>
-                                    </div>
+                            <>
+                                <div className="d-flex align-items-center justify-content-between m-3">
+                                    <h1>Uniones Cantonales</h1>
+                                    <button className="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal"><i className="lni lni-plus"></i>  Agregar unión</button>
                                 </div>
-                                <div className="row m-0">
-                                    <Tabla titulos={this.titulos} datos={this.state.uniones} />
-                                </div>
-                                <div className="row m-0">
-                                    <div className="container p-3" style={{backgroundColor:"#137E31", color:"#FFFFFF"}}>
-                                    <div className="row">
-                                        <h2 className="text-center">Agregar Unión Cantonal</h2>
-                                    </div>
-                                    <div className="container">
-                                        <OrganizacionForm esUnionCantonal={true} />
+                                <div className="row" style={{height:"inherit"}}>
+                                    <div style={{backgroundColor:"#137E31", color:"#FFFFFF"}}>
+                                    <Tabla titulos={this.titulos} datos={this.state.uniones} style={{color:"#FFFFFF"}} />
                                     </div>
                                 </div>
+                                <div className="modal fade" id="exampleModal" tabIndex="-1" aria-labelledby="modalAgregarUnion" aria-hidden="true">
+                                    <div className="modal-dialog modal-dialog-scrollable modal-lg">
+                                        <div className="modal-content p-3" style={{backgroundColor:"#137E31", color:"#FFFFFF"}}>
+                                            <div className="modal-body">
+                                                <OrganizacionForm esUnionCantonal={true} titulo={"Agregar Unión Cantonal"} avisaCreado={this.avisaCreado} />
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
+                            </>
                         );
                     } else {
                         return <Navigate to='/iniciarSesion' replace={true}/>;

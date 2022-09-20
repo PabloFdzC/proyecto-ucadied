@@ -14,6 +14,7 @@ class Afiliados extends React.Component {
             {llave:"email",valor:"Email"},
             {llave:"tipo",valor:"Tipo"},
         ];
+        this.id = props.id; // id de url
     }
     // Hay que hacer que se puedan consultar solo los usuarios que pertenezcan a una unión
     async cargarAfiliados(){
@@ -32,6 +33,10 @@ class Afiliados extends React.Component {
             this.afiliadosPedidos = true;
             this.cargarAfiliados();
         }
+    }
+
+    async avisaCreado(){
+        await this.cargarAfiliados();
     }
 
     render(){

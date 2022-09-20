@@ -38,6 +38,23 @@ router.get('/consultar', async (req, res) => {
     }
 });
 
+router.get('/consultarTipo/:esAdmin', async (req, res) => {
+    try{
+        if(req.session.idUsuario && req.session.idUsuario != -1){
+            const usuarios = await usuarioCtrl.consultarTipo(req.params.esAdmin);
+            res.json(usuarios);
+        }
+        else{
+            res.status(400);
+            res.send("Sesión no iniciada");
+        }
+    }catch (err){
+        console.log(err);
+        res.status(400);
+        res.send("Algo salió mal");
+    }
+});
+
 router.post('/crear', jsonParser, async (req, res) => {
     try{
         if(req.session.idUsuario && req.session.idUsuario != -1){

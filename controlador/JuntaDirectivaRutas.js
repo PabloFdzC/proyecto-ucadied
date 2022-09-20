@@ -4,7 +4,7 @@ const jsonParser  = bodyParser.json({ extended: false });
 const JuntaDirectivaCtlr = require('./JuntaDirectivaControlador');
 
 
-router.get('/consultar/:id_junta_directiva', async (req, res) => {
+router.get('/consultar/:id_organizacion', async (req, res) => {
     try{
         if(req.session.idUsuario && req.session.idUsuario != -1){
             const juntas = await JuntaDirectivaCtlr.consultar(req.params);
@@ -196,6 +196,23 @@ router.delete('/eliminarMiembro', jsonParser, async (req, res) => {
         if(req.session.idUsuario && req.session.idUsuario != -1){
             const resultado = await JuntaDirectivaCtlr.eliminar_miembro(req.body.id_puesto);
             res.json(resultado);
+        }
+        else{
+            res.status(400);
+            res.send("Sesión no iniciada");
+        }
+    }catch(err){
+        console.log(err);
+        res.status(400);
+        res.send("Algo salió mal");
+    }
+});
+
+router.get('/consultarMiembros/:id_junta_directiva', async (req, res) => {
+    try{
+        if(req.session.idUsuario && req.session.idUsuario != -1){
+            const miembros = await JuntaDirectivaCtlr.consultar_miembros(req.params.id_junta_directiva);
+            res.json(miembros);
         }
         else{
             res.status(400);

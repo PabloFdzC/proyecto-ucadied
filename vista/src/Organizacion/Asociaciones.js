@@ -19,6 +19,24 @@ class Asociaciones extends React.Component {
             {llave:"territorio",valor:"Territorio"},
             {llave:"telefonos",valor:"Telefonos"},
         ];
+        this.avisaCreado = this.avisaCreado.bind(this);
+        this.eliminarAsociacion = this.eliminarAsociacion.bind(this);
+    }
+
+    async eliminarAsociacion(id){
+        try{
+            await this.queriesGenerales.eliminar("/organizacion/eliminar/"+id, {});
+            let i = -1;
+            for (let j = 0; j < this.state.asociaciones.length; j++){
+                if(this.state.asociaciones[j].id === id) i = j;
+            }
+            if (i > -1){
+                this.state.asociaciones.splice(i, 1);
+                this.setState({});
+            }
+        } catch(err){
+            console.log(err);
+        }
     }
 
     async cargarAsociaciones(){
@@ -28,50 +46,6 @@ class Asociaciones extends React.Component {
             this.setState({
                 asociaciones:asociaciones.concat(resp.data),
             });
-            // this.setState({
-            //     asociaciones:asociaciones.concat([{
-            //         nombre:"Asociacion",
-            //         cedula:"111111111",
-            //         domicilio:"lugar",
-            //         territorio:"lugar",
-            //         telefonos:["2222222222","3333333333"]
-            //     },
-            //     {
-            //         nombre:"Asociacion",
-            //         cedula:"111111111",
-            //         domicilio:"lugar",
-            //         territorio:"lugar",
-            //         telefonos:["2222222222","3333333333"]
-            //     },
-            //     {
-            //         nombre:"Asociacion",
-            //         cedula:"111111111",
-            //         domicilio:"lugar",
-            //         territorio:"lugar",
-            //         telefonos:["2222222222","3333333333"]
-            //     },
-            //     {
-            //         nombre:"Asociacion",
-            //         cedula:"111111111",
-            //         domicilio:"lugar",
-            //         territorio:"lugar",
-            //         telefonos:["2222222222","3333333333"]
-            //     },
-            //     {
-            //         nombre:"Asociacion",
-            //         cedula:"111111111",
-            //         domicilio:"lugar",
-            //         territorio:"lugar",
-            //         telefonos:["2222222222","3333333333"]
-            //     },
-            //     {
-            //         nombre:"Asociacion",
-            //         cedula:"111111111",
-            //         domicilio:"lugar",
-            //         territorio:"lugar",
-            //         telefonos:["2222222222","3333333333"]
-            //     },]),
-            // });
         } catch(err){
             console.log(err);
         }
@@ -84,7 +58,15 @@ class Asociaciones extends React.Component {
         }
     }
 
+    async avisaCreado(asociacion){
+        var asociaciones = this.state.asociaciones;
+        this.setState({
+            asociaciones:asociaciones.concat(asociacion),
+        });
+    }
+
     render(){
+        console.log(this.state.asociaciones);
         var asociaciones;
         if(this.state.asociaciones.length > 0){
             asociaciones = this.state.asociaciones.map((a, i) =>{
@@ -95,19 +77,21 @@ class Asociaciones extends React.Component {
                         <p key={"c"+i}>Cédula jurídica: {a.cedula}</p>
                         <p key={"d"+i}>Domicilio: {a.domicilio}</p>
                         <p key={"te"+i}>Territorio: {a.territorio}</p>
-                        {/* {a.telefonos.map((t, j) => {
+                        <p key={"tels"+i}>Telefonos:</p>
+                        {a.telefonos.map((t, j) => 
                             <p key={"tels"+i+"-"+j}>{t}</p>
-                        })} */}
-                        <div className="row justify-content-end">
+                        )}
+                    
+                        <div className="d-flex justify-content-end">
                             {this.props.soloVer ?
-                            <div className="col-3" key={"vCol"+i}>
+                            <div className="m-1" key={"vCol"+i}>
                                 <button key={"v"+i} className="btn btn-primary">Visitar</button>
                             </div> :
                             <>
-                                <div className="col-3" key={"eCol"+i}>
-                                    <button key={"e"+i} className="btn btn-danger">Eliminar</button>
+                                <div className="m-1" key={"eCol"+i}>
+                                    <button key={"e"+i} className="btn btn-danger" onClick={()=>this.eliminarAsociacion(a.id)}>Eliminar</button>
                                 </div>
-                                <div className="col-3" key={"vCol"+i}>
+                                <div className="m-1" key={"vCol"+i}>
                                     <button key={"v"+i} className="btn btn-primary">Visitar</button>
                                 </div>
                             </>
@@ -118,32 +102,28 @@ class Asociaciones extends React.Component {
             );
             });
         }
-         console.log("Render");
-        console.log(this.state.asociaciones);
         return (
-            <div>
-                <div className="row align-items-center justify-content-between m-3">
-                    <div className="col-8">
-                        <h1>Asociaciones</h1>
-                    </div>
-                    <div className="col-2">
-                        <button className="btn btn-primary"><i className="lni lni-plus"></i>  Agregar asociación</button>
-                    </div>
+            <>
+                <div className="d-flex align-items-center justify-content-between m-3">
+                    <h1>Asociaciones</h1>
+                    {this.props.soloVer ? <></>:
+                    <button className="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal"><i className="lni lni-plus"></i>  Agregar asociación</button>}
                 </div>
                 <div className="row">
                     {asociaciones}
-                    {this.props.soloVer ? <></>:
-                    <div className="container p-3" style={{backgroundColor:"#137E31", color:"#FFFFFF"}}>
-                        <div className="row">
-                            <h2 className="text-center">Agregar Asociación</h2>
-                        </div>
-                        <div className="container">
-                        <OrganizacionForm esUnion={false} />
+                </div>
+                {this.props.soloVer ? <></>:
+                    <div className="modal fade" id="exampleModal" tabIndex="-1" aria-labelledby="modalAgregarUnion" aria-hidden="true">
+                        <div className="modal-dialog modal-dialog-scrollable modal-lg">
+                            <div className="modal-content p-3" style={{backgroundColor:"#137E31", color:"#FFFFFF"}}>
+                                <div className="modal-body">
+                                    <OrganizacionForm esUnion={false} titulo={"Agregar Asociación"} avisaCreado={this.avisaCreado} />
+                                </div>
+                            </div>
                         </div>
                     </div>
                     }
-                </div>
-            </div>
+            </>
         );
 
         

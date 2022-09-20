@@ -51,7 +51,7 @@ class IniciarSesionForm extends React.Component {
     render(){
         return (
             <usuarioContexto.Consumer >
-                {({usuario,iniciarSesionUsuario})=>{
+                {({usuario,iniciarSesionUsuario,organizacionActual})=>{
                     console.log(usuario);
                     if(usuario.tipo === "Administrador"){
                         return (
@@ -59,7 +59,7 @@ class IniciarSesionForm extends React.Component {
                         );
                     } else if(usuario.tipo === "Usuario"){
                         return (
-                            <Navigate to='/principal' replace={true}/>
+                            <Navigate to={'/principal/'+organizacionActual} replace={true}/>
                         );
                     }
                     return (<form onSubmit={(evento) => {this.iniciarSesion(evento, iniciarSesionUsuario)}} className="needs-validation" noValidate>

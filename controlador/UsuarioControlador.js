@@ -1,4 +1,5 @@
 const bcrypt = require('bcrypt');
+const { Op } = require("sequelize");
 const usuario = require('../modelo/usuario');
 const persona = require('../modelo/persona');
 const queries_generales = require('./QueriesGenerales');
@@ -26,33 +27,60 @@ async function crear(info){
         activo: true,
         id_persona: persona_creada.id
     }
-    const usuario_creado = await queries_generales.crear(usuario, usuario_info);
+    var usuario_creado = await queries_generales.crear(usuario, usuario_info);
     return {
+        persona_creada,
         usuario_creado,
         contrasenna
     };
 }
 
+async function existeAdministrador(){
+    const usuarios = await queries_generales.consultar(usuario, {
+        where: {
+            tipo: "Administrador"
+        }});
+    return usuarios.length > 0;
+}
+
 async function consultar(params){
     if(params.id_usuario){
         const info_usuario = await queries_generales.consultar(usuario, {
+            attributes: {exclude: ['contrasenna']},
             include: [{model: persona}],
             where: {
                 id: params.id_usuario
             }});
         return info_usuario;
     }
-    else if(params.admin){
-        const usuarios = await queries_generales.consultar(usuario, {
-            where: {
-                tipo: "Administrador"
-            }});
-        return usuarios;
-    }
     else{
         const usuarios = await queries_generales.consultar(usuario, {
             include: [{model: persona}]});
         return usuarios;
+    }
+}
+
+async function consultarTipo(esAdmin){
+    if(esAdmin === '1'){
+        return await queries_generales.consultar(usuario, {
+            include: [{model: persona}],
+            where: {
+                tipo: "Administrador"
+            }});
+    }
+    else{
+        return await queries_generales.consultar(persona, {
+            include: [{
+                model: usuario,
+                where: {
+                    [Op.or]:[{tipo: "Usuario"}]
+                },
+                required:false
+            }],
+            where:{
+                id_organizacion:{[Op.ne]:null}
+            }
+            });
     }
 }
 
@@ -105,7 +133,9 @@ async function eliminar(id){
 }
 
 module.exports = {
+    existeAdministrador,
     consultar,
+    consultarTipo,
     crear,
     modificar,
     eliminar,

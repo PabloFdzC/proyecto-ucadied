@@ -56,30 +56,33 @@ class Navegacion extends React.Component {
                                 <div className="collapse navbar-collapse" id="navbarSupportedContent">
                                 <ul className="navbar-nav me-auto mb-2 mb-lg-0">
                                     <li className="nav-item">
-                                        <Link className="nav-link" aria-current="page" to="/principal">Principal</Link>
+                                        <Link className="nav-link" aria-current="page" to={"/principal/"+this.props.organizacionActual}>Principal</Link>
                                     </li>
                                     <li className="nav-item dropdown">
                                         <Link className="nav-link dropdown-toggle" to="#" id="presidencia" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                             Presidencia
                                         </Link>
                                         <ul className="dropdown-menu" aria-labelledby="presidencia">
-                                            <li><Link className="dropdown-item" to="/presidencia/juntaDirectiva">Junta Directiva</Link></li>
-                                            <li><Link className="dropdown-item" to="/presidencia/afiliados">Afiliados</Link></li>
+                                            <li><Link className="dropdown-item" to={"/presidencia/juntaDirectiva/"+this.props.organizacionActual}>Junta Directiva</Link></li>
+                                            <li><Link className="dropdown-item" to={"/presidencia/afiliados/"+this.props.organizacionActual}>Afiliados</Link></li>
                                             <li><hr className="dropdown-divider" /></li>
                                             <li><Link className="dropdown-item" to="/presidencia/asociaciones">Asociaciones</Link></li>
                                         </ul>
                                     </li>
                                     <li className="nav-item">
-                                        <Link className="nav-link" to="/proyectos">Proyectos</Link>
+                                        <Link className="nav-link" to="/presidencia/asociaciones">Asociaciones</Link>
                                     </li>
                                     <li className="nav-item">
-                                        <Link className="nav-link" to="/actividades">Actividades</Link>
+                                        <Link className="nav-link" to={"/proyectos/"+this.props.organizacionActual}>Proyectos</Link>
                                     </li>
                                     <li className="nav-item">
-                                        <Link className="nav-link" to="/mapaDeSitio">Mapa de sitio</Link>
+                                        <Link className="nav-link" to={"/actividades/"+this.props.organizacionActual}>Actividades</Link>
                                     </li>
                                     <li className="nav-item">
-                                        <Link className="nav-link" to="/editarSitio">Editar sitio</Link>
+                                        <Link className="nav-link" to={"/mapaDeSitio/"+this.props.organizacionActual}>Mapa de sitio</Link>
+                                    </li>
+                                    <li className="nav-item">
+                                        <Link className="nav-link" to={"/editarSitio/"+this.props.organizacionActual}>Editar sitio</Link>
                                     </li>
                                 </ul>
                                 <ul className="navbar-nav navbar-right">
@@ -107,13 +110,13 @@ class Navegacion extends React.Component {
                                 <div className="collapse navbar-collapse" id="navbarSupportedContent">
                                     <ul className="navbar-nav me-auto mb-2 mb-lg-0">
                                         <li className="nav-item">
-                                            <Link className="nav-link" aria-current="page" to="/principal">Principal</Link>
+                                            <Link className="nav-link" aria-current="page" to={"/principal/"+this.props.organizacionActual}>Principal</Link>
                                         </li>
                                         <li className="nav-item">
                                             <Link className="nav-link" aria-current="page" to="/asociaciones">Asociaciones</Link>
                                         </li>
                                         <li className="nav-item">
-                                            <Link className="nav-link" to="/mapaDeSitio">Mapa de sitio</Link>
+                                            <Link className="nav-link" to={"/mapaDeSitio/"+this.props.organizacionActual}>Mapa de sitio</Link>
                                         </li>
                                     </ul>
                                     <ul className="navbar-nav ms-auto mb-2 mb-lg-0">
