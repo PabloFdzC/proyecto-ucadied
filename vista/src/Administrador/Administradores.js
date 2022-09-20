@@ -4,7 +4,7 @@ import { Navigate } from "react-router-dom";
 import {usuarioContexto} from '../usuarioContexto';
 import Tabla from '../Utilidades/Tabla.js'
 import QueriesGenerales from "../QueriesGenerales";
-import moverDatosPersonas from '../Usuario/moverDatosPersona';
+import utilidadesUsuario from '../Usuario/utilidadesUsuario';
 
 class Administradores extends React.Component {
     constructor(props){
@@ -29,7 +29,7 @@ class Administradores extends React.Component {
     async cargarAdministradores(){
         try{
             const resp = await this.queriesGenerales.obtener("/usuario/consultarTipo/1", {});
-            var usuarios = moverDatosPersonas(resp.data);
+            var usuarios = utilidadesUsuario.moverDatosPersonas(resp.data);
             this.setState({
                 administradores:this.state.administradores.concat(usuarios),
             });
@@ -38,8 +38,16 @@ class Administradores extends React.Component {
         }
     }
 
-    async avisaCreado(){
-        await this.cargarAdministradores();
+    async avisaCreado(usuario){
+        if(usuario.persona){
+            usuario = utilidadesUsuario.moverDatosPersona(usuario, false);
+        } else {
+            usuario = utilidadesUsuario.moverDatosUsuario(usuario, true);
+        }
+        var administradores = this.state.administradores;
+        this.setState({
+            administradores:administradores.concat(usuario),
+        });
     }
 
     componentDidMount() {

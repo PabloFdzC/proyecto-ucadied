@@ -27,8 +27,9 @@ async function crear(info){
         activo: true,
         id_persona: persona_creada.id
     }
-    const usuario_creado = await queries_generales.crear(usuario, usuario_info);
+    var usuario_creado = await queries_generales.crear(usuario, usuario_info);
     return {
+        persona_creada,
         usuario_creado,
         contrasenna
     };

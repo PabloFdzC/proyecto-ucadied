@@ -85,7 +85,21 @@ class UsuarioForm extends React.Component {
 
     // Falta reiniciar los otros campos
     reiniciarCampos(){
-        //this.setState({});
+        this.setState({
+            titulo: this.props.titulo,
+            contrasenna:"",
+            campos: Object.assign({},this.state.campos, {
+                nombre:"",
+                necesitaCuenta: this.administrador,
+                fecha_nacimiento: "",
+                nacionalidad: "",
+                sexo:"",
+                profesion: "",
+                email: "",
+                telefonos:[],
+                id_organizacion:"",
+            })
+        });
     }
 
 
@@ -132,12 +146,19 @@ class UsuarioForm extends React.Component {
                 url = "persona";
             }
             try{
-                const res = await this.queriesGenerales.postear(url+"/crear", this.state.campos);
+                const resp = await this.queriesGenerales.postear(url+"/crear", this.state.campos);
                 this.setState({
                     titulo:"¡Agregado con Éxito!",
-                    contrasenna:res.data.contrasenna,
+                    contrasenna:resp.data.contrasenna,
                 });
-                this.avisaCreado();
+                if(!this.state.campos.necesitaCuenta){
+                    this.avisaCreado(resp.data);
+                } else {
+                    console.log(resp.data);
+                    var usuario = resp.data.usuario_creado;
+                    usuario.persona = resp.data.persona_creada;
+                    this.avisaCreado(usuario);
+                }
             }catch(error){
                 console.log(error);
             }
@@ -156,8 +177,8 @@ class UsuarioForm extends React.Component {
         }
     }
 
-    async avisaCreado(){
-        this.props.avisaCreado();
+    async avisaCreado(usuario){
+        this.props.avisaCreado(usuario);
     }
 
     componentDidMount() {
@@ -174,102 +195,104 @@ class UsuarioForm extends React.Component {
             <>
             <h2 className="modal-title text-center">{this.state.titulo}</h2>
             {this.state.contrasenna === "" ?
-            <form onSubmit={this.crearUsuario}  noValidate>
-                <div className="row">
-                    <div className="col">
-                        <div className="mb-3 position-relative">
-                            <label htmlFor="nombre" className="form-label">Nombre</label>
-                            <input type="text" className={this.state.errores.nombre.length > 0 ? "form-control is-invalid":"form-control"} key="nombre" name="nombre" required value={this.state.campos.nombre} onChange={this.manejaCambio} />
-                            <div className="invalid-tooltip">
-                                {this.state.errores.nombre}
-                            </div>
-                        </div>
-                        <div className="mb-3 position-relative">
-                            <label htmlFor="fecha_nacimiento" className="form-label">Fecha de fecha_nacimiento</label>
-                            <input type="date" className={this.state.errores.fecha_nacimiento.length > 0 ? "form-control is-invalid":"form-control"} key="fecha_nacimiento" name="fecha_nacimiento" required value={this.state.campos.fecha_nacimiento} onChange={this.manejaCambio} />
-                            <div className="invalid-tooltip">
-                                {this.state.errores.fecha_nacimiento}
-                            </div>
-                        </div>
-                        <div className="mb-3 position-relative">
-                            <label htmlFor="nacionalidad" className="form-label">Nacionalidad</label>
-                            <select className={this.state.errores.nacionalidad.length > 0 ? "form-select is-invalid":"form-select"} aria-label="nacionalidad" key="nacionalidad" name="nacionalidad" value={this.state.campos.nacionalidad} onChange={this.manejaCambio} >
-                                <option defaultValue>Nacionalidad</option>
-                                {listaPaises.map((pais, i)=><option key={i} value={pais}>{pais}</option>)}
-                            </select>
-                            <div className="invalid-tooltip">
-                                {this.state.errores.nacionalidad}
-                            </div>
-                        </div>
-                        <div className="mb-3 position-relative">
-                            <label htmlFor="sexo" className="form-label">Sexo</label>
-                            <select className={this.state.errores.sexo.length > 0 ? "form-select is-invalid":"form-select"} aria-label="sexo" key="sexo" name="sexo" value={this.state.campos.sexo} onChange={this.manejaCambio} >
-                                <option defaultValue>Sexo</option>
-                                <option value={"Masculino"}>Masculino</option>
-                                <option value={"Femenino"}>Femenino</option>
-                                <option value={"No Especificado"}>No Especificado</option>
-                            </select>
-                            <div className="invalid-tooltip">
-                                {this.state.errores.sexo}
-                            </div>
-                        </div>
-                        <div className="mb-3 position-relative">
-                            <label htmlFor="profesion" className="form-label">Profesión</label>
-                            <input type="text" className={this.state.errores.profesion.length > 0 ? "form-control is-invalid":"form-control"} key="profesion" name="profesion" value={this.state.campos.profesion} onChange={this.manejaCambio} required />
-                            <div className="invalid-tooltip">
-                                {this.state.errores.profesion}
-                            </div>
-                        </div>
-
-                    </div>
-                    <div className="col">
-                        {this.props.ocupaAsociacion ?
+                <form onSubmit={this.crearUsuario}  noValidate>
+                    <div className="row">
+                        <div className="col">
                             <div className="mb-3 position-relative">
-                                <label htmlFor="asociacion" className="form-label">Asociación</label>
-                                <select className={this.state.errores.nacionalidad.length > 0 ? "form-select is-invalid":"form-select"} aria-label="asociacion" key="asociacion" name="id_organizacion" value={this.state.campos.id_organizacion} onChange={this.manejaCambio} >
-                                    <option defaultValue>Asociación</option>
-                                    {this.state.asociaciones.map((u,i) => <option key={i} value={u.id}>{u.nombre}</option>)}
+                                <label htmlFor="nombre" className="form-label">Nombre</label>
+                                <input type="text" className={this.state.errores.nombre.length > 0 ? "form-control is-invalid":"form-control"} key="nombre" name="nombre" required value={this.state.campos.nombre} onChange={this.manejaCambio} />
+                                <div className="invalid-tooltip">
+                                    {this.state.errores.nombre}
+                                </div>
+                            </div>
+                            <div className="mb-3 position-relative">
+                                <label htmlFor="fecha_nacimiento" className="form-label">Fecha de fecha_nacimiento</label>
+                                <input type="date" className={this.state.errores.fecha_nacimiento.length > 0 ? "form-control is-invalid":"form-control"} key="fecha_nacimiento" name="fecha_nacimiento" required value={this.state.campos.fecha_nacimiento} onChange={this.manejaCambio} />
+                                <div className="invalid-tooltip">
+                                    {this.state.errores.fecha_nacimiento}
+                                </div>
+                            </div>
+                            <div className="mb-3 position-relative">
+                                <label htmlFor="nacionalidad" className="form-label">Nacionalidad</label>
+                                <select className={this.state.errores.nacionalidad.length > 0 ? "form-select is-invalid":"form-select"} aria-label="nacionalidad" key="nacionalidad" name="nacionalidad" value={this.state.campos.nacionalidad} onChange={this.manejaCambio} >
+                                    <option defaultValue>Nacionalidad</option>
+                                    {listaPaises.map((pais, i)=><option key={i} value={pais}>{pais}</option>)}
                                 </select>
                                 <div className="invalid-tooltip">
                                     {this.state.errores.nacionalidad}
                                 </div>
-                            </div>:
-                        <></>}
-                        <AgregaTelefono agregarTelefono={this.agregarTelefono} error={this.state.errores.telefonos} />
-                        <Telefonos telefonos={this.state.campos.telefonos} eliminarTelefono={this.eliminarTelefono} />
-                        <div className="mb-3 position-relative">
-                            <label htmlFor="email" className="form-label">Email</label>
-                            <input type="email" disabled={!this.state.campos.necesitaCuenta} className={this.state.errores.email.length > 0 ? "form-control is-invalid":"form-control"} key="email" name="email" value={this.state.campos.email} onChange={this.manejaCambio} />
-                            <div className="invalid-tooltip">
-                                {this.state.errores.email}
                             </div>
-                        </div>
+                            <div className="mb-3 position-relative">
+                                <label htmlFor="sexo" className="form-label">Sexo</label>
+                                <select className={this.state.errores.sexo.length > 0 ? "form-select is-invalid":"form-select"} aria-label="sexo" key="sexo" name="sexo" value={this.state.campos.sexo} onChange={this.manejaCambio} >
+                                    <option defaultValue>Sexo</option>
+                                    <option value={"Masculino"}>Masculino</option>
+                                    <option value={"Femenino"}>Femenino</option>
+                                    <option value={"No Especificado"}>No Especificado</option>
+                                </select>
+                                <div className="invalid-tooltip">
+                                    {this.state.errores.sexo}
+                                </div>
+                            </div>
+                            <div className="mb-3 position-relative">
+                                <label htmlFor="profesion" className="form-label">Profesión</label>
+                                <input type="text" className={this.state.errores.profesion.length > 0 ? "form-control is-invalid":"form-control"} key="profesion" name="profesion" value={this.state.campos.profesion} onChange={this.manejaCambio} required />
+                                <div className="invalid-tooltip">
+                                    {this.state.errores.profesion}
+                                </div>
+                            </div>
 
-                        {!this.props.administrador ?
-                            <div className="form-check">
-                                <input className="form-check-input" type="checkbox" id="necesitaCuenta" name="necesitaCuenta" checked={this.state.campos.necesitaCuenta} onChange={this.manejaCambio} />
-                                <label className="form-check-label" htmlFor="necesitaCuenta" >
-                                    ¿Necesita cuenta?
-                                </label>
-                            </div>:
-                        <></>}
+                        </div>
+                        <div className="col">
+                            {this.props.ocupaAsociacion ?
+                                <div className="mb-3 position-relative">
+                                    <label htmlFor="asociacion" className="form-label">Asociación</label>
+                                    <select className={this.state.errores.nacionalidad.length > 0 ? "form-select is-invalid":"form-select"} aria-label="asociacion" key="asociacion" name="id_organizacion" value={this.state.campos.id_organizacion} onChange={this.manejaCambio} >
+                                        <option defaultValue>Asociación</option>
+                                        {this.state.asociaciones.map((u,i) => <option key={i} value={u.id}>{u.nombre}</option>)}
+                                    </select>
+                                    <div className="invalid-tooltip">
+                                        {this.state.errores.nacionalidad}
+                                    </div>
+                                </div>:
+                            <></>}
+                            <AgregaTelefono agregarTelefono={this.agregarTelefono} error={this.state.errores.telefonos} />
+                            <Telefonos telefonos={this.state.campos.telefonos} eliminarTelefono={this.eliminarTelefono} />
+                            <div className="mb-3 position-relative">
+                                <label htmlFor="email" className="form-label">Email</label>
+                                <input type="email" disabled={!this.state.campos.necesitaCuenta} className={this.state.errores.email.length > 0 ? "form-control is-invalid":"form-control"} key="email" name="email" value={this.state.campos.email} onChange={this.manejaCambio} />
+                                <div className="invalid-tooltip">
+                                    {this.state.errores.email}
+                                </div>
+                            </div>
+
+                            {!this.props.administrador ?
+                                <div className="form-check">
+                                    <input className="form-check-input" type="checkbox" id="necesitaCuenta" name="necesitaCuenta" checked={this.state.campos.necesitaCuenta} onChange={this.manejaCambio} />
+                                    <label className="form-check-label" htmlFor="necesitaCuenta" >
+                                        ¿Necesita cuenta?
+                                    </label>
+                                </div>:
+                            <></>}
+                        </div>
                     </div>
-                </div>
-                <div className="d-flex justify-content-end">
-                    <div className="m-1">
-                        <button type="button" className="btn btn-secondary" data-bs-dismiss="modal" aria-label="Volver">Volver</button>
+                    <div className="d-flex justify-content-end">
+                        <div className="m-1">
+                            <button type="button" className="btn btn-secondary" data-bs-dismiss="modal" aria-label="Volver">Volver</button>
+                        </div>
+                        <div className="m-1">
+                            <button type="submit" className="btn btn-primary">Agregar</button>
+                        </div>
                     </div>
-                    <div className="m-1">
-                        <button type="submit" className="btn btn-primary">Agregar</button>
-                    </div>
-                </div>
-            </form>:
+                </form>:
             <>
+            {this.state.campos.necesitaCuenta ?
             <div className="d-flex flex-column center-text justify-content-center align-items-center">
                 <h4 className="modal-title">Contraseña</h4>
                 <p>{this.state.contrasenna}</p> 
             
-            </div>
+            </div>:
+            <></>}
             <div className="d-flex justify-content-end">
                 <div className="m-1">
                     <button type="button" className="btn btn-secondary" data-bs-dismiss="modal" aria-label="Volver" onClick={this.reiniciarCampos}>Volver</button>

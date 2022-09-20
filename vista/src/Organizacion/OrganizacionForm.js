@@ -68,7 +68,16 @@ class OrganizacionForm extends React.Component {
     // Falta reiniciar los otros campos
     reiniciarCampos(){
         this.setState({
-            creado:false
+            titulo: this.props.titulo,
+            creado:false,
+            campos: Object.assign({},this.state.campos, {
+                nombre: "",
+                territorio: "",
+                domicilio: "",
+                cedula: "",
+                telefonos:[],
+                id_organizacion:""
+            })
         });
     }
 

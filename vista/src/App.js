@@ -32,12 +32,17 @@ class App extends React.Component {
   constructor(props){
     super(props);
     this.queriesGenerales = new QueriesGenerales();
+    const orgActual = localStorage.getItem("organizacionActual");
+    const usuario = {
+      id_usuario: localStorage.getItem("id_usuario"),
+      tipo: localStorage.getItem("tipo"),
+    };
     this.state = {
       usuario:{
-        tipo:"",
-        id_usuario: -1
+        tipo:usuario.tipo ? usuario.tipo : "",
+        id_usuario: usuario.id_usuario ? usuario.id_usuario : -1
       },
-      organizacionActual:-1
+      organizacionActual:orgActual ? orgActual : -1
     }
     this.organizacionesPedidos = false;
 

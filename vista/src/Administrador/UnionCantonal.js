@@ -44,8 +44,11 @@ class UnionCantonal extends React.Component {
         }
     }
 
-    async avisaCreado(){
-        await this.cargarUniones();
+    async avisaCreado(union){
+        var uniones = this.state.uniones;
+        this.setState({
+            uniones:uniones.concat(union),
+        });
     }
 
     render(){

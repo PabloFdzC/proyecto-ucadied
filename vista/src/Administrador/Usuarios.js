@@ -3,10 +3,9 @@ import QueriesGenerales from "../QueriesGenerales";
 import UsuarioForm from '../Usuario/UsuarioForm';
 import { Navigate } from "react-router-dom";
 import {usuarioContexto} from '../usuarioContexto';
-import moverDatosPersonas from '../Usuario/moverDatosPersona';
+import utilidadesUsuario from '../Usuario/utilidadesUsuario';
 
 import Tabla from '../Utilidades/Tabla.js'
-import moverDatosUsuarios from '../Usuario/moverDatosUsuario';
 
 class Usuarios extends React.Component {
     constructor(props){
@@ -30,7 +29,7 @@ class Usuarios extends React.Component {
     async cargarUsuarios(){
         try{
             const resp = await this.queriesGenerales.obtener("/usuario/consultarTipo/0", {});
-            var usuarios = moverDatosUsuarios(resp.data);
+            var usuarios = utilidadesUsuario.moverDatosUsuarios(resp.data);
             console.log(resp);
             this.setState({
                 usuarios:this.state.usuarios.concat(usuarios),
@@ -47,8 +46,16 @@ class Usuarios extends React.Component {
         }
     }
 
-    async avisaCreado(){
-        await this.cargarUsuarios();
+    async avisaCreado(usuario){
+        if(usuario.persona){
+            usuario = utilidadesUsuario.moverDatosPersona(usuario, false);
+        } else {
+            usuario = utilidadesUsuario.moverDatosUsuario(usuario, true);
+        }
+        var usuarios = this.state.usuarios;
+        this.setState({
+            usuarios:usuarios.concat(usuario),
+        });
     }
 
     render(){
@@ -71,7 +78,7 @@ class Usuarios extends React.Component {
                                     <div className="modal-dialog modal-dialog-scrollable modal-lg">
                                         <div className="modal-content p-3" style={{backgroundColor:"#137E31", color:"#FFFFFF"}}>
                                             <div className="modal-body">
-                                                <UsuarioForm administrador={false} titulo={"Agregar Usuario"} ocupaAsociacion={true} />
+                                                <UsuarioForm administrador={false} titulo={"Agregar Usuario"} ocupaAsociacion={true} avisaCreado={this.avisaCreado} />
                                             </div>
                                         </div>
                                     </div>
