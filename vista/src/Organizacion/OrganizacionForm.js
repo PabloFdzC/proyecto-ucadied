@@ -41,7 +41,9 @@ class OrganizacionForm extends React.Component {
                 telefonos:"",
                 id_organizacion:""
             },
-            uniones: []
+            uniones: [],
+            titulo: this.props.titulo,
+            creado:false,
         };
         this.validacion = new Validacion({
             nombre: "requerido",
@@ -60,6 +62,14 @@ class OrganizacionForm extends React.Component {
         this.eliminarTelefono = this.eliminarTelefono.bind(this);
         this.manejaCambio = this.manejaCambio.bind(this);
         this.crearOrganizacion = this.crearOrganizacion.bind(this);
+        this.reiniciarCampos = this.reiniciarCampos.bind(this);
+    }
+
+    // Falta reiniciar los otros campos
+    reiniciarCampos(){
+        this.setState({
+            creado:false
+        });
     }
 
     agregarTelefono(telefono){
@@ -98,11 +108,21 @@ class OrganizacionForm extends React.Component {
         this.validacion.validarCampos(this.state.campos);
         if(!this.state.errores.hayError){
             try{
-                await this.queriesGenerales.postear("/organizacion/crear", this.state.campos);
+                var resp = await this.queriesGenerales.postear("/organizacion/crear", this.state.campos);
+                console.log(resp);
+                this.setState({
+                    creado:true,
+                    titulo:"¡Agregado con Éxito!",
+                });
+                this.avisaCreado(resp.data);
             }catch(error){
                 console.log(error);
             }
         }
+    }
+
+    async avisaCreado(asociacion){
+        await this.props.avisaCreado(asociacion);
     }
 
     async cargarUniones(){
@@ -121,6 +141,9 @@ class OrganizacionForm extends React.Component {
 
     render(){
         return (
+            <>
+            <h2 className="modal-title text-center">{this.state.titulo}</h2>
+            {!this.state.creado ?
             <form onSubmit={this.crearOrganizacion} noValidate>
                 <div className="row">
                     <div className="col">
@@ -147,7 +170,7 @@ class OrganizacionForm extends React.Component {
                             </div>
                         </div>
                         <div className="mb-3 position-relative">
-                            <label htmlFor="cedula" className="form-label">Cédula</label>
+                            <label htmlFor="cedula" className="form-label">Cédula Jurídica</label>
                             <input type="text" className={this.state.errores.cedula.length > 0 ? "form-control is-invalid":"form-control"} key="cedula" name="cedula" value={this.state.campos.cedula} onChange={this.manejaCambio} />
                             <div className="invalid-tooltip">
                                 {this.state.errores.cedula}
@@ -169,15 +192,25 @@ class OrganizacionForm extends React.Component {
                         <Telefonos telefonos={this.state.campos.telefonos} eliminarTelefono={this.eliminarTelefono} />
                     </div>
                 </div>
-                <div className="row justify-content-end" style={{maxWidth:"100%"}}>
-                    <div className="col-1">
-                        <button type="button" className="btn btn-secondary">Volver</button>
+                <div className="d-flex justify-content-end">
+                    <div className="m-1">
+                        <button type="button" className="btn btn-secondary" data-bs-dismiss="modal" aria-label="Volver">Volver</button>
                     </div>
-                    <div className="col-1">
+                    <div className="m-1">
                         <button type="submit" className="btn btn-primary">Agregar</button>
                     </div>
                 </div>
             </form>
+            :<>
+                <div className="d-flex justify-content-end">
+                    <div className="m-1">
+                        <button type="button" className="btn btn-secondary" data-bs-dismiss="modal" aria-label="Volver" onClick={this.reiniciarCampos}>Volver</button>
+                    </div>
+                </div>
+            </>}
+                
+            </>
+            
         );
     }
 }

@@ -1,8 +1,12 @@
 import React from 'react';
 import QueriesGenerales from "../QueriesGenerales";
 import UsuarioForm from '../Usuario/UsuarioForm';
+import { Navigate } from "react-router-dom";
+import {usuarioContexto} from '../usuarioContexto';
+import moverDatosPersonas from '../Usuario/moverDatosPersona';
 
 import Tabla from '../Utilidades/Tabla.js'
+import moverDatosUsuarios from '../Usuario/moverDatosUsuario';
 
 class Usuarios extends React.Component {
     constructor(props){
@@ -12,16 +16,24 @@ class Usuarios extends React.Component {
             usuarios: []
         }
         this.titulos = [
+            {llave:"nombre",valor:"Nombre"},
+            {llave:"sexo",valor:"Sexo"},
             {llave:"email",valor:"Email"},
-            {llave:"tipo",valor:"Tipo"},
+            {llave:"fecha_nacimiento",valor:"Fecha de nacimiento"},
+            {llave:"profesion",valor:"Profesión"},
+            {llave:"nacionalidad",valor:"Nacionalidad"},
+            {llave:"telefonos",valor:"Teléfonos"},
         ];
+        this.avisaCreado = this.avisaCreado.bind(this);
     }
-    // Hay que hacer que se puedan consultar solo los usuarios que pertenezcan a una unión
+    
     async cargarUsuarios(){
         try{
-            const resp = await this.queriesGenerales.obtener("/usuario/consultar", {});
+            const resp = await this.queriesGenerales.obtener("/usuario/consultarTipo/0", {});
+            var usuarios = moverDatosUsuarios(resp.data);
+            console.log(resp);
             this.setState({
-                usuarios:this.state.usuarios.concat(resp.data),
+                usuarios:this.state.usuarios.concat(usuarios),
             });
         } catch(err){
             console.log(err);
@@ -35,32 +47,42 @@ class Usuarios extends React.Component {
         }
     }
 
+    async avisaCreado(){
+        await this.cargarUsuarios();
+    }
+
     render(){
         return (
-            <div>
-                <div className="row align-items-center justify-content-between m-3">
-                    <div className="col-8">
-                        <h1>Usuarios</h1>
-                    </div>
-                    <div className="col-2">
-                        <button className="btn btn-primary"><i className="lni lni-plus"></i>  Agregar usuario</button>
-                    </div>
-                </div>
-                <div className="row m-0">
-                <Tabla titulos={this.titulos} datos={this.state.usuarios} />
-                </div>
-                <div className="row m-0">
-                    <div className="container p-3" style={{backgroundColor:"#137E31", color:"#FFFFFF"}}>
-                    <div className="row">
-                        <h2 className="text-center">Agregar Usuario</h2>
-                    </div>
-                    <div className="container">
-                    <UsuarioForm administrador={false} />
-                    </div>
-                </div>
-                </div>
-            </div>
-        );
+            <usuarioContexto.Consumer >
+                {({usuario})=>{
+                    if(usuario.tipo === "Administrador"){
+                        return (
+                            <>
+                                <div className="d-flex align-items-center justify-content-between m-3">
+                                    <h1>Usuarios</h1>
+                                    <button className="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal"><i className="lni lni-plus"></i>  Agregar usuario</button>
+                                </div>
+                                <div className="row" style={{height:"inherit"}}>
+                                    <div style={{backgroundColor:"#137E31", color:"#FFFFFF"}}>
+                                        <Tabla titulos={this.titulos} datos={this.state.usuarios} style={{color:"#FFFFFF"}} />
+                                    </div>
+                                </div>
+                                <div className="modal fade" id="exampleModal" tabIndex="-1" aria-labelledby="modalAgregarUnion" aria-hidden="true">
+                                    <div className="modal-dialog modal-dialog-scrollable modal-lg">
+                                        <div className="modal-content p-3" style={{backgroundColor:"#137E31", color:"#FFFFFF"}}>
+                                            <div className="modal-body">
+                                                <UsuarioForm administrador={false} titulo={"Agregar Usuario"} ocupaAsociacion={true} />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </>
+                        );
+                } else {
+                    return (<Navigate to='/iniciarSesion' replace={true}/>);
+                }
+            }}
+        </usuarioContexto.Consumer>);
     }
 }
 

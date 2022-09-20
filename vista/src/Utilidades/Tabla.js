@@ -5,11 +5,12 @@ class Tabla extends React.Component {
         super(props);
         this.titulos = props.titulos;
         this.datos = props.datos;
+        this.style = props.style;
     }
 
     render(){
         return (
-            <table className="table">
+            <table className="table" style={this.props.style}>
                 <thead>
                     <tr>
                     {this.props.titulos.map(titulo =>

@@ -143,11 +143,17 @@ persona.belongsToMany(proyecto, {
 });
 
 organizacion.hasMany(persona, {
-  foreignKey: 'id_organizacion'
+  foreignKey: {
+    name:'id_organizacion',
+    allowNull: true
+  }
 });
 
 persona.belongsTo(organizacion, {
-  foreignKey: 'id_organizacion'
+  foreignKey: {
+    name:'id_organizacion',
+    allowNull: true
+  }
 });
 
 proyecto.hasMany(proyecto_x_persona, {

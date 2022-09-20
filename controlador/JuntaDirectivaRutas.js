@@ -4,7 +4,7 @@ const jsonParser  = bodyParser.json({ extended: false });
 const JuntaDirectivaCtlr = require('./JuntaDirectivaControlador');
 
 
-router.get('/consultar/:id_junta_directiva', async (req, res) => {
+router.get('/consultar/:id_organizacion', async (req, res) => {
     try{
         if(req.session.idUsuario && req.session.idUsuario != -1){
             const juntas = await JuntaDirectivaCtlr.consultar(req.params);

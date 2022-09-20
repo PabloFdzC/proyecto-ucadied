@@ -1,11 +1,12 @@
 import React from 'react';
 import logoUcadied from '../Imagenes/logo-UCADIED.png';
-
+import { useParams } from "react-router-dom";
 
 class Principal extends React.Component {
     constructor(props){
         super(props);
         this.soloVer = props.soloVer;
+        this.id = props.id; // id de url
     }
 
     render(){

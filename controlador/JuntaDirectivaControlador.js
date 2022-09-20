@@ -6,9 +6,11 @@ const queries_generales = require('./QueriesGenerales');
 
 async function consultar(params){
     if(params.id_junta_directiva){
-        return await queries_generales.consultar(junta_directiva, {where: {
-            id: params.id_junta_directiva
-        }});
+        return await queries_generales.consultar(junta_directiva, {
+            where: {
+                id_organizacion: params.id_organizacion
+            }
+        });
     }
     else{
         return await queries_generales.consultar(junta_directiva, {});
