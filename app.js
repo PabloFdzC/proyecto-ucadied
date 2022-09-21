@@ -1,4 +1,6 @@
-#!/usr/bin/env node
+const https = require('https');
+const fs = require('fs');
+
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
@@ -22,8 +24,8 @@ var sess = {
   }
 
 if (app.get('env') === 'production') {
-    app.set('trust proxy', 1);
-    sess.cookie.secure = true;
+    //app.set('trust proxy', 1);
+    //sess.cookie.secure = true;
      app.use(express.static(path.join(__dirname, 'vista/build')));
 
     app.get('/*', function (req, res) {
@@ -39,3 +41,9 @@ app.use('/', ApiRouter);
 
 app.set('port', 8080);
 app.listen(app.get('port'));
+
+// https.createServer({
+//     key: fs.readFileSync(path.join(__dirname, 'SSH/key.pem'), 'utf-8'),
+//     cert: fs.readFileSync(path.join(__dirname, 'SSH/cert.pem'), 'utf-8'),
+//   },app)
+//   .listen(app.get('port'));
