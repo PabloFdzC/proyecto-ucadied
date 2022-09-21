@@ -3,7 +3,7 @@ import axios from 'axios'
 class QueriesGenerales {
     constructor(){
         this.http = axios.create({
-            baseURL: "http://129.146.45.144:8080/", 
+            baseURL: "https://129.146.45.144:8080/", 
             headers: {
             "Content-type": "application/json"
             },
