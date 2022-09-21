@@ -28,14 +28,15 @@ app.use('/', ApiRouter);
 if (app.get('env') === 'production') {
     app.set('trust proxy', 1);
     sess.cookie.secure = true;
-     app.use(express.static(path.join(__dirname, 'vista/build')));
+    app.use(express.static(path.join(__dirname, 'vista/build')));
+    app.use(session(sess));
 
     app.get('/*', function (req, res) {
         res.sendFile(path.join(__dirname, 'vista/build', 'index.html'));
     });
+} else {
+    app.use(session(sess));
 }
-
-app.use(session(sess));
 
 
 
@@ -43,8 +44,8 @@ app.use(session(sess));
 app.set('port', 8080);
 //app.listen(app.get('port'));
 
-https.createServer({
-    key: fs.readFileSync(path.join(__dirname, 'SSH/key.pem'), 'utf-8'),
-    cert: fs.readFileSync(path.join(__dirname, 'SSH/cert.pem'), 'utf-8'),
-  },app)
-  .listen(app.get('port'));
+// https.createServer({
+//     key: fs.readFileSync(path.join(__dirname, 'SSH/key.pem'), 'utf-8'),
+//     cert: fs.readFileSync(path.join(__dirname, 'SSH/cert.pem'), 'utf-8'),
+//   },app)
+//   .listen(app.get('port'));
