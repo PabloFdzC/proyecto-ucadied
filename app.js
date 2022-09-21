@@ -42,7 +42,7 @@ if (app.get('env') === 'production') {
 
 
 app.set('port', 8080);
-//app.listen(app.get('port'));
+app.listen(app.get('port'));
 
 // https.createServer({
 //     key: fs.readFileSync(path.join(__dirname, 'SSH/key.pem'), 'utf-8'),
