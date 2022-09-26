@@ -36,11 +36,13 @@ class App extends React.Component {
     const usuario = {
       id_usuario: localStorage.getItem("id_usuario"),
       tipo: localStorage.getItem("tipo"),
+      id_organizacion: localStorage.getItem("id_organizacion"),
     };
     this.state = {
       usuario:{
         tipo:usuario.tipo ? usuario.tipo : "",
-        id_usuario: usuario.id_usuario ? usuario.id_usuario : -1
+        id_usuario: usuario.id_usuario ? usuario.id_usuario : -1,
+        id_organizacion: usuario.id_organizacion ? usuario.id_organizacion : -1
       },
       organizacionActual:orgActual ? orgActual : -1
     }
@@ -51,14 +53,14 @@ class App extends React.Component {
   }
 
   async iniciarSesion(usuario) {
-    console.log(usuario);
     localStorage.setItem("id_usuario", usuario.id_usuario);
     localStorage.setItem("tipo", usuario.tipo);
-    this.setState({usuario: usuario});
-    console.log("localStorage.getItem(id_usuario):");
-    console.log(localStorage.getItem("id_usuario"));
-    console.log("localStorage.getItem(tipo):");
-    console.log(localStorage.getItem("tipo"));
+    localStorage.setItem("id_organizacion", usuario.id_organizacion);
+    localStorage.setItem("organizacionActual", usuario.id_organizacion);
+    this.setState({
+      usuario: usuario,
+      organizacionActual: usuario.id_organizacion ? usuario.id_organizacion : -1
+    });
   }
 
   cerrarSesion() {
@@ -73,7 +75,6 @@ class App extends React.Component {
   async cargarOrganizaciones(){
     try{
         const resp = await this.queriesGenerales.obtener("/organizacion/consultar", {});
-        console.log(resp.data);
         if(resp.data.length > 0){
           this.actualizaOrganizacionActual(resp.data[0].id)
         }
@@ -96,8 +97,6 @@ class App extends React.Component {
       id_usuario: localStorage.getItem("id_usuario"),
       tipo: localStorage.getItem("tipo"),
     };
-    console.log("usuario.id");
-    console.log(usuario.id_usuario);
     if(usuario.id_usuario){
       this.setState({usuario: usuario});
     }
@@ -116,8 +115,6 @@ class App extends React.Component {
       cerrarSesionUsuario: this.cerrarSesion,
       iniciarSesionUsuario: this.iniciarSesion,
     };
-
-    console.log(this.state.organizacionActual);
 
     return (
       <usuarioContexto.Provider value={autenticacion}>

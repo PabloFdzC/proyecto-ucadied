@@ -52,7 +52,6 @@ class IniciarSesionForm extends React.Component {
         return (
             <usuarioContexto.Consumer >
                 {({usuario,iniciarSesionUsuario,organizacionActual})=>{
-                    console.log(usuario);
                     if(usuario.tipo === "Administrador"){
                         return (
                             <Navigate to='/unionCantonal' replace={true}/>

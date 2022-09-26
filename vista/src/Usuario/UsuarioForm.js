@@ -20,7 +20,6 @@ class UsuarioForm extends React.Component {
         
         var campos = {
             nombre: "",
-            necesitaCuenta: this.administrador,
             fecha_nacimiento: "",
             nacionalidad: "",
             sexo:"",
@@ -32,7 +31,6 @@ class UsuarioForm extends React.Component {
         if(props.campos){
             campos = {
                 nombre: props.campos.nombre ? props.campos.nombre : "",
-                necesitaCuenta: this.administrador || props.campos.email,
                 fecha_nacimiento: props.campos.fecha_nacimiento ? props.campos.fecha_nacimiento : "",
                 nacionalidad: props.campos.nacionalidad ? props.campos.nacionalidad : "",
                 sexo:props.campos.sexo ? props.campos.sexo : "",
@@ -68,6 +66,7 @@ class UsuarioForm extends React.Component {
             sexo: "seleccionado",
             profesion: "requerido",
             telefonos: "tiene-valores",
+            email: "requerido|email",
             id_organizacion: props.ocupaAsociacion ? "requerido" : "",
         }, this);
         
@@ -90,7 +89,6 @@ class UsuarioForm extends React.Component {
             contrasenna:"",
             campos: Object.assign({},this.state.campos, {
                 nombre:"",
-                necesitaCuenta: this.administrador,
                 fecha_nacimiento: "",
                 nacionalidad: "",
                 sexo:"",
@@ -116,6 +114,7 @@ class UsuarioForm extends React.Component {
                 })
             });
         }
+        return !this.state.errores.hayError;
     }
 
     eliminarTelefono(telefono){
@@ -132,18 +131,11 @@ class UsuarioForm extends React.Component {
 
     async crearUsuario(evento){
         evento.preventDefault();
-        if (this.state.campos.necesitaCuenta){
-            this.validacion.agregarRegla("email", "requerido|email");
-        } else {
-            this.validacion.eliminarRegla("email");
-        }
         this.validacion.validarCampos(this.state.campos);
         if(!this.state.errores.hayError){
             let url = "usuario";
             if(this.administrador){
                 url = "administrador";
-            } else if(!this.state.campos.necesitaCuenta){
-                url = "persona";
             }
             try{
                 const resp = await this.queriesGenerales.postear(url+"/crear", this.state.campos);
@@ -151,14 +143,9 @@ class UsuarioForm extends React.Component {
                     titulo:"¡Agregado con Éxito!",
                     contrasenna:resp.data.contrasenna,
                 });
-                if(!this.state.campos.necesitaCuenta){
-                    this.avisaCreado(resp.data);
-                } else {
-                    console.log(resp.data);
-                    var usuario = resp.data.usuario_creado;
-                    usuario.persona = resp.data.persona_creada;
-                    this.avisaCreado(usuario);
-                }
+                var usuario = resp.data.usuario_creado;
+                usuario.persona = resp.data.persona_creada;
+                this.avisaCreado(usuario);
             }catch(error){
                 console.log(error);
             }
@@ -206,7 +193,7 @@ class UsuarioForm extends React.Component {
                                 </div>
                             </div>
                             <div className="mb-3 position-relative">
-                                <label htmlFor="fecha_nacimiento" className="form-label">Fecha de fecha_nacimiento</label>
+                                <label htmlFor="fecha_nacimiento" className="form-label">Fecha de nacimiento</label>
                                 <input type="date" className={this.state.errores.fecha_nacimiento.length > 0 ? "form-control is-invalid":"form-control"} key="fecha_nacimiento" name="fecha_nacimiento" required value={this.state.campos.fecha_nacimiento} onChange={this.manejaCambio} />
                                 <div className="invalid-tooltip">
                                     {this.state.errores.fecha_nacimiento}
@@ -256,24 +243,15 @@ class UsuarioForm extends React.Component {
                                     </div>
                                 </div>:
                             <></>}
-                            <AgregaTelefono agregarTelefono={this.agregarTelefono} error={this.state.errores.telefonos} />
-                            <Telefonos telefonos={this.state.campos.telefonos} eliminarTelefono={this.eliminarTelefono} />
                             <div className="mb-3 position-relative">
                                 <label htmlFor="email" className="form-label">Email</label>
-                                <input type="email" disabled={!this.state.campos.necesitaCuenta} className={this.state.errores.email.length > 0 ? "form-control is-invalid":"form-control"} key="email" name="email" value={this.state.campos.email} onChange={this.manejaCambio} />
+                                <input type="email" className={this.state.errores.email.length > 0 ? "form-control is-invalid":"form-control"} key="email" name="email" value={this.state.campos.email} onChange={this.manejaCambio} />
                                 <div className="invalid-tooltip">
                                     {this.state.errores.email}
                                 </div>
                             </div>
-
-                            {!this.props.administrador ?
-                                <div className="form-check">
-                                    <input className="form-check-input" type="checkbox" id="necesitaCuenta" name="necesitaCuenta" checked={this.state.campos.necesitaCuenta} onChange={this.manejaCambio} />
-                                    <label className="form-check-label" htmlFor="necesitaCuenta" >
-                                        ¿Necesita cuenta?
-                                    </label>
-                                </div>:
-                            <></>}
+                            <AgregaTelefono agregarTelefono={this.agregarTelefono} error={this.state.errores.telefonos} />
+                            <Telefonos telefonos={this.state.campos.telefonos} eliminarTelefono={this.eliminarTelefono} />
                         </div>
                     </div>
                     <div className="d-flex justify-content-end">
@@ -286,13 +264,10 @@ class UsuarioForm extends React.Component {
                     </div>
                 </form>:
             <>
-            {this.state.campos.necesitaCuenta ?
             <div className="d-flex flex-column center-text justify-content-center align-items-center">
                 <h4 className="modal-title">Contraseña</h4>
                 <p>{this.state.contrasenna}</p> 
-            
-            </div>:
-            <></>}
+            </div>
             <div className="d-flex justify-content-end">
                 <div className="m-1">
                     <button type="button" className="btn btn-secondary" data-bs-dismiss="modal" aria-label="Volver" onClick={this.reiniciarCampos}>Volver</button>

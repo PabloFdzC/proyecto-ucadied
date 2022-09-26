@@ -94,6 +94,7 @@ class OrganizacionForm extends React.Component {
                 })
             });
         }
+        return !this.state.errores.hayError;
     }
 
     eliminarTelefono(telefono){
@@ -212,6 +213,9 @@ class OrganizacionForm extends React.Component {
             </form>
             :<>
                 <div className="d-flex justify-content-end">
+                    <div className="m-1">
+                    <button type="button" className="btn btn-primary" aria-label="Agregar Otra" onClick={this.reiniciarCampos}>Agregar Otra</button>
+                    </div>
                     <div className="m-1">
                         <button type="button" className="btn btn-secondary" data-bs-dismiss="modal" aria-label="Volver" onClick={this.reiniciarCampos}>Volver</button>
                     </div>

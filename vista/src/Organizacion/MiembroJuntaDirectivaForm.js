@@ -2,7 +2,7 @@ import React from 'react';
 import QueriesGenerales from "../QueriesGenerales";
 import Validacion from '../Utilidades/Validacion';
 import manejarCambio from '../Utilidades/manejarCambio';
-import listaPaises from '../Utilidades/listaPaises';
+import Select from 'react-select';
 
 class MiembroJuntaDirectivaForm extends React.Component {
     constructor(props){
@@ -11,13 +11,12 @@ class MiembroJuntaDirectivaForm extends React.Component {
         this.campos = props.campos;
         var campos = {
             id_usuario: "",
-            puesto: "",
+            id_puesto_jd: "",
         };
         if(props.campos){
             campos = {
-                id_junta_directiva:this.props.idJunta,
                 id_usuario: props.campos.id_usuario ? props.campos.id_usuario : "",
-                puesto: props.campos.puesto ? props.campos.puesto : "",
+                id_puesto_jd: props.campos.id_puesto_jd ? props.campos.id_puesto_jd : "",
             };
         }
         this.state = {
@@ -25,16 +24,17 @@ class MiembroJuntaDirectivaForm extends React.Component {
             errores: {
                 hayError:false,
                 id_usuario: "",
-                puesto: "",
+                id_puesto_jd: "",
             },
-            puestos:[],
+            usuarios:[],
             agregado:false,
         };
 
         this.validacion = new Validacion({
-            id_usuario: "requerido",
-            puesto: "seleccionado",
+            id_usuario: "seleccionado",
+            id_puesto_jd: "seleccionado",
         }, this);
+        this.usuariosPedidos = false;
 
         this.agregarMiembro = this.agregarMiembro.bind(this);
         this.manejaCambio = this.manejaCambio.bind(this);
@@ -58,6 +58,7 @@ class MiembroJuntaDirectivaForm extends React.Component {
 
     async agregarMiembro(evento){
         evento.preventDefault();
+        console.log(this.state.campos);
         this.validacion.validarCampos(this.state.campos);
         if(!this.state.errores.hayError){
             try{
@@ -68,15 +69,29 @@ class MiembroJuntaDirectivaForm extends React.Component {
         }
     }
 
-    async cargarPuestos(){
+    async cargarUsuarios(){
         try{
-            var puestos = this.state.puestos;
-            const resp = await this.queriesGenerales.obtener("/consultarPuestos/"+this.props.idJunta, {});
+            var usuarios = this.state.usuarios;
+            const resp = await this.queriesGenerales.obtener("/usuario/consultar", {id_organizacion:this.props.idOrganizacion});
+            var usuariosSelect = [];
+            for(let usuario of resp.data){
+                usuariosSelect.push({
+                    label:usuario.nombre,
+                    value:usuario.id,
+                });
+            }
             this.setState({
-                puestos:puestos.concat(resp.data),
+                usuarios:usuarios.concat(usuariosSelect),
             });
         } catch(err){
             console.log(err);
+        }
+    }
+
+    componentDidMount() {
+        if(!this.usuariosPedidos){
+            this.usuariosPedidos = true;
+            this.cargarUsuarios();
         }
     }
 
@@ -87,21 +102,22 @@ class MiembroJuntaDirectivaForm extends React.Component {
             <form onSubmit={this.agregarMiembro} className="needs-validation" noValidate>
                 <div className="mb-3 position-relative">
                     <label htmlFor="id_usuario" className="form-label">Nombre</label>
-                    <select type="text" className={this.state.errores.id_usuario.length > 0 ? "form-select is-invalid":"form-select"} key="id_usuario" name="id_usuario" required value={this.state.campos.id_usuario} onChange={this.manejaCambio} >
-                        
-                    </select>
+                    <Select
+                    className={this.state.errores.id_usuario.length > 0 ? "form-control is-invalid":"form-control"} key="id_usuario" name="id_usuario" required value={this.state.campos.id_usuario} onChange={(opcion)=>this.manejaCambio({target:{name:"id_usuario",type:"select",value:opcion}})}
+                    options={this.state.usuarios}
+                    />
                     <div className="invalid-tooltip">
                         {this.state.errores.id_usuario}
                     </div>
                 </div>
                 <div className="mb-3 position-relative">
-                    <label htmlFor="puesto" className="form-label">Puesto</label>
-                    <select className={this.state.errores.puesto.length > 0 ? "form-select is-invalid":"form-select"} aria-label="nacionalidad" key="puesto" name="puesto" value={this.state.campos.nacionalidad} onChange={this.manejaCambio} >
+                    <label htmlFor="id_puesto_jd" className="form-label">Puesto</label>
+                    <select className={this.state.errores.id_puesto_jd.length > 0 ? "form-select is-invalid":"form-select"} aria-label="nacionalidad" key="id_puesto_jd" name="id_puesto_jd" value={this.state.campos.nacionalidad} onChange={this.manejaCambio} >
                         <option defaultValue>Puesto</option>
-                        {this.state.puestos.map((u,i) => <option key={i} value={u.id}>{u.nombre}</option>)}
+                        {this.props.puestos.map((u,i) => <option key={i} value={u.id}>{u.nombre}</option>)}
                     </select>
                     <div className="invalid-tooltip">
-                        {this.state.errores.puesto}
+                        {this.state.errores.id_puesto_jd}
                     </div>
                 </div>
                 <div className="d-flex justify-content-end">

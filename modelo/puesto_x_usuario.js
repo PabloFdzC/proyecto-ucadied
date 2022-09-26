@@ -1,21 +1,21 @@
 const type = require('sequelize');
 const sequelize = require('../conexion_base');
-const proyecto = require('./proyecto');
-const persona = require('./persona');
+const puesto_jd = require('./puesto_jd');
+const usuario = require('./usuario');
 
-module.exports = sequelize.define('proyecto_x_persona', {
-    id_proyecto: {
+module.exports = sequelize.define('puesto_x_usuario', {
+    id_puesto_jd: {
       type: type.INTEGER,
       references: {
-        model: proyecto,
+        model: puesto_jd,
         key: 'id'
       },
       primaryKey: true
     },
-    id_persona: {
+    id_usuario: {
       type: type.INTEGER,
       references: {
-        model: persona,
+        model: usuario,
         key: 'id'
       },
       primaryKey: true

@@ -17,11 +17,24 @@ class Validacion {
                 }
             }
             if (reglasDeCampo.indexOf("seleccionado") > -1){
-                console.log(c+"-"+campos[c]);
-                if(this.validaVacio(campos[c])){
-                    errores[c] = "Debe seleccionar una opción."
-                    errores.hayError = true;
-                    continue;
+                if(typeof campos[c] === 'string' || campos[c] instanceof String){
+                    if(this.validaVacio(campos[c])){
+                        errores[c] = "Debe seleccionar una opción."
+                        errores.hayError = true;
+                        continue;
+                    }
+                } else {
+                    if(typeof campos[c].value === 'string' || campos[c].value instanceof String){
+                        if(this.validaVacio(campos[c].value)){
+                            errores[c] = "Debe seleccionar una opción."
+                            errores.hayError = true;
+                            continue;
+                        }
+                    } else if(!this.validaSoloNumeros(campos[c].value)){
+                        errores[c] = "Debe seleccionar una opción."
+                        errores.hayError = true;
+                        continue;
+                    }
                 }
             }
             if (reglasDeCampo.indexOf("tiene-valores") > -1){

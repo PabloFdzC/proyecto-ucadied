@@ -6,6 +6,9 @@ import JuntaDirectivaForm from './JuntaDirectivaForm.js';
 import Tabla from '../Utilidades/Tabla.js'
 import PuestoForm from './PuestoForm.js';
 import QueriesGenerales from "../QueriesGenerales";
+import Tab from 'react-bootstrap/Tab';
+import Tabs from 'react-bootstrap/Tabs';
+import '../Estilos/Tabs.css';
 
 class JuntaDirectiva extends React.Component {
     constructor(props){
@@ -15,13 +18,25 @@ class JuntaDirectiva extends React.Component {
         this.queriesGenerales = new QueriesGenerales();
         this.state = {
             miembros:[],
+            puestos:[],
             juntaDirectiva:{
                 id:-1,
                 n_miembros: -1,
                 forma_elegir: ""
-            }
+            },
+            key: "miembros"
         };
-        this.titulos = [];
+        this.titulos = [
+            {llave:"nombre",valor:"Nombre"},
+            {llave:"puesto",valor:"Puesto"},
+            {llave:"funcion",valor:"Función"},
+            {llave:"edita_pagina",valor:"Edita página"},
+        ];
+        this.titulosPuestos = [
+            {llave:"nombre",valor:"Nombre"},
+            {llave:"funcion",valor:"Función"},
+            {llave:"edita_pagina",valor:"Edita página"},
+        ];
         this.juntaPedida = false;
         this.creaJunta = this.creaJunta.bind(this);
         this.avisaAgregado = this.avisaAgregado.bind(this);
@@ -30,7 +45,6 @@ class JuntaDirectiva extends React.Component {
     async cargarJuntaDirectiva(){
         try{
             const resp = await this.queriesGenerales.obtener("/juntaDirectiva/consultar/"+this.id, {});
-            console.log(resp);
             if(resp.data[0].id){
                 this.setState({
                     juntaDirectiva:Object.assign({}, this.state.juntaDirectiva, {
@@ -39,11 +53,13 @@ class JuntaDirectiva extends React.Component {
                         forma_elegir: resp.data[0].forma_elegir,
                     }),
                 });
+                await this.cargarPuestos(resp.data[0].id);
             } else {
                 this.setState({});
             }
         } catch(err){
             console.log(err);
+            this.setState({});
         }
     }
 
@@ -64,6 +80,18 @@ class JuntaDirectiva extends React.Component {
         });
     }
 
+    async cargarPuestos(idJunta){
+        try{
+            var puestos = this.state.puestos;
+            const resp = await this.queriesGenerales.obtener("/juntaDirectiva/consultarPuestos/"+idJunta, {});
+            this.setState({
+                puestos:puestos.concat(resp.data),
+            });
+        } catch(err){
+            console.log(err);
+        }
+    }
+
     async cargarMiembros(){
 
     }
@@ -73,12 +101,9 @@ class JuntaDirectiva extends React.Component {
     }
 
     render(){
-        console.log(this.state.juntaDirectiva.id);
-        console.log(this.juntaPedida);
         return (
             <usuarioContexto.Consumer >
-                {({usuario})=>{
-                    console.log(usuario);
+                {({usuario, organizacionActual})=>{
                     if(usuario.tipo === "Administrador" || usuario.tipo === "Usuario"){
                         return (<>
                             {this.state.juntaDirectiva.id && this.state.juntaDirectiva.id < 0 && this.juntaPedida ?
@@ -86,8 +111,8 @@ class JuntaDirectiva extends React.Component {
                             <div className="d-flex align-items-center justify-content-between m-3">
                                 <h1>Junta Directiva</h1>
                             </div>
-                            <div className="row" style={{height:"inherit"}}>
-                                <div style={{backgroundColor:"#137E31", color:"#FFFFFF"}}>
+                            <div className="d-flex" style={{height:"inherit"}}>
+                                <div className="w-100" style={{backgroundColor:"#137E31", color:"#FFFFFF"}}>
                                     <div className="m-4">
                                         <JuntaDirectivaForm idOrganizacion={this.id} creaJunta={this.creaJunta} />
                                     </div>
@@ -96,7 +121,7 @@ class JuntaDirectiva extends React.Component {
                             </>:
                             <>
                             <div className="d-flex align-items-center justify-content-between m-3">
-                                <h1>Miembros de Junta Directiva</h1>
+                                <h1>Junta Directiva</h1>
                                 <div className="d-flex justify-content-end">
                                     <div className="m-1">
                                         <button className="btn btn-dark" data-bs-toggle="modal" data-bs-target="#puestoModal"><i className="lni lni-plus"></i>  Agregar puesto</button>
@@ -106,16 +131,23 @@ class JuntaDirectiva extends React.Component {
                                     </div>
                                 </div>
                             </div>
-                            <div className="row">
+                            <div className="d-flex align-items-center justify-content-between">
                                 <div className="m-3">
-                                    <h4>Cantidad de miembros: {this.state.juntaDirectiva.n_miembros}</h4>
+                                    <h4>Cantidad máxima de miembros: {this.state.juntaDirectiva.n_miembros}</h4>
                                     <h4>Forma de elegir:</h4>
                                     <p>{this.state.juntaDirectiva.forma_elegir}</p>
                                 </div>
                             </div>
-                            <div className="row" style={{height:"inherit"}}>
-                                <div style={{backgroundColor:"#137E31", color:"#FFFFFF"}}>
-                                    <Tabla titulos={this.titulos} datos={this.state.miembros} style={{color:"#FFFFFF"}} />
+                            <div className="d-flex" style={{height:"inherit"}}>
+                                <div className="w-100" style={{backgroundColor:"#137E31", color:"#FFFFFF"}}>
+                                <Tabs id="controlled-tab-example" activeKey={this.state.key} onSelect={(key) => this.setState({key})} className="mb-3">
+                                    <Tab eventKey="miembros" title="Miembros">
+                                        <Tabla titulos={this.titulos} datos={this.state.miembros} style={{color:"#FFFFFF"}} />
+                                    </Tab>
+                                    <Tab eventKey="puestos" title="Puestos">
+                                        <Tabla titulos={this.titulosPuestos} datos={this.state.puestos} style={{color:"#FFFFFF"}} />
+                                    </Tab>
+                                </Tabs>
                                 </div>
                             </div>
                             </>}
@@ -124,7 +156,7 @@ class JuntaDirectiva extends React.Component {
                                 <div className="modal-content p-3" style={{backgroundColor:"#137E31", color:"#FFFFFF"}}>
                                     <div className="modal-body">
                                         <h2 className="modal-title">Agregar Miembro de Junta Directiva</h2>
-                                        <MiembroJuntaDirectivaForm idJunta={this.state.juntaDirectiva.id} avisaAgregado={this.avisaAgregado} />
+                                        <MiembroJuntaDirectivaForm idJunta={this.state.juntaDirectiva.id} puestos={this.state.puestos} idOrganizacion={organizacionActual} avisaAgregado={this.avisaAgregado} />
                                     </div>
                                 </div>
                                 </div>
@@ -133,7 +165,6 @@ class JuntaDirectiva extends React.Component {
                                 <div className="modal-dialog modal-dialog-scrollable modal-lg">
                                 <div className="modal-content p-3" style={{backgroundColor:"#137E31", color:"#FFFFFF"}}>
                                     <div className="modal-body">
-                                        <h2 className="modal-title">Agregar Puesto</h2>
                                         <PuestoForm idJunta={this.state.juntaDirectiva.id} />
                                     </div>
                                 </div>

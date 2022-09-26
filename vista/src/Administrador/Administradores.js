@@ -4,7 +4,6 @@ import { Navigate } from "react-router-dom";
 import {usuarioContexto} from '../usuarioContexto';
 import Tabla from '../Utilidades/Tabla.js'
 import QueriesGenerales from "../QueriesGenerales";
-import utilidadesUsuario from '../Usuario/utilidadesUsuario';
 
 class Administradores extends React.Component {
     constructor(props){
@@ -29,9 +28,8 @@ class Administradores extends React.Component {
     async cargarAdministradores(){
         try{
             const resp = await this.queriesGenerales.obtener("/usuario/consultarTipo/1", {});
-            var usuarios = utilidadesUsuario.moverDatosPersonas(resp.data);
             this.setState({
-                administradores:this.state.administradores.concat(usuarios),
+                administradores:this.state.administradores.concat(resp.data),
             });
         } catch(err){
             console.log(err);
@@ -39,11 +37,6 @@ class Administradores extends React.Component {
     }
 
     async avisaCreado(usuario){
-        if(usuario.persona){
-            usuario = utilidadesUsuario.moverDatosPersona(usuario, false);
-        } else {
-            usuario = utilidadesUsuario.moverDatosUsuario(usuario, true);
-        }
         var administradores = this.state.administradores;
         this.setState({
             administradores:administradores.concat(usuario),
@@ -68,8 +61,8 @@ class Administradores extends React.Component {
                                     <h1>Administradores</h1>
                                     <button className="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal"><i className="lni lni-plus"></i>  Agregar administrador</button>
                                 </div>
-                                <div className="row" style={{height:"inherit"}}>
-                                    <div style={{backgroundColor:"#137E31", color:"#FFFFFF"}}>
+                                <div className="d-flex" style={{height:"inherit"}}>
+                                    <div className="w-100" style={{backgroundColor:"#137E31", color:"#FFFFFF"}}>
                                         <Tabla titulos={this.titulos} datos={this.state.administradores} style={{color:"#FFFFFF"}} />
                                     </div>
                                 </div>

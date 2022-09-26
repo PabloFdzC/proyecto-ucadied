@@ -12,6 +12,15 @@ module.exports = sequelize.define('usuario', {
         },
         contrasenna: type.STRING,
         tipo: type.ENUM('Administrador', 'Usuario'),
-        activo: type.BOOLEAN,
+        activo: {
+            type:type.BOOLEAN,
+            defaultValue: true
+        },
+        fecha_nacimiento: type.DATE,
+        profesion: type.STRING,
+        nombre: type.STRING,
+        sexo: type.ENUM('Masculino', 'Femenino', 'No Especificado'),
+        nacionalidad: type.STRING,
+        telefonos: type.JSON,
     },
     {indexes:[{unique:true, fields: ['email']}]});

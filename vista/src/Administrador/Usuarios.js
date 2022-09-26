@@ -3,7 +3,6 @@ import QueriesGenerales from "../QueriesGenerales";
 import UsuarioForm from '../Usuario/UsuarioForm';
 import { Navigate } from "react-router-dom";
 import {usuarioContexto} from '../usuarioContexto';
-import utilidadesUsuario from '../Usuario/utilidadesUsuario';
 
 import Tabla from '../Utilidades/Tabla.js'
 
@@ -29,10 +28,9 @@ class Usuarios extends React.Component {
     async cargarUsuarios(){
         try{
             const resp = await this.queriesGenerales.obtener("/usuario/consultarTipo/0", {});
-            var usuarios = utilidadesUsuario.moverDatosUsuarios(resp.data);
             console.log(resp);
             this.setState({
-                usuarios:this.state.usuarios.concat(usuarios),
+                usuarios:this.state.usuarios.concat(resp.data),
             });
         } catch(err){
             console.log(err);
@@ -47,11 +45,6 @@ class Usuarios extends React.Component {
     }
 
     async avisaCreado(usuario){
-        if(usuario.persona){
-            usuario = utilidadesUsuario.moverDatosPersona(usuario, false);
-        } else {
-            usuario = utilidadesUsuario.moverDatosUsuario(usuario, true);
-        }
         var usuarios = this.state.usuarios;
         this.setState({
             usuarios:usuarios.concat(usuario),
@@ -69,8 +62,8 @@ class Usuarios extends React.Component {
                                     <h1>Usuarios</h1>
                                     <button className="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal"><i className="lni lni-plus"></i>  Agregar usuario</button>
                                 </div>
-                                <div className="row" style={{height:"inherit"}}>
-                                    <div style={{backgroundColor:"#137E31", color:"#FFFFFF"}}>
+                                <div className="d-flex" style={{height:"inherit"}}>
+                                    <div className="w-100" style={{backgroundColor:"#137E31", color:"#FFFFFF"}}>
                                         <Tabla titulos={this.titulos} datos={this.state.usuarios} style={{color:"#FFFFFF"}} />
                                     </div>
                                 </div>

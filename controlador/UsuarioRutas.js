@@ -24,7 +24,14 @@ router.get('/consultar/:id_usuario', async (req, res) => {
 router.get('/consultar', async (req, res) => {
     try{
         if(req.session.idUsuario && req.session.idUsuario != -1){
-            const usuarios = await usuarioCtrl.consultar(req.params);
+            var params = {};
+            if(req.query.id){
+                params.id = req.query.id;
+            }
+            if(req.query.id_organizacion){
+                params.id_organizacion = req.query.id_organizacion;
+            }
+            const usuarios = await usuarioCtrl.consultar(params);
             res.json(usuarios);
         }
         else{

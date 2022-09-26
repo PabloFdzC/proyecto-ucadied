@@ -66,7 +66,6 @@ class Asociaciones extends React.Component {
     }
 
     render(){
-        console.log(this.state.asociaciones);
         var asociaciones;
         if(this.state.asociaciones.length > 0){
             asociaciones = this.state.asociaciones.map((a, i) =>{
@@ -107,13 +106,13 @@ class Asociaciones extends React.Component {
                 <div className="d-flex align-items-center justify-content-between m-3">
                     <h1>Asociaciones</h1>
                     {this.props.soloVer ? <></>:
-                    <button className="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal"><i className="lni lni-plus"></i>  Agregar asociación</button>}
+                    <button className="btn btn-primary" data-bs-toggle="modal" data-bs-target="#agregarAsociacionModal"><i className="lni lni-plus"></i>  Agregar asociación</button>}
                 </div>
-                <div className="row">
+                <div className="row m-0">
                     {asociaciones}
                 </div>
                 {this.props.soloVer ? <></>:
-                    <div className="modal fade" id="exampleModal" tabIndex="-1" aria-labelledby="modalAgregarUnion" aria-hidden="true">
+                    <div className="modal fade" id="agregarAsociacionModal" tabIndex="-1" aria-labelledby="modalAgregarUnion" aria-hidden="true">
                         <div className="modal-dialog modal-dialog-scrollable modal-lg">
                             <div className="modal-content p-3" style={{backgroundColor:"#137E31", color:"#FFFFFF"}}>
                                 <div className="modal-body">

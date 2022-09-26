@@ -62,8 +62,8 @@ class UnionCantonal extends React.Component {
                                     <h1>Uniones Cantonales</h1>
                                     <button className="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal"><i className="lni lni-plus"></i>  Agregar unión</button>
                                 </div>
-                                <div className="row" style={{height:"inherit"}}>
-                                    <div style={{backgroundColor:"#137E31", color:"#FFFFFF"}}>
+                                <div className="d-flex" style={{height:"inherit"}}>
+                                    <div className="w-100" style={{backgroundColor:"#137E31", color:"#FFFFFF"}}>
                                     <Tabla titulos={this.titulos} datos={this.state.uniones} style={{color:"#FFFFFF"}} />
                                     </div>
                                 </div>

@@ -1,7 +1,7 @@
 const junta_directiva = require('../modelo/junta_directiva');
 const puesto_jd = require('../modelo/puesto_jd');
+const puesto_x_usuario = require('../modelo/puesto_x_usuario');
 const usuario = require('../modelo/usuario');
-const persona = require('../modelo/persona');
 const queries_generales = require('./QueriesGenerales');
 
 async function consultar(params){
@@ -54,18 +54,24 @@ async function eliminar(id){
 }
 
 async function agregar_miembro(info){
-    return await queries_generales.modificar(puesto_jd, info.id_puesto, {id_usuario: info.id_usuario});
+    return await queries_generales.crear(puesto_x_usuario, {
+        id_usuario: info.id_usuario,
+        id_puesto_jd: info.id_puesto_jd,
+    });
 }
 
-async function eliminar_miembro(id_puesto){
-    return await queries_generales.modificar(puesto_jd, id_puesto, {id_usuario: null});
+async function eliminar_miembro(info){
+    return await queries_generales.eliminar(puesto_x_usuario, {
+        id_usuario: info.id_usuario,
+        id_puesto_jd: info.id_puesto_jd,
+    });
 }
 
 async function consultar_miembros(id_junta_directiva){
     return await queries_generales.consultar(puesto_jd, {
         include: [{
-            model: usuario,
-            include: [{model: persona}]
+            model: puesto_x_usuario,
+            include: [{model: usuario}]
         }],
         where: {
             id_junta_directiva

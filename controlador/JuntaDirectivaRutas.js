@@ -194,8 +194,20 @@ router.post('/agregarMiembro', jsonParser, async (req, res) => {
 router.delete('/eliminarMiembro', jsonParser, async (req, res) => {
     try{
         if(req.session.idUsuario && req.session.idUsuario != -1){
-            const resultado = await JuntaDirectivaCtlr.eliminar_miembro(req.body.id_puesto);
-            res.json(resultado);
+            var params = {};
+            if(req.query.id_puesto_jd){
+                params.id_puesto_jd = req.query.id_puesto_jd;
+            }
+            if(req.query.id_usuario){
+                params.id_usuario = req.query.id_usuario;
+            }
+            if(params.length === 2){
+                const resultado = await JuntaDirectivaCtlr.eliminar_miembro(params);
+                res.json(resultado);
+            } else {
+                res.status(400);
+                res.send("Parametros incorrectos");    
+            }
         }
         else{
             res.status(400);

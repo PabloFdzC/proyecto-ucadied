@@ -12,12 +12,20 @@ class AgregaTelefono extends React.Component {
         };
 
         this.manejaCambio = this.manejaCambio.bind(this);
+        this.agregaTelefono = this.agregaTelefono.bind(this);
     }
 
     manejaCambio(evento){
         const objetivo = evento.target;
         const valor = objetivo.value;
         this.setState({telefono:valor});
+    }
+
+    agregaTelefono(){
+        if(this.props.agregarTelefono(this.state.telefono)){
+            this.setState({telefono:""})
+        }
+        
     }
 
     render(){
@@ -31,7 +39,7 @@ class AgregaTelefono extends React.Component {
                             {this.props.error}
                         </div>
                     </div>
-                    <button type="button" className="btn btn-primary" onClick={() => this.props.agregarTelefono(this.state.telefono)}><i className="lni lni-plus"></i></button>
+                    <button type="button" className="btn btn-primary" onClick={this.agregaTelefono}><i className="lni lni-plus"></i> Agregar</button>
                 </div>
             </div>
         );
