@@ -1,14 +1,19 @@
 const router = require('express').Router();
 const bodyParser = require('body-parser');
 const jsonParser  = bodyParser.json({ extended: false });
-const proyectoCtlr = require('./ProyectoControlador');
 const gastoCtlr = require('./GastoControlador');
 
 
-router.get('/consultar/:id_proyecto', async (req, res) => {
+router.get('/consultar/:id_gasto', async (req, res) => {
     try{
-        const proyectos = await proyectoCtlr.consultar(req.params);
-        res.json(proyectos);
+        if(req.session.idUsuario && req.session.idUsuario != -1){
+            const gastos = await gastoCtlr.consultar(req.params);
+            res.json(gastos);
+        }
+        else{
+            res.status(400);
+            res.send("Sesión no iniciada");
+        }
     }catch(err){
         console.log(err);
         res.status(400);
@@ -18,8 +23,14 @@ router.get('/consultar/:id_proyecto', async (req, res) => {
 
 router.get('/consultar', async (req, res) => {
     try{
-        const proyectos = await proyectoCtlr.consultar(req.params);
-        res.json(proyectos);
+        if(req.session.idUsuario && req.session.idUsuario != -1){
+            const gastos = await gastoCtlr.consultar({});
+            res.json(gastos);
+        }
+        else{
+            res.status(400);
+            res.send("Sesión no iniciada");
+        }
     }catch(err){
         console.log(err);
         res.status(400);
@@ -30,8 +41,8 @@ router.get('/consultar', async (req, res) => {
 router.post('/crear', jsonParser, async (req, res) => {
     try{
         if(req.session.idUsuario && req.session.idUsuario != -1){
-            const proyecto_creado = await proyectoCtlr.crear(req.body);
-            res.json(proyecto_creado);
+            const gasto_creado = await gastoCtlr.crear(req.body);
+            res.json(gasto_creado);
         }
         else{
             res.status(400);
@@ -44,10 +55,10 @@ router.post('/crear', jsonParser, async (req, res) => {
     }
 });
 
-router.put('/modificar/:id_proyecto', jsonParser, async (req, res) => {
+router.put('/modificar/:id_gasto', jsonParser, async (req, res) => {
     try{
         if(req.session.idUsuario && req.session.idUsuario != -1){
-            const resultado = await proyectoCtlr.modificar(req.params.id_proyecto, req.body)
+            const resultado = await gastoCtlr.modificar(req.params.id_gasto, req.body)
             res.json(resultado);
         }
         else{
@@ -61,28 +72,11 @@ router.put('/modificar/:id_proyecto', jsonParser, async (req, res) => {
     }
 });
 
-router.delete('/eliminar/:id_proyecto', async (req, res) => {
+router.delete('/eliminar/:id_gasto', async (req, res) => {
     try{
         if(req.session.idUsuario && req.session.idUsuario != -1){
-            const resultado = await proyectoCtlr.eliminar(req.params.id_proyecto);
+            const resultado = await gastoCtlr.eliminar(req.params.id_gasto);
             res.json(resultado);
-        }
-        else{
-            res.status(400);
-            res.send("Sesión no iniciada");
-        }
-    }catch(err){
-        console.log(err);
-        res.status(400);
-        res.send("Algo salió mal");
-    }
-});
-
-router.get('/consultarGastos/:id_proyecto', async (req, res) => {
-    try{
-        if(req.session.idUsuario && req.session.idUsuario != -1){
-            const gastos = await gastoCtlr.consultar(req.params);
-            res.json(gastos);
         }
         else{
             res.status(400);

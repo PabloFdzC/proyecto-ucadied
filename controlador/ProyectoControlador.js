@@ -2,7 +2,7 @@ const proyecto = require('../modelo/proyecto');
 const queries_generales = require('./QueriesGenerales');
 
 async function consultar(params){
-    if(params.id_activo){
+    if(params.id_proyecto){
         return await queries_generales.consultar(proyecto, {where: {
             id: params.id_proyecto
         }});
