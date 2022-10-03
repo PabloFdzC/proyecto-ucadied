@@ -1,0 +1,33 @@
+/* .background-div{
+  justify-content: center;
+  background-color: #e9f0f5;
+  border-radius: 17% 8% / 3% 12%;
+} */
+
+.calendarTitle-h2{
+  display: flex;
+  justify-content: center;
+  align-content: center;
+  align-items: center;
+}
+
+.fc-day-today {
+  background: #FCE762 !important;
+  border: none !important;
+} 
+
+ .fc-day-past{ 
+  background-color : #063970;
+} 
+
+.fc-day-future{ 
+  background-color : #137E31;
+}
+
+.fc-daygrid-day-top{
+  color: #F5F0F6;
+}
+
+.fc-daygrid-day-number{
+  color: #F5F0F6;
+}
