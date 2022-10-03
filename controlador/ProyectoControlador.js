@@ -1,15 +1,16 @@
 const proyecto = require('../modelo/proyecto');
+const usuario = require('../modelo/usuario');
 const queries_generales = require('./QueriesGenerales');
 
 async function consultar(params){
-    if(params.id_proyecto){
-        return await queries_generales.consultar(proyecto, {where: {
-            id: params.id_proyecto
-        }});
-    }
-    else{
-        return await queries_generales.consultar(proyecto, {});
-    }
+    return await queries_generales.consultar(proyecto,
+        {
+            where: params,
+            include: {
+                model: usuario,
+                attributes:["id","nombre"]
+            }
+        });
 }
 
 async function crear(info){

@@ -7,8 +7,8 @@ module.exports = sequelize.define('proyecto', {
             primaryKey: true,
             autoIncrement: true
         },
-        inicio: type.DATE,
-        cierre: type.DATE,
+        inicio: type.DATEONLY,
+        cierre: type.DATEONLY,
         nombre: type.STRING,
         presupuesto: type.DOUBLE,
     });

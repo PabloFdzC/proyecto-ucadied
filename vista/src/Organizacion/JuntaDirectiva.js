@@ -2,7 +2,6 @@ import React from 'react';
 import { Navigate } from "react-router-dom";
 import {usuarioContexto} from '../usuarioContexto';
 import MiembroJuntaDirectivaForm from './MiembroJuntaDirectivaForm.js';
-import JuntaDirectivaForm from './JuntaDirectivaForm.js';
 import Tabla from '../Utilidades/Tabla.js'
 import PuestoForm from './PuestoForm.js';
 import QueriesGenerales from "../QueriesGenerales";
@@ -19,107 +18,102 @@ class JuntaDirectiva extends React.Component {
         this.state = {
             miembros:[],
             puestos:[],
-            juntaDirectiva:{
-                id:-1,
-                n_miembros: -1,
-                forma_elegir: ""
-            },
             key: "miembros"
         };
         this.titulos = [
             {llave:"nombre",valor:"Nombre"},
             {llave:"puesto",valor:"Puesto"},
             {llave:"funcion",valor:"Función"},
-            {llave:"edita_pagina",valor:"Edita página"},
         ];
         this.titulosPuestos = [
             {llave:"nombre",valor:"Nombre"},
             {llave:"funcion",valor:"Función"},
             {llave:"edita_pagina",valor:"Edita página"},
+            {llave:"edita_junta",valor:"Edita Junta Directiva"},
+            {llave:"edita_proyecto",valor:"Edita proyectos"},
+            {llave:"edita_actividad",valor:"Edita actividades"},
         ];
-        this.juntaPedida = false;
-        this.creaJunta = this.creaJunta.bind(this);
-        this.avisaAgregado = this.avisaAgregado.bind(this);
+        this.organizacionPedida = false;
+        this.puestosPedidos = true;
+        this.avisaAgregadoMiembro = this.avisaAgregadoMiembro.bind(this);
+        this.agregaPuestos = this.agregaPuestos.bind(this);
     }
 
-    async cargarJuntaDirectiva(){
-        try{
-            const resp = await this.queriesGenerales.obtener("/juntaDirectiva/consultar/"+this.id, {});
-            if(resp.data[0].id){
-                this.setState({
-                    juntaDirectiva:Object.assign({}, this.state.juntaDirectiva, {
-                        id: resp.data[0].id,
-                        n_miembros: resp.data[0].n_miembros,
-                        forma_elegir: resp.data[0].forma_elegir,
-                    }),
-                });
-                await this.cargarPuestos(resp.data[0].id);
-            } else {
-                this.setState({});
+    
+
+    async componentDidMount() {
+        if(!this.organizacionPedida){
+            this.organizacionPedida = true;
+            try{
+                console.log("PIDEEEEEEEEEEEEEEEEEEEEEEEEEEEE")
+                await this.props.cargarOrganizacion(this.props.id);
+                this.cargarPuestos(this.props.id);
+                this.cargarMiembros(this.props.id);
+            }catch(err){
+                console.log(err);
             }
+        }
+    }
+
+    async cargarPuestos(idOrganizacion){
+        try{
+            const resp = await this.queriesGenerales.obtener("/juntaDirectiva/consultarPuestos/"+idOrganizacion, {});
+            this.agregaPuestos(resp.data);
         } catch(err){
             console.log(err);
-            this.setState({});
         }
     }
 
-    componentDidMount() {
-        if(!this.juntaPedida){
-            this.juntaPedida = true;
-            this.cargarJuntaDirectiva();
-        }
-    }
-
-    creaJunta(junta){
-        this.setState({
-            juntaDirectiva:Object.assign({}, this.state.juntaDirectiva, {
-                id: junta.id,
-                n_miembros: junta.n_miembros,
-                forma_elegir: junta.forma_elegir,
-            }),
-        });
-    }
-
-    async cargarPuestos(idJunta){
+    async cargarMiembros(idOrganizacion){
         try{
-            var puestos = this.state.puestos;
-            const resp = await this.queriesGenerales.obtener("/juntaDirectiva/consultarPuestos/"+idJunta, {});
+            var miembros = this.state.miembros;
+            const resp = await this.queriesGenerales.obtener("/juntaDirectiva/consultarMiembros/"+idOrganizacion, {});
+            var miembrosLista = [];
+            for(let m of resp.data){
+                var miembro = {
+                    nombre:m.usuario.nombre,
+                    puesto: m.puesto_jd.nombre,
+                    funcion: m.puesto_jd.funcion,
+                };
+                miembrosLista.push(miembro);
+            }
             this.setState({
-                puestos:puestos.concat(resp.data),
+                miembros:miembros.concat(miembrosLista),
             });
         } catch(err){
             console.log(err);
         }
     }
 
-    async cargarMiembros(){
-
+    async avisaAgregadoMiembro(miembroNuevo){
+        var miembro = {
+            nombre: miembroNuevo.label,
+        };
+        for(let p of this.state.puestos){
+            if(p.id === miembroNuevo.id_puesto_jd){
+                miembro.puesto = p.nombre;
+                miembro.funcion = p.funcion;
+            }
+        }
+        var miembros = this.state.miembros;
+        this.setState({
+            miembros:miembros.concat(miembro),
+        });
     }
 
-    async avisaAgregado(){
-        await this.cargarMiembros();
+    agregaPuestos(puestosNuevos){
+        var puestos = this.state.puestos;
+        this.setState({
+            puestos:puestos.concat(puestosNuevos),
+        });
     }
 
     render(){
         return (
             <usuarioContexto.Consumer >
-                {({usuario, organizacionActual})=>{
+                {({usuario, organizacion})=>{
                     if(usuario.tipo === "Administrador" || usuario.tipo === "Usuario"){
                         return (<>
-                            {this.state.juntaDirectiva.id && this.state.juntaDirectiva.id < 0 && this.juntaPedida ?
-                            <>
-                            <div className="d-flex align-items-center justify-content-between m-3">
-                                <h1>Junta Directiva</h1>
-                            </div>
-                            <div className="d-flex" style={{height:"inherit"}}>
-                                <div className="w-100" style={{backgroundColor:"#137E31", color:"#FFFFFF"}}>
-                                    <div className="m-4">
-                                        <JuntaDirectivaForm idOrganizacion={this.id} creaJunta={this.creaJunta} />
-                                    </div>
-                                </div>
-                            </div>
-                            </>:
-                            <>
                             <div className="d-flex align-items-center justify-content-between m-3">
                                 <h1>Junta Directiva</h1>
                                 <div className="d-flex justify-content-end">
@@ -133,9 +127,9 @@ class JuntaDirectiva extends React.Component {
                             </div>
                             <div className="d-flex align-items-center justify-content-between">
                                 <div className="m-3">
-                                    <h4>Cantidad máxima de miembros: {this.state.juntaDirectiva.n_miembros}</h4>
+                                    <h4>Cantidad máxima de miembros: {organizacion.n_miembros_jd}</h4>
                                     <h4>Forma de elegir:</h4>
-                                    <p>{this.state.juntaDirectiva.forma_elegir}</p>
+                                    <p>{organizacion.forma_elegir_jd}</p>
                                 </div>
                             </div>
                             <div className="d-flex" style={{height:"inherit"}}>
@@ -150,13 +144,12 @@ class JuntaDirectiva extends React.Component {
                                 </Tabs>
                                 </div>
                             </div>
-                            </>}
                             <div className="modal fade" id="miembroModal" tabIndex="-1" aria-labelledby="modalAgregarMiembroJuntaDirectiva" aria-hidden="true">
                                 <div className="modal-dialog modal-dialog-scrollable modal-lg">
                                 <div className="modal-content p-3" style={{backgroundColor:"#137E31", color:"#FFFFFF"}}>
                                     <div className="modal-body">
                                         <h2 className="modal-title">Agregar Miembro de Junta Directiva</h2>
-                                        <MiembroJuntaDirectivaForm idJunta={this.state.juntaDirectiva.id} puestos={this.state.puestos} idOrganizacion={organizacionActual} avisaAgregado={this.avisaAgregado} />
+                                        <MiembroJuntaDirectivaForm puestos={this.state.puestos} idOrganizacion={organizacion.id} avisaAgregado={this.avisaAgregadoMiembro} />
                                     </div>
                                 </div>
                                 </div>
@@ -165,7 +158,7 @@ class JuntaDirectiva extends React.Component {
                                 <div className="modal-dialog modal-dialog-scrollable modal-lg">
                                 <div className="modal-content p-3" style={{backgroundColor:"#137E31", color:"#FFFFFF"}}>
                                     <div className="modal-body">
-                                        <PuestoForm idJunta={this.state.juntaDirectiva.id} />
+                                        <PuestoForm idOrganizacion={organizacion.id} avisaAgregado={this.agregaPuestos} />
                                     </div>
                                 </div>
                                 </div>

@@ -2,19 +2,7 @@ const gasto = require('../modelo/gasto');
 const queries_generales = require('./QueriesGenerales');
 
 async function consultar(params){
-    if(params.id_gasto){
-        return await queries_generales.consultar(gasto, {where: {
-            id: params.id_gasto
-        }});
-    }
-    if(params.id_proyecto){
-        return await queries_generales.consultar(gasto, {where: {
-            id_proyecto: params.id_proyecto
-        }});
-    }
-    else{
-        return await queries_generales.consultar(gasto, {});
-    }
+    return await queries_generales.consultar(gasto, {where:params});
 }
 
 async function crear(info){

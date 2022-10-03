@@ -3,7 +3,6 @@ const actividad = require("./modelo/actividad");
 const activo = require("./modelo/activo");
 const componente = require("./modelo/componente");
 const gasto = require("./modelo/gasto");
-const junta_directiva = require("./modelo/junta_directiva");
 const organizacion = require("./modelo/organizacion");
 const pagina = require("./modelo/pagina");
 const proyecto = require("./modelo/proyecto");
@@ -13,14 +12,6 @@ const usuario = require("./modelo/usuario");
 const sequelize = require('./conexion_base');
 const proyecto_x_usuario = require('./modelo/proyecto_x_usuario');
 const puesto_x_usuario = require('./modelo/puesto_x_usuario');
-
-organizacion.hasOne(junta_directiva, {
-  foreignKey: 'id_organizacion'
-});
-
-junta_directiva.belongsTo(organizacion, {
-  foreignKey: 'id_organizacion'
-});
 
 organizacion.hasMany(activo, {
   foreignKey: 'id_organizacion'
@@ -76,20 +67,20 @@ puesto_x_usuario.belongsTo(usuario, {
   foreignKey: 'id_usuario'
 });
 
-usuario.hasMany(puesto_jd, {
-  foreignKey: 'id_usuario'
+organizacion.hasMany(puesto_x_usuario, {
+  foreignKey: 'id_organizacion'
 });
 
-puesto_jd.belongsTo(usuario, {
-  foreignKey: 'id_usuario'
+puesto_x_usuario.belongsTo(organizacion, {
+  foreignKey: 'id_organizacion'
 });
 
-junta_directiva.hasMany(puesto_jd, {
-  foreignKey: 'id_junta_directiva'
+organizacion.hasMany(puesto_jd, {
+  foreignKey: 'id_organizacion'
 });
 
-puesto_jd.belongsTo(junta_directiva, {
-  foreignKey: 'id_junta_directiva'
+puesto_jd.belongsTo(organizacion, {
+  foreignKey: 'id_organizacion'
 });
 
 pagina.hasMany(componente, {
@@ -134,12 +125,12 @@ reserva_activo.belongsTo(activo, {
 
 proyecto.belongsToMany(usuario, {
   through: proyecto_x_usuario,
-  foreignKey: 'id_usuario'
+  foreignKey: 'id_proyecto'
 });
 
 usuario.belongsToMany(proyecto, {
   through: proyecto_x_usuario,
-  foreignKey: 'id_proyecto'
+  foreignKey: 'id_usuario'
 });
 
 organizacion.hasMany(usuario, {

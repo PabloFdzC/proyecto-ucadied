@@ -14,7 +14,7 @@ module.exports = sequelize.define('usuario', {
             type:type.BOOLEAN,
             defaultValue: '1'
         },
-        fecha_nacimiento: type.DATE,
+        fecha_nacimiento: type.DATEONLY,
         profesion: type.STRING,
         nombre: type.STRING,
         sexo: type.ENUM('Masculino', 'Femenino', 'No Especificado'),

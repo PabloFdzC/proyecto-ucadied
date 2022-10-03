@@ -92,8 +92,11 @@ router.post('/iniciarSesion', jsonParser, async (req, res) => {
         if(resultado.success){
             req.session.idUsuario = resultado.id_usuario;
             req.session.tipoUsuario = resultado.tipo;
+            res.json(resultado);
+        } else {
+            res.status(401);
+            res.send(resultado);
         }
-        res.json(resultado);
     }catch (err){
         console.log(err);
         res.status(400);

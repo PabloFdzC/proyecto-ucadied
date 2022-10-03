@@ -18,6 +18,7 @@ class QueriesGenerales {
     }
 
     async obtener(url, datos){
+        console.log(datos);
         const resp = await this.http.get(url, {params:datos});
         return resp;
     }

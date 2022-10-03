@@ -12,6 +12,9 @@ module.exports = sequelize.define('organizacion', {
         domicilio: type.STRING,
         territorio: type.STRING,
         telefonos: type.JSON,
-        email: type.STRING
+        email: type.STRING,
+        n_miembros_jd: type.INTEGER,
+        forma_elegir_jd: type.STRING,
     },
     {indexes:[{unique:true, fields: ['email']}]});
+

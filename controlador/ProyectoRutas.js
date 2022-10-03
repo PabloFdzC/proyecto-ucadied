@@ -18,7 +18,14 @@ router.get('/consultar/:id_proyecto', async (req, res) => {
 
 router.get('/consultar', async (req, res) => {
     try{
-        const proyectos = await proyectoCtlr.consultar(req.params);
+        var params = {};
+        if(req.query.id){
+            params.id = req.query.id;
+        }
+        if(req.query.id_organizacion){
+            params.id_organizacion = req.query.id_organizacion;
+        }
+        const proyectos = await proyectoCtlr.consultar(params);
         res.json(proyectos);
     }catch(err){
         console.log(err);

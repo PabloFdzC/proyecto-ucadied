@@ -30,7 +30,7 @@ class Validacion {
                             errores.hayError = true;
                             continue;
                         }
-                    } else if(!this.validaSoloNumeros(campos[c].value)){
+                    } else if(isNaN(campos[c].value)){
                         errores[c] = "Debe seleccionar una opción."
                         errores.hayError = true;
                         continue;

@@ -1,7 +1,9 @@
 import React from 'react';
 import OrganizacionForm from '../Organizacion/OrganizacionForm';
 import QueriesGenerales from "../QueriesGenerales";
-import Tabla from '../Utilidades/Tabla';
+import { Link } from 'react-router-dom';
+import Modal from 'react-bootstrap/Modal';
+import '../Estilos/Modal.css';
 
 class Asociaciones extends React.Component {
     constructor(props){
@@ -10,6 +12,9 @@ class Asociaciones extends React.Component {
         this.queriesGenerales = new QueriesGenerales();
         this.state = {
             asociaciones: [],
+            asociacion:{},
+            ingresaJunta:true,
+            muestra:false,
         }
         this.asociacionesPedidas = false;
         this.titulos = [
@@ -21,6 +26,22 @@ class Asociaciones extends React.Component {
         ];
         this.avisaCreado = this.avisaCreado.bind(this);
         this.eliminarAsociacion = this.eliminarAsociacion.bind(this);
+        this.muestraModal = this.muestraModal.bind(this);
+        this.agregarAsociacion = this.agregarAsociacion.bind(this);
+    }
+
+    agregarAsociacion(){
+        this.setState({
+            asociacion:{},
+            ingresaJunta:true,
+            muestra:true,
+        })
+    }
+
+    muestraModal(muestra){
+        this.setState({
+            muestra:muestra,
+        })
     }
 
     async eliminarAsociacion(id){
@@ -65,36 +86,47 @@ class Asociaciones extends React.Component {
         });
     }
 
+    modificarAsociacion(asociacion){
+        asociacion.puestos = [];
+        this.setState({
+            ingresaJunta: false,
+            asociacion:asociacion,
+            muestra:true,
+        });
+    }
+
     render(){
         var asociaciones;
         if(this.state.asociaciones.length > 0){
             asociaciones = this.state.asociaciones.map((a, i) =>{
                 return (
-                <div className="col-4" key={"aCol"+i} style={i%2==0 ? {backgroundColor:"#137E31",color:"#FFFFFF"} : {backgroundColor:"#76B2CE",color:"#160C28"}}>
-                    <div className="container p-3" key={"aCont"+i}>
-                        <h3 key={"t"+i}>{a.nombre}</h3>
-                        <p key={"c"+i}>Cédula jurídica: {a.cedula}</p>
-                        <p key={"d"+i}>Domicilio: {a.domicilio}</p>
-                        <p key={"te"+i}>Territorio: {a.territorio}</p>
-                        <p key={"tels"+i}>Telefonos:</p>
-                        {a.telefonos.map((t, j) => 
-                            <p key={"tels"+i+"-"+j}>{t}</p>
-                        )}
-                    
-                        <div className="d-flex justify-content-end">
-                            {this.props.soloVer ?
-                            <div className="m-1" key={"vCol"+i}>
-                                <button key={"v"+i} className="btn btn-primary">Visitar</button>
-                            </div> :
-                            <>
-                                <div className="m-1" key={"eCol"+i}>
-                                    <button key={"e"+i} className="btn btn-danger" onClick={()=>this.eliminarAsociacion(a.id)}>Eliminar</button>
-                                </div>
-                                <div className="m-1" key={"vCol"+i}>
-                                    <button key={"v"+i} className="btn btn-primary">Visitar</button>
-                                </div>
-                            </>
-                        }
+                <div className="col-sm-12 col-md-4 d-flex flex-column" key={"aCol"+i} style={i%2===0 ? {backgroundColor:"#137E31",color:"#FFFFFF"} : {backgroundColor:"#76B2CE",color:"#160C28"}}>
+                    <div className="row">
+                        <div className="col">
+                            <div className="container p-3" key={"aCont"+i}>
+                                <h3 key={"t"+i}>{a.nombre}</h3>
+                                <p key={"c"+i}>Cédula jurídica: {a.cedula}</p>
+                                <p key={"d"+i}>Domicilio: {a.domicilio}</p>
+                                <p key={"te"+i}>Territorio: {a.territorio}</p>
+                                <p key={"tels"+i}>Telefonos:</p>
+                                {a.telefonos.map((t, j) => 
+                                    <div className="m-2 p-2" key={"encC"+i+"-"+j} style={{backgroundColor:"#160C28",borderRadius:"0.2em",color:"#fff"}}>
+                                        <p key={"tels"+i+"-"+j}>{t}</p>
+                                    </div>
+                                )}
+                            
+                            </div>
+                        </div>
+                        <div className="col d-flex flex-column p-3">
+                        {this.props.soloVer ?
+                                <Link key={"v"+i} className="btn btn-primary" to={"/principal/"+a.id}>Visitar</Link> :
+                                <>
+                                    <Link key={"v"+i} className="btn btn-primary m-1" to={"/principal/"+a.id}><i className="lni lni-website"></i> Visitar</Link>
+                                    <button key={"m"+i} className="btn btn-dark m-1" onClick={()=>this.modificarAsociacion(a,i)}><i className="lni lni-pencil-alt"></i>  Modificar</button>
+                                    <Link key={"jd"+i} className="btn btn-info m-1" to={"/presidencia/juntaDirectiva/"+a.id}><i className="lni lni-users"></i> Junta Directiva</Link>
+                                    <button key={"e"+i} className="btn btn-danger m-1" onClick={()=>this.eliminarAsociacion(a.id)}><i className="lni lni-trash-can"></i> Eliminar</button>
+                                </>
+                            }
                         </div>
                     </div>
                 </div>
@@ -106,21 +138,17 @@ class Asociaciones extends React.Component {
                 <div className="d-flex align-items-center justify-content-between m-3">
                     <h1>Asociaciones</h1>
                     {this.props.soloVer ? <></>:
-                    <button className="btn btn-primary" data-bs-toggle="modal" data-bs-target="#agregarAsociacionModal"><i className="lni lni-plus"></i>  Agregar asociación</button>}
+                    <button className="btn btn-primary" onClick={this.agregarAsociacion}><i className="lni lni-plus"></i>  Agregar asociación</button>}
                 </div>
                 <div className="row m-0">
                     {asociaciones}
                 </div>
                 {this.props.soloVer ? <></>:
-                    <div className="modal fade" id="agregarAsociacionModal" tabIndex="-1" aria-labelledby="modalAgregarUnion" aria-hidden="true">
-                        <div className="modal-dialog modal-dialog-scrollable modal-lg">
-                            <div className="modal-content p-3" style={{backgroundColor:"#137E31", color:"#FFFFFF"}}>
-                                <div className="modal-body">
-                                    <OrganizacionForm esUnion={false} titulo={"Agregar Asociación"} avisaCreado={this.avisaCreado} />
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    <Modal size="lg" show={this.state.muestra} onHide={()=>this.muestraModal(false)} className="modal-green" scrollable>
+                    <Modal.Body>
+                        <OrganizacionForm ingresaJunta={this.state.ingresaJunta} titulo={"Asociación"} avisaCreado={this.avisaCreado} campos={this.state.asociacion} cerrarModal={()=>this.muestraModal(false)} />
+                    </Modal.Body>
+                    </Modal>
                     }
             </>
         );

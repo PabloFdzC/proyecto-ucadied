@@ -4,6 +4,7 @@ import manejarCambio from '../Utilidades/manejarCambio';
 import Validacion from '../Utilidades/Validacion';
 import { Navigate } from "react-router-dom";
 import {usuarioContexto} from '../usuarioContexto';
+import Toast from 'react-bootstrap/Toast';
 
 class IniciarSesionForm extends React.Component {
     constructor(props){
@@ -19,6 +20,8 @@ class IniciarSesionForm extends React.Component {
                 email:"",
                 contrasenna:"",
             },
+            muestraMensajeError:false,
+            mensajeError:"",
         }
 
         this.validacion = new Validacion({
@@ -44,6 +47,10 @@ class IniciarSesionForm extends React.Component {
                 iniciarSesionUsuario(resp.data);
             }catch(error){
                 console.log(error);
+                this.setState({
+                    mensajeError:error.response.data.error,
+                    muestraMensajeError:true,
+                });
             }
         }
     }
@@ -51,14 +58,14 @@ class IniciarSesionForm extends React.Component {
     render(){
         return (
             <usuarioContexto.Consumer >
-                {({usuario,iniciarSesionUsuario,organizacionActual})=>{
+                {({usuario,iniciarSesionUsuario,organizacion})=>{
                     if(usuario.tipo === "Administrador"){
                         return (
                             <Navigate to='/unionCantonal' replace={true}/>
                         );
                     } else if(usuario.tipo === "Usuario"){
                         return (
-                            <Navigate to={'/principal/'+organizacionActual} replace={true}/>
+                            <Navigate to={'/principal/'+organizacion.id} replace={true}/>
                         );
                     }
                     return (<form onSubmit={(evento) => {this.iniciarSesion(evento, iniciarSesionUsuario)}} className="needs-validation" noValidate>
@@ -81,7 +88,16 @@ class IniciarSesionForm extends React.Component {
                         <div className="d-flex justify-content-center">
                             <button type="submit" className="btn btn-primary btn-lg">Iniciar Sesión</button>
                         </div>
-                        
+                        <div className="d-flex justify-content-end">
+                            <div style={{position:"fixed"}}>
+                                <Toast bg="danger" onClose={() => this.setState({muestraMensajeError:false,mensajeError:""})} show={this.state.muestraMensajeError} delay={4000} autohide>
+                                <Toast.Header>
+                                    <strong className="me-auto">Error</strong>
+                                </Toast.Header>
+                                <Toast.Body>{this.state.mensajeError}</Toast.Body>
+                                </Toast>
+                            </div>
+                        </div>
                     </form>);
                 }}
                 

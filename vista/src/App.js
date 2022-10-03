@@ -1,5 +1,5 @@
 import React from 'react';
-import { Route, Routes, BrowserRouter, Navigate } from 'react-router-dom';
+import { Route, Routes, BrowserRouter } from 'react-router-dom';
 
 import IniciarSesion from './Usuario/IniciarSesion';
 import Navegacion from './Utilidades/Navegacion';
@@ -18,6 +18,9 @@ import './Estilos/Botones.css';
 import Usuarios from './Administrador/Usuarios';
 
 import { useParams } from "react-router-dom";
+import OrganizacionForm from './Organizacion/OrganizacionForm';
+import Proyectos from './Proyecto/Proyectos';
+import Gastos from './Proyecto/Gastos';
 
 function ConParams(props) {
   const { id } = useParams();
@@ -33,6 +36,7 @@ class App extends React.Component {
     super(props);
     this.queriesGenerales = new QueriesGenerales();
     const orgActual = localStorage.getItem("organizacionActual");
+    const orgPertenece = localStorage.getItem("organizacionPertenece");
     const usuario = {
       id_usuario: localStorage.getItem("id_usuario"),
       tipo: localStorage.getItem("tipo"),
@@ -42,24 +46,44 @@ class App extends React.Component {
       usuario:{
         tipo:usuario.tipo ? usuario.tipo : "",
         id_usuario: usuario.id_usuario ? usuario.id_usuario : -1,
-        id_organizacion: usuario.id_organizacion ? usuario.id_organizacion : -1
       },
-      organizacionActual:orgActual ? orgActual : -1
+      organizacion:{
+        id:orgActual ? orgActual : -1,
+        id_organizacion: orgPertenece ? orgPertenece : -1,
+        cedula: "",
+        nombre: "",
+        domicilio: "",
+        territorio: "",
+        telefonos: "",
+        email: "",
+        n_miembros_jd: "",
+        forma_elegir_jd: "",
+      },
+      proyecto:{
+        id:-1,
+        nombre:"",
+      }
     }
-    this.organizacionesPedidos = false;
+    this.unionPedida = false;
 
     this.iniciarSesion = this.iniciarSesion.bind(this);
     this.cerrarSesion = this.cerrarSesion.bind(this);
+    this.cargarOrganizacion = this.cargarOrganizacion.bind(this);
+    this.escogeProyecto = this.escogeProyecto.bind(this);
   }
 
   async iniciarSesion(usuario) {
     localStorage.setItem("id_usuario", usuario.id_usuario);
     localStorage.setItem("tipo", usuario.tipo);
-    localStorage.setItem("id_organizacion", usuario.id_organizacion);
-    localStorage.setItem("organizacionActual", usuario.id_organizacion);
+    localStorage.setItem("organizacionActual", usuario.organizacion.id);
+    localStorage.setItem("organizacionPertenece", usuario.organizacion.id_organizacion);
+    
     this.setState({
-      usuario: usuario,
-      organizacionActual: usuario.id_organizacion ? usuario.id_organizacion : -1
+      usuario: {
+        id_usuario:usuario.id_usuario,
+        tipo:usuario.tipo,
+      },
+      organizacion: usuario.organizacion ? usuario.organizacion : this.state.organizacion,
     });
   }
 
@@ -72,46 +96,58 @@ class App extends React.Component {
     }});
   }
 
-  async cargarOrganizaciones(){
+  async cargarUnion(){
     try{
-        const resp = await this.queriesGenerales.obtener("/organizacion/consultar", {});
+        const resp = await this.queriesGenerales.obtener("/organizacion/consultarTipo/1", {});
         if(resp.data.length > 0){
-          this.actualizaOrganizacionActual(resp.data[0].id)
+          this.actualizaOrganizacionActual(resp.data[0])
         }
     } catch(err){
         console.log(err);
     }
   }
 
-  actualizaOrganizacionActual(id){
-    if(id != -1 && id){
+  async cargarOrganizacion(id){
+    console.log(this.state.organizacion);
+    console.log(this.state.organizacion.cedula == "");
+    if(id !== this.state.organizacion.id || this.state.organizacion.cedula == ""){
+      const resp = await this.queriesGenerales.obtener("/organizacion/consultar/"+id, {});
+      console.log(resp);
+      if(resp.data.length > 0){
+        this.actualizaOrganizacionActual(resp.data[0]);
+      }
+    }
+  }
+
+  actualizaOrganizacionActual(organizacion){
+    if(organizacion.id && organizacion.id !== -1 && organizacion.id !== this.state.organizacion.id){
+      localStorage.setItem("organizacionActual", organizacion.id);
+      localStorage.setItem("organizacionPertenece", organizacion.id_organizacion);
       this.setState({
-          organizacionActual:id,
+          organizacion:organizacion,
       });
     }
   }
 
   componentDidMount() {
-    const orgActual = localStorage.getItem("organizacionActual");
-    const usuario = {
-      id_usuario: localStorage.getItem("id_usuario"),
-      tipo: localStorage.getItem("tipo"),
-    };
-    if(usuario.id_usuario){
-      this.setState({usuario: usuario});
+    if(this.state.organizacion.id === -1){
+      if(!this.unionPedida){
+        this.unionPedida = true;
+        this.cargarUnion();
+      }
     }
-    if(!isNaN(orgActual) && orgActual != this.state.organizacionActual){
-      this.actualizaOrganizacionActual(orgActual);
-    } else if(!this.organizacionesPedidos){
-      this.organizacionesPedidos = true;
-      this.cargarOrganizaciones();
-    }
+  }
+
+  escogeProyecto(proyecto){
+    this.setState({
+      proyecto:proyecto,
+    });
   }
 
   render(){
     const autenticacion = {
       usuario: this.state.usuario,
-      organizacionActual:this.state.organizacionActual,
+      organizacion:this.state.organizacion,
       cerrarSesionUsuario: this.cerrarSesion,
       iniciarSesionUsuario: this.iniciarSesion,
     };
@@ -119,20 +155,32 @@ class App extends React.Component {
     return (
       <usuarioContexto.Provider value={autenticacion}>
         <BrowserRouter>
-          <Navegacion organizacionActual={this.state.organizacionActual} />
+          <Navegacion />
           <Routes>
-              <Route path="/" element={<ResuelvePrincipal ruta={this.state.organizacionActual != -1 ? "/principal/"+this.state.organizacionActual : ""} replace />}></Route>
+              <Route path="/" element={<ResuelvePrincipal ruta={this.state.organizacion.id !== -1 ? "/principal/"+this.state.organizacion.id : ""} replace />}></Route>
               <Route path="/principal/:id" element={<ConParams app={this} componente={<Principal />}/> } />
               <Route path="/iniciarSesion" element={<IniciarSesion />} />
-              <Route path="/presidencia/juntaDirectiva/:id" element={<ConParams app={this}  componente={<JuntaDirectiva />}/>} />
-              <Route path="/presidencia/afiliados/:id" element={<ConParams app={this} componente={<Afiliados />} />} />
+              <Route path="/presidencia/juntaDirectiva/:id" element={<ConParams app={this}  componente={<JuntaDirectiva cargarOrganizacion={this.cargarOrganizacion} />}/>} />
+              <Route path="/presidencia/afiliados/:id" element={<ConParams app={this} componente={<Afiliados cargarOrganizacion={this.cargarOrganizacion} />} />} />
               <Route path="/presidencia/asociaciones/" element={<Asociaciones soloVer={false}/>} />
-              
+              <Route path="/proyectos/:id" element={<ConParams app={this}  componente={<Proyectos escogeProyecto={this.escogeProyecto} cargarOrganizacion={this.cargarOrganizacion} />}/>} />
+              <Route index path="/proyectos/:id/gastos/:id" element={<ConParams app={this}  componente={<Gastos idProyecto={this.state.proyecto.id} nombreProyecto={this.state.proyecto.nombre} />}/>} />
               
               <Route path="/administradores" element={<Administradores />} />
               <Route path="/unionCantonal" element={<UnionCantonal />} />
-              <Route path="/asociaciones" element={<Asociaciones soloVer={ this.state.usuario.tipo != "Administrador" } />} />
+              <Route path="/asociaciones" element={<Asociaciones soloVer={ this.state.usuario.tipo !== "Administrador" } />} />
               <Route path="/usuarios" element={<Usuarios />} />
+              <Route path="/prueba" element={
+                <div className="modal" id="agregarAsociacionModal" tabIndex="-1" aria-labelledby="modalAgregarUnion">
+                  <div className="modal-dialog modal-dialog-scrollable modal-lg">
+                    <div className="modal-content p-3" style={{backgroundColor:"#137E31", color:"#FFFFFF"}}>
+                      <div className="modal-body">
+                        <OrganizacionForm ingresaJunta={true} titulo="Asociación" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              } />
             </ Routes>
         </BrowserRouter>
       </usuarioContexto.Provider>
