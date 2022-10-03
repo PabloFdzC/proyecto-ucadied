@@ -62,7 +62,11 @@ class MiembroJuntaDirectivaForm extends React.Component {
         this.validacion.validarCampos(this.state.campos);
         if(!this.state.errores.hayError){
             try{
-                await this.queriesGenerales.postear("/juntaDirectiva/agregarMiembro", this.state.campos);
+                var campos = {};
+                campos.id_usuario = this.state.campos.id_usuario.value;
+                campos.id_puesto_jd = this.state.campos.id_puesto_jd;
+                campos.id_organizacion = this.props.idOrganizacion;
+                await this.queriesGenerales.postear("/juntaDirectiva/agregarMiembro", campos);
             }catch(error){
                 console.log(error);
             }
@@ -70,21 +74,29 @@ class MiembroJuntaDirectivaForm extends React.Component {
     }
 
     async cargarUsuarios(){
-        try{
-            var usuarios = this.state.usuarios;
-            const resp = await this.queriesGenerales.obtener("/usuario/consultar", {id_organizacion:this.props.idOrganizacion});
-            var usuariosSelect = [];
-            for(let usuario of resp.data){
-                usuariosSelect.push({
-                    label:usuario.nombre,
-                    value:usuario.id,
+        if(this.props.idOrganizacion){
+            try{
+                var usuarios = this.state.usuarios;
+                const resp = await this.queriesGenerales.obtener("/usuario/consultar", {id_organizacion:this.props.idOrganizacion});
+                var usuariosSelect = [];
+                for(let usuario of resp.data){
+                    usuariosSelect.push({
+                        label:usuario.nombre,
+                        value:usuario.id,
+                    });
+                }
+                this.setState({
+                    usuarios:usuarios.concat(usuariosSelect),
                 });
+            } catch(err){
+                console.log(err);
             }
-            this.setState({
-                usuarios:usuarios.concat(usuariosSelect),
-            });
-        } catch(err){
-            console.log(err);
+        }
+    }
+
+    componentDidUpdate(prevProps, prevState, snapshot){
+        if(prevProps.idOrganizacion != this.props.idOrganizacion){
+            this.cargarUsuarios();
         }
     }
 
@@ -102,10 +114,12 @@ class MiembroJuntaDirectivaForm extends React.Component {
             <form onSubmit={this.agregarMiembro} className="needs-validation" noValidate>
                 <div className="mb-3 position-relative">
                     <label htmlFor="id_usuario" className="form-label">Nombre</label>
-                    <Select
-                    className={this.state.errores.id_usuario.length > 0 ? "form-control is-invalid":"form-control"} key="id_usuario" name="id_usuario" required value={this.state.campos.id_usuario} onChange={(opcion)=>this.manejaCambio({target:{name:"id_usuario",type:"select",value:opcion}})}
-                    options={this.state.usuarios}
-                    />
+                    <div className={this.state.errores.id_usuario.length > 0 ? "p-0 form-control is-invalid":"p-0 form-control"}>
+                        <Select
+                        key="id_usuario" name="id_usuario" required value={this.state.campos.id_usuario} onChange={(opcion)=>this.manejaCambio({target:{name:"id_usuario",type:"select",value:opcion}})}
+                        options={this.state.usuarios}
+                        />
+                    </div>
                     <div className="invalid-tooltip">
                         {this.state.errores.id_usuario}
                     </div>

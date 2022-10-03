@@ -9,4 +9,7 @@ module.exports = sequelize.define('gasto', {
         },
         nombre: type.STRING,
         monto: type.DOUBLE,
+        fecha: type.DATEONLY,
+        numero_acta: type.INTEGER,
+        numero_acuerdo: type.INTEGER
     });

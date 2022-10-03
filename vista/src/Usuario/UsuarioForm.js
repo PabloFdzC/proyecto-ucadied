@@ -2,8 +2,8 @@ import React from 'react';
 import Modal from 'react-bootstrap/Modal';
 import QueriesGenerales from "../QueriesGenerales";
 import manejarCambio from '../Utilidades/manejarCambio';
-import AgregaTelefono from './AgregaTelefono';
-import Telefonos from './Telefonos';
+import AgregaElemento from '../Utilidades/AgregaElemento';
+import Elementos from '../Utilidades/Elementos';
 import Validacion from '../Utilidades/Validacion';
 import listaPaises from '../Utilidades/listaPaises';
 
@@ -16,30 +16,19 @@ class UsuarioForm extends React.Component {
 
         this.queriesGenerales = new QueriesGenerales();
         
-        this.campos = props.campos;
+        this.campos = props.campos ? props.campos : {};
         
         var campos = {
-            nombre: "",
-            fecha_nacimiento: "",
-            nacionalidad: "",
-            sexo:"",
-            profesion: "",
-            email: "",
-            telefonos:[],
-            id_organizacion:"",
+            nombre: this.campos.nombre ? this.campos.nombre : "",
+            fecha_nacimiento: this.campos.fecha_nacimiento ? this.campos.fecha_nacimiento : "",
+            nacionalidad: this.campos.nacionalidad ? this.campos.nacionalidad : "",
+            sexo:this.campos.sexo ? this.campos.sexo : "",
+            profesion: this.campos.profesion ? this.campos.profesion : "",
+            email: this.campos.email ? this.campos.email : "",
+            telefonos:this.campos.telefonos ? this.campos.telefonos : [],
+            id_organizacion: this.campos.id_organizacion ? this.campos.id_organizacion : "",
+            puesto: this.campos.puesto ? this.campos.puesto : ""
         };
-        if(props.campos){
-            campos = {
-                nombre: props.campos.nombre ? props.campos.nombre : "",
-                fecha_nacimiento: props.campos.fecha_nacimiento ? props.campos.fecha_nacimiento : "",
-                nacionalidad: props.campos.nacionalidad ? props.campos.nacionalidad : "",
-                sexo:props.campos.sexo ? props.campos.sexo : "",
-                profesion: props.campos.profesion ? props.campos.profesion : "",
-                email: props.campos.email ? props.campos.email : "",
-                telefonos:props.campos.telefonos ? props.campos.telefonos : [],
-                id_organizacion: props.campos.id_organizacion ? props.campos.id_organizacion : "",
-            };
-        }
         
         this.state = {
             titulo:this.props.titulo,
@@ -53,8 +42,10 @@ class UsuarioForm extends React.Component {
                 profesion: "",
                 email: "",
                 telefonos:"",
-                id_organizacion:""
+                id_organizacion:"",
+                puesto:"",
             },
+            puestos:[],
             asociaciones:[],
             contrasenna: ""
         };
@@ -117,10 +108,9 @@ class UsuarioForm extends React.Component {
         return !this.state.errores.hayError;
     }
 
-    eliminarTelefono(telefono){
-        let i = this.state.campos.telefonos.indexOf(telefono);
-        if (i > -1){
-            this.state.campos.telefonos.splice(i, 1);
+    eliminarTelefono(indice,telefono){
+        if (indice > -1){
+            this.state.campos.telefonos.splice(indice, 1);
             this.setState({});
         }
     }
@@ -164,6 +154,18 @@ class UsuarioForm extends React.Component {
         }
     }
 
+    async cargarPuestos(idOrganizacion){
+        try{
+            var puestos = this.state.puestos;
+            const resp = await this.queriesGenerales.obtener("/juntaDirectiva/consultarPuestos/"+idOrganizacion, {});
+            this.setState({
+                puestos:puestos.concat(resp.data),
+            });
+        } catch(err){
+            console.log(err);
+        }
+    }
+
     async avisaCreado(usuario){
         this.props.avisaCreado(usuario);
     }
@@ -184,7 +186,7 @@ class UsuarioForm extends React.Component {
             {this.state.contrasenna === "" ?
                 <form onSubmit={this.crearUsuario}  noValidate>
                     <div className="row">
-                        <div className="col">
+                        <div className="col-12 col-md-6">
                             <div className="mb-3 position-relative">
                                 <label htmlFor="nombre" className="form-label">Nombre</label>
                                 <input type="text" className={this.state.errores.nombre.length > 0 ? "form-control is-invalid":"form-control"} key="nombre" name="nombre" required value={this.state.campos.nombre} onChange={this.manejaCambio} />
@@ -228,9 +230,6 @@ class UsuarioForm extends React.Component {
                                     {this.state.errores.profesion}
                                 </div>
                             </div>
-
-                        </div>
-                        <div className="col">
                             {this.props.ocupaAsociacion ?
                                 <div className="mb-3 position-relative">
                                     <label htmlFor="asociacion" className="form-label">Asociación</label>
@@ -243,6 +242,22 @@ class UsuarioForm extends React.Component {
                                     </div>
                                 </div>:
                             <></>}
+
+                        </div>
+                        <div className="col-12 col-md-6">
+                            {this.props.ocupaAsociacion ?
+                                <div className="mb-3 position-relative">
+                                    <label htmlFor="puesto" className="form-label">Puesto en Junta Directiva</label>
+                                    <select className={this.state.errores.puesto.length > 0 ? "form-select is-invalid":"form-select"} aria-label="puesto" key="puesto" name="puesto" value={this.state.campos.puesto} onChange={this.manejaCambio}>
+                                        <option defaultValue>Puesto en Junta Directiva</option>
+                                        {this.state.puestos.map((p,i) => <option key={i} value={p.id}>{p.nombre}</option>)}
+                                    </select>
+                                    
+                                    <div className="invalid-tooltip">
+                                        {this.state.errores.puesto}
+                                    </div>
+                                </div>:
+                                <></>}
                             <div className="mb-3 position-relative">
                                 <label htmlFor="email" className="form-label">Email</label>
                                 <input type="email" className={this.state.errores.email.length > 0 ? "form-control is-invalid":"form-control"} key="email" name="email" value={this.state.campos.email} onChange={this.manejaCambio} />
@@ -250,8 +265,8 @@ class UsuarioForm extends React.Component {
                                     {this.state.errores.email}
                                 </div>
                             </div>
-                            <AgregaTelefono agregarTelefono={this.agregarTelefono} error={this.state.errores.telefonos} />
-                            <Telefonos telefonos={this.state.campos.telefonos} eliminarTelefono={this.eliminarTelefono} />
+                            <AgregaElemento titulo={"Teléfonos"} agregarElemento={this.agregarTelefono} error={this.state.errores.telefonos} />
+                            <Elementos elementos={this.state.campos.telefonos} eliminarTelefono={this.eliminarTelefono} />
                         </div>
                     </div>
                     <div className="d-flex justify-content-end">

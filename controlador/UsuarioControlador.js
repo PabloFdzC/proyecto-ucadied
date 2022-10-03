@@ -2,6 +2,7 @@ const bcrypt = require('bcrypt');
 const { Op } = require("sequelize");
 const usuario = require('../modelo/usuario');
 const queries_generales = require('./QueriesGenerales');
+const organizacionCtrl = require('./OrganizacionControlador');
 
 function creadorContrasenna(){
     const caracteres = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
@@ -66,10 +67,16 @@ async function iniciarSesion(info){
         usuario_info = usuario_info[0];
         const match = await bcrypt.compare(info.contrasenna, usuario_info.contrasenna);
         if(match){
+            var organizacion = {};
+            if(usuario_info.id_organizacion){
+                organizacion = await organizacionCtrl.consultar({id_organizacion:usuario_info.id_organizacion});
+                organizacion = organizacion[0];
+            }
             return {
                 id_usuario: usuario_info.id,
                 tipo: usuario_info.tipo,
                 id_organizacion:usuario_info.id_organizacion,
+                organizacion,
                 success: "Se inicia sesión correctamente"
             };
         }

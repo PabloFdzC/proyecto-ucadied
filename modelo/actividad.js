@@ -10,5 +10,8 @@ module.exports = sequelize.define('actividad', {
     nombre: type.STRING,
     territorio: type.STRING,
     domicilio: type.STRING,
-    tipo: type.STRING
+    tipo: type.STRING,
+    coordinador: type.STRING,
+    email: type.STRING,
+    telefonos: type.JSON
 });

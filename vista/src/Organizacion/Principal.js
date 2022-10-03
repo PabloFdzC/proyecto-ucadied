@@ -1,6 +1,14 @@
 import React from 'react';
 import logoUcadied from '../Imagenes/logo-UCADIED.png';
 import { useParams } from "react-router-dom";
+import Contactenos from './Contactenos';
+
+function ConParams(props) {
+    const { id } = useParams();
+    localStorage.setItem("organizacionActual", id);
+    return <>{React.cloneElement(props.componente,
+      {id:id})}</>;
+  }
 
 class Principal extends React.Component {
     constructor(props){
@@ -41,8 +49,9 @@ class Principal extends React.Component {
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>);
+            </div> <ConParams app={this} componente={<Contactenos />} />
+        </div>
+       );
     }
 }
 

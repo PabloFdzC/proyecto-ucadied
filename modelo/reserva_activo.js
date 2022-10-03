@@ -9,4 +9,8 @@ module.exports = sequelize.define('reserva_activo', {
         },
         inicio: type.DATE,
         final: type.DATE,
+        habilitado: {
+            type: type.BOOLEAN,
+            defaultValue: '0'
+        }
     });

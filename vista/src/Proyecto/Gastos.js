@@ -1,5 +1,5 @@
 import React from 'react';
-import OrganizacionForm from '../Organizacion/OrganizacionForm';
+import GastoForm from './GastoForm';
 import { Navigate } from "react-router-dom";
 import {usuarioContexto} from '../usuarioContexto';
 import Tabla from '../Utilidades/Tabla';
@@ -11,26 +11,26 @@ class UnionCantonal extends React.Component {
         super(props);
         this.queriesGenerales = new QueriesGenerales();
         this.state = {
-            uniones: []
+            gastos: []
         }
-        this.unionesPedidas = false;
+        this.gastosPedidos = false;
         this.titulos = [
-            {llave:"nombre",valor:"Asociación"},
-            {llave:"cedula",valor:"Cédula Jurídica"},
-            {llave:"domicilio",valor:"Domicilio"},
-            {llave:"territorio",valor:"Territorio"},
-            {llave:"telefonos",valor:"Teléfonos"},
+            {llave:"nombre",valor:"Nombre"},
+            {llave:"monto",valor:"Monto"},
+            {llave:"fecha",valor:"Fecha"},
+            {llave:"numero_acta",valor:"Número de acta"},
+            {llave:"numero_acuerdo",valor:"Número de acuerdo"},
         ];
 
         this.avisaCreado = this.avisaCreado.bind(this);
     }
 
-    async cargarUniones(){
+    async cargarGastos(){
         try{
-            var uniones = this.state.uniones;
-            const resp = await this.queriesGenerales.obtener("/organizacion/consultarTipo/1", {});
+            var gastos = this.state.gastos;
+            const resp = await this.queriesGenerales.obtener("/gasto/consultar", {id_proyecto:this.props.idProyecto});
             this.setState({
-                uniones:uniones.concat(resp.data),
+                gastos:gastos.concat(resp.data),
             });
         } catch(err){
             console.log(err);
@@ -38,16 +38,16 @@ class UnionCantonal extends React.Component {
     }
 
     componentDidMount() {
-        if(!this.unionesPedidas){
-            this.unionesPedidas = true;
-            this.cargarUniones();
+        if(!this.gastosPedidos){
+            this.gastosPedidos = true;
+            this.cargarGastos();
         }
     }
 
-    async avisaCreado(union){
-        var uniones = this.state.uniones;
+    async avisaCreado(gasto){
+        var gastos = this.state.gastos;
         this.setState({
-            uniones:uniones.concat(union),
+            gastos:gastos.concat(gasto),
         });
     }
 
@@ -55,23 +55,23 @@ class UnionCantonal extends React.Component {
         return (
             <usuarioContexto.Consumer >
                 {({usuario})=>{
-                    if(usuario.tipo === "Administrador"){
+                    if(usuario.tipo === "Administrador" || usuario.tipo === "Usuario"){
                         return (
                             <>
                                 <div className="d-flex align-items-center justify-content-between m-3">
-                                    <h1>Uniones Cantonales</h1>
-                                    <button className="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal"><i className="lni lni-plus"></i>  Agregar unión</button>
+                                    <h1>{this.props.nombreProyecto} - Gastos</h1>
+                                    <button className="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal"><i className="lni lni-plus"></i>  Agregar gasto</button>
                                 </div>
                                 <div className="d-flex" style={{height:"inherit"}}>
                                     <div className="w-100" style={{backgroundColor:"#137E31", color:"#FFFFFF"}}>
-                                    <Tabla titulos={this.titulos} datos={this.state.uniones} style={{color:"#FFFFFF"}} />
+                                    <Tabla titulos={this.titulos} datos={this.state.gastos} style={{color:"#FFFFFF"}} />
                                     </div>
                                 </div>
                                 <div className="modal fade" id="exampleModal" tabIndex="-1" aria-labelledby="modalAgregarUnion" aria-hidden="true">
                                     <div className="modal-dialog modal-dialog-scrollable modal-lg">
                                         <div className="modal-content p-3" style={{backgroundColor:"#137E31", color:"#FFFFFF"}}>
                                             <div className="modal-body">
-                                                <OrganizacionForm ingresaJunta={true} esUnionCantonal={true} titulo={"Unión Cantonal"} avisaCreado={this.avisaCreado} />
+                                                <GastoForm idProyecto={this.props.idProyecto} avisaCreado={this.avisaCreado} />
                                             </div>
                                         </div>
                                     </div>
