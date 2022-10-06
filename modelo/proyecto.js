@@ -7,8 +7,40 @@ module.exports = sequelize.define('proyecto', {
             primaryKey: true,
             autoIncrement: true
         },
-        inicio: type.DATEONLY,
-        cierre: type.DATEONLY,
+        inicio: {
+            type: type.DATEONLY,
+            get() {
+                const rawValue = this.getDataValue('inicio');
+                const inputDate = new Date(rawValue);
+                var date = inputDate.getUTCDate();
+                var month = inputDate.getUTCMonth() + 1;
+                var year = inputDate.getUTCFullYear();
+                if (date < 10) {
+                    date = '0' + date;
+                }
+                if (month < 10) {
+                    month = '0' + month;
+                }
+                return `${date}/${month}/${year}`;
+            }
+        },
+        cierre: {
+            type: type.DATEONLY,
+            get() {
+                const rawValue = this.getDataValue('cierre');
+                const inputDate = new Date(rawValue);
+                var date = inputDate.getUTCDate();
+                var month = inputDate.getUTCMonth() + 1;
+                var year = inputDate.getUTCFullYear();
+                if (date < 10) {
+                    date = '0' + date;
+                }
+                if (month < 10) {
+                    month = '0' + month;
+                }
+                return `${date}/${month}/${year}`;
+            }
+        },
         nombre: type.STRING,
         presupuesto: type.DOUBLE,
     });

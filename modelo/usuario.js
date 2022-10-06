@@ -14,7 +14,23 @@ module.exports = sequelize.define('usuario', {
             type:type.BOOLEAN,
             defaultValue: '1'
         },
-        fecha_nacimiento: type.DATEONLY,
+        fecha_nacimiento: {
+            type: type.DATEONLY,
+            get() {
+                const rawValue = this.getDataValue('fecha_nacimiento');
+                const inputDate = new Date(rawValue);
+                var date = inputDate.getUTCDate();
+                var month = inputDate.getUTCMonth() + 1;
+                var year = inputDate.getUTCFullYear();
+                if (date < 10) {
+                    date = '0' + date;
+                }
+                if (month < 10) {
+                    month = '0' + month;
+                }
+                return `${date}/${month}/${year}`;
+            }
+        },
         profesion: type.STRING,
         nombre: type.STRING,
         sexo: type.ENUM('Masculino', 'Femenino', 'No Especificado'),

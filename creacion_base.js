@@ -1,23 +1,23 @@
 const Sequelize = require('sequelize');
 const actividad = require("./modelo/actividad");
-const activo = require("./modelo/activo");
+const inmueble = require("./modelo/inmueble");
 const componente = require("./modelo/componente");
 const gasto = require("./modelo/gasto");
 const organizacion = require("./modelo/organizacion");
 const pagina = require("./modelo/pagina");
 const proyecto = require("./modelo/proyecto");
 const puesto_jd = require("./modelo/puesto_jd");
-const reserva_activo = require("./modelo/reserva_activo");
+const reserva_inmueble = require("./modelo/reserva_inmueble");
 const usuario = require("./modelo/usuario");
 const sequelize = require('./conexion_base');
 const proyecto_x_usuario = require('./modelo/proyecto_x_usuario');
 const puesto_x_usuario = require('./modelo/puesto_x_usuario');
 
-organizacion.hasMany(activo, {
+organizacion.hasMany(inmueble, {
   foreignKey: 'id_organizacion'
 });
 
-activo.belongsTo(organizacion, {
+inmueble.belongsTo(organizacion, {
   foreignKey: 'id_organizacion'
 });
 
@@ -107,20 +107,20 @@ gasto.belongsTo(proyecto, {
   foreignKey: 'id_proyecto'
 });
 
-actividad.hasMany(reserva_activo, {
+actividad.hasMany(reserva_inmueble, {
   foreignKey: 'id_actividad'
 });
 
-reserva_activo.belongsTo(actividad, {
+reserva_inmueble.belongsTo(actividad, {
   foreignKey: 'id_actividad'
 });
 
-activo.hasMany(reserva_activo, {
-  foreignKey: 'id_activo'
+inmueble.hasMany(reserva_inmueble, {
+  foreignKey: 'id_inmueble'
 });
 
-reserva_activo.belongsTo(activo, {
-  foreignKey: 'id_activo'
+reserva_inmueble.belongsTo(inmueble, {
+  foreignKey: 'id_inmueble'
 });
 
 proyecto.belongsToMany(usuario, {

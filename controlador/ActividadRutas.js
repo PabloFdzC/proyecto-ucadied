@@ -56,8 +56,23 @@ router.post('/crear', jsonParser, async (req, res) => {
 
 router.put('/modificar/:id_actividad', jsonParser, async (req, res) => {
     try{
-        const resultado = await actividadCtlr.modificar(req.params.id_actividad, req.body)
-        res.json(resultado);
+        var habilitado = false;
+        if(req.session.idUsuario && req.session.idUsuario != -1){
+            if(req.session.tipoUsuario === "Administrador"){
+                habilitado = true;
+            }
+            else{
+                habilitado = await JuntaDirectivaCtlr.consultar_permisos(req.session.idUsuario, "edita_actividad");
+            }
+        }
+        if(habilitado){
+            const resultado = await actividadCtlr.modificar(req.params.id_actividad, req.body)
+            res.json(resultado);
+        }
+        else{
+            res.status(400);
+            res.send("No se cuenta con los permisos necesarios");
+        }
     }catch(err){
         console.log(err);
         res.status(400);
@@ -67,8 +82,23 @@ router.put('/modificar/:id_actividad', jsonParser, async (req, res) => {
 
 router.delete('/eliminar/:id_actividad', async (req, res) => {
     try{
-        const resultado = await actividadCtlr.eliminar(req.params.id_actividad);
-        res.json(resultado);
+        var habilitado = false;
+        if(req.session.idUsuario && req.session.idUsuario != -1){
+            if(req.session.tipoUsuario === "Administrador"){
+                habilitado = true;
+            }
+            else{
+                habilitado = await JuntaDirectivaCtlr.consultar_permisos(req.session.idUsuario, "edita_actividad");
+            }
+        }
+        if(habilitado){
+            const resultado = await actividadCtlr.eliminar(req.params.id_actividad);
+            res.json(resultado);
+        }
+        else{
+            res.status(400);
+            res.send("No se cuenta con los permisos necesarios");
+        }
     }catch(err){
         console.log(err);
         res.status(400);

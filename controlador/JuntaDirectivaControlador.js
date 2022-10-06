@@ -62,8 +62,33 @@ async function consultar_miembros(id_organizacion){
         }});
 }
 
+async function consultar_puestos_usuario(id_usuario){
+    return await queries_generales.consultar(puesto_jd, {
+        where: {
+            '$puesto_x_usuarios.id_usuario$': id_usuario
+        },
+        include: {
+            model: puesto_x_usuario,
+            required: true
+        }
+    });
+}
+
+async function consultar_permisos(id_usuario, permiso){
+    const puestos = await consultar_puestos_usuario(id_usuario);
+    var puesto = {};
+    for(var i = 0; i < puestos.length; i+=1){
+        puesto = puestos[i];
+        if(puesto[permiso]){
+            return true;
+        }
+    }
+    return false;
+}
+
 module.exports = {
     consultar_puestos,
+    consultar_puestos_usuario,
     consultar_puesto,
     crear_puesto,
     crear_puestos,
@@ -71,5 +96,6 @@ module.exports = {
     eliminar_puesto,
     agregar_miembro,
     eliminar_miembro,
-    consultar_miembros
+    consultar_miembros,
+    consultar_permisos
 }

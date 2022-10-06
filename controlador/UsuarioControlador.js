@@ -3,6 +3,8 @@ const { Op } = require("sequelize");
 const usuario = require('../modelo/usuario');
 const queries_generales = require('./QueriesGenerales');
 const organizacionCtrl = require('./OrganizacionControlador');
+const JuntaDirectivaCtlr = require('./JuntaDirectivaControlador');
+
 
 function creadorContrasenna(){
     const caracteres = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
@@ -68,15 +70,20 @@ async function iniciarSesion(info){
         const match = await bcrypt.compare(info.contrasenna, usuario_info.contrasenna);
         if(match){
             var organizacion = {};
+            var puestos = [];
             if(usuario_info.id_organizacion){
                 organizacion = await organizacionCtrl.consultar({id_organizacion:usuario_info.id_organizacion});
                 organizacion = organizacion[0];
+            }
+            if(usuario_info.tipo === "Usuario"){
+                puestos = await JuntaDirectivaCtlr.consultar_puestos_usuario(usuario_info.id);
             }
             return {
                 id_usuario: usuario_info.id,
                 tipo: usuario_info.tipo,
                 id_organizacion:usuario_info.id_organizacion,
                 organizacion,
+                puestos,
                 success: "Se inicia sesión correctamente"
             };
         }

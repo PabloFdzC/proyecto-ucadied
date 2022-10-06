@@ -1,7 +1,7 @@
 const type = require('sequelize');
 const sequelize = require('../conexion_base');
 
-module.exports = sequelize.define('reserva_activo', {
+module.exports = sequelize.define('reserva_inmueble', {
         id: {
             type: type.INTEGER,
             primaryKey: true,
