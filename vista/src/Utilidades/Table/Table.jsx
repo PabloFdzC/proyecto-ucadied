@@ -30,6 +30,7 @@ function Table(props) {
         sortable:true,
     },
     {
+      name:'Acciones',
       button: true,
       cell: () => (
         <>
