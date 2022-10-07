@@ -1,8 +1,6 @@
-/* .background-div{
-  justify-content: center;
-  background-color: #e9f0f5;
-  border-radius: 17% 8% / 3% 12%;
-} */
+.fc-col-header-cell{
+  background-color: #F5F0F6;
+}
 
 .calendarTitle-h2{
   display: flex;

@@ -40,8 +40,7 @@ const Calendar = () => {
   return (
     <div className="container-sm background-div" >      
       <div className="row">
-        {/* backgroundColor: "rgb(19,126,49)" */}
-        <div style={{zIndex:0, position:"relative", boxSizing: "border-box", marginBottom:"4em", justifyContent: "center", }}>
+        <div style={{zIndex:0, position:"relative", boxSizing: "border-box", marginTop:"2em", paddingTop:"2em",marginBottom:"4em", justifyContent: "center", backgroundColor: "rgb(118, 178, 206)"}}>
           <FullCalendar
             /* customButtons={{myCustomButton: {text: 'Agregar Inmueble',click: function() {alert('Boton presionado!');},},}} */
             ref={calendarRef}
@@ -54,7 +53,6 @@ const Calendar = () => {
             events={events}
             height={650}
             aspectRatio={2}
-            /* headerToolbar={{ left: 'prev next' ,center: 'title', right: 'myCustomButton'  }} */
             headerToolbar={{ left: 'prev next', center: 'title', right: ''  }}
             className={Calendar}
           />
