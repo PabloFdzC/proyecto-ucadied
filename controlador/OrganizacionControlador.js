@@ -49,7 +49,7 @@ async function crear(info){
     }
     if(puestos.length > 0){
         for(let p of puestos){
-            p.id_organizacion = info.id_organizacion;
+            p.id_organizacion = organizacion_creada.id;
         }
         juntaDirectivaCtrl.crear_puestos(puestos);
     }

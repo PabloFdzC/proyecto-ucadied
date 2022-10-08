@@ -37,7 +37,7 @@ class ResuelvePrincipal extends React.Component {
                 <div className="d-flex flex-column center-text justify-content-center align-items-center" style={{height:"inherit"}}>
                     <h1>Se debe crear un administrador</h1>
                     <div>
-                        <Link className="btn btn-primary" aria-current="page" to="/administradores">Administradores</Link>
+                        <Link className="btn btn-primary" to="/administradores">Administradores</Link>
                     </div>
                 </div>
                 :<></>}

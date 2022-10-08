@@ -22,6 +22,13 @@ async function crear(info){
     const contrasenna = creadorContrasenna();
     info.contrasenna = bcrypt.hashSync(contrasenna, 10);
     var usuario_creado = await queries_generales.crear(usuario, info);
+    if(info.puesto && info.puesto != ""){
+        JuntaDirectivaCtlr.agregar_miembro({
+            id_usuario: usuario_creado.id,
+            id_puesto_jd: info.puesto,
+            id_organizacion: info.id_organizacion,
+        })
+    }
     return {
         usuario_creado,
         contrasenna

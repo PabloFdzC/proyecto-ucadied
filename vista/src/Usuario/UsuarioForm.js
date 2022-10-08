@@ -1,5 +1,4 @@
 import React from 'react';
-import Modal from 'react-bootstrap/Modal';
 import QueriesGenerales from "../QueriesGenerales";
 import manejarCambio from '../Utilidades/manejarCambio';
 import AgregaElemento from '../Utilidades/AgregaElemento';
@@ -71,6 +70,7 @@ class UsuarioForm extends React.Component {
         this.crearUsuario = this.crearUsuario.bind(this);
         this.avisaCreado = this.avisaCreado.bind(this);
         this.reiniciarCampos = this.reiniciarCampos.bind(this);
+        this.manejaCambioOrganizacion = this.manejaCambioOrganizacion.bind(this);
     }
 
     // Falta reiniciar los otros campos
@@ -119,10 +119,16 @@ class UsuarioForm extends React.Component {
         manejarCambio(evento, this);
     }
 
+    manejaCambioOrganizacion(evento){
+        manejarCambio(evento, this);
+        this.cargarPuestos(parseInt(evento.target.value));
+    }
+
     async crearUsuario(evento){
         evento.preventDefault();
         this.validacion.validarCampos(this.state.campos);
         if(!this.state.errores.hayError){
+            console.log(this.state.campos);
             let url = "usuario";
             if(this.administrador){
                 url = "administrador";
@@ -230,22 +236,21 @@ class UsuarioForm extends React.Component {
                                     {this.state.errores.profesion}
                                 </div>
                             </div>
+
+                        </div>
+                        <div className="col-12 col-md-6">
                             {this.props.ocupaAsociacion ?
+                                <>
                                 <div className="mb-3 position-relative">
                                     <label htmlFor="asociacion" className="form-label">Asociación</label>
-                                    <select className={this.state.errores.nacionalidad.length > 0 ? "form-select is-invalid":"form-select"} aria-label="asociacion" key="asociacion" name="id_organizacion" value={this.state.campos.id_organizacion} onChange={this.manejaCambio} >
+                                    <select className={this.state.errores.nacionalidad.length > 0 ? "form-select is-invalid":"form-select"} aria-label="asociacion" key="asociacion" name="id_organizacion" value={this.state.campos.id_organizacion} onChange={this.manejaCambioOrganizacion} >
                                         <option defaultValue>Asociación</option>
                                         {this.state.asociaciones.map((u,i) => <option key={i} value={u.id}>{u.nombre}</option>)}
                                     </select>
                                     <div className="invalid-tooltip">
                                         {this.state.errores.nacionalidad}
                                     </div>
-                                </div>:
-                            <></>}
-
-                        </div>
-                        <div className="col-12 col-md-6">
-                            {this.props.ocupaAsociacion ?
+                                </div>
                                 <div className="mb-3 position-relative">
                                     <label htmlFor="puesto" className="form-label">Puesto en Junta Directiva</label>
                                     <select className={this.state.errores.puesto.length > 0 ? "form-select is-invalid":"form-select"} aria-label="puesto" key="puesto" name="puesto" value={this.state.campos.puesto} onChange={this.manejaCambio}>
@@ -256,7 +261,9 @@ class UsuarioForm extends React.Component {
                                     <div className="invalid-tooltip">
                                         {this.state.errores.puesto}
                                     </div>
-                                </div>:
+                                </div>
+                                </>
+                                :
                                 <></>}
                             <div className="mb-3 position-relative">
                                 <label htmlFor="email" className="form-label">Email</label>
@@ -270,9 +277,12 @@ class UsuarioForm extends React.Component {
                         </div>
                     </div>
                     <div className="d-flex justify-content-end">
+                        {this.props.cerrarModal ?
                         <div className="m-1">
-                            <button type="button" className="btn btn-secondary" data-bs-dismiss="modal" aria-label="Volver">Volver</button>
-                        </div>
+                            <button type="button" className="btn btn-secondary" aria-label="Volver" onClick={()=>{this.props.cerrarModal();this.reiniciarCampos()}}>Volver</button>
+                        </div>:
+                        <></>
+                        }
                         <div className="m-1">
                             <button type="submit" className="btn btn-primary">Agregar</button>
                         </div>
@@ -284,9 +294,12 @@ class UsuarioForm extends React.Component {
                 <p>{this.state.contrasenna}</p> 
             </div>
             <div className="d-flex justify-content-end">
+                {this.props.cerrarModal ?
                 <div className="m-1">
-                    <button type="button" className="btn btn-secondary" data-bs-dismiss="modal" aria-label="Volver" onClick={this.reiniciarCampos}>Volver</button>
-                </div>
+                    <button type="button" className="btn btn-secondary" aria-label="Volver" onClick={()=>{this.props.cerrarModal();this.reiniciarCampos()}}>Volver</button>
+                </div>:
+                <></>
+                }
             </div>
             </>}
             </>

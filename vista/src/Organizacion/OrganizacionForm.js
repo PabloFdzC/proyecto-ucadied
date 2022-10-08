@@ -13,13 +13,19 @@ import PuestoForm from './PuestoForm';
 
 /*
 Recibe los props:
-esUnionCantonal: Booleano
+titulo: String para indicar si es asociación o unión
+esUnionCantonal: Booleano para saber si es unión cantonal y no cargar
+    la lista se asocaiciones
 campos: Objeto con la forma de los campos (es opcional porque solo se ocupa
     si se va a usar el formulario para editar la organización)
 avisaCreado: Función que permite enviar la información del formulario
     al componente que sea el padre del componente actual (o sea este),
     se usa para actualizar la tabla con la información que se agrega
     cuando se envía el formulario
+ingresaJunta: Booleano para saber si el formulario debe mostrar la
+    parte de ingresar junta directiva
+cerrarModal: Función para que se cierre el modal que contiene al formulario
+    entonces solo si se pone en un modal es necesaria
 */
 class OrganizacionForm extends React.Component {
     constructor(props){
@@ -317,7 +323,6 @@ class OrganizacionForm extends React.Component {
                                         <label htmlFor="unionCantonal" className="form-label">Unión Cantonal</label>
                                         <select className={this.state.errores.id_organizacion.length > 0 ? "form-select is-invalid":"form-select"} aria-label="unionCantonal" key="unionCantonal" name="id_organizacion" value={this.state.campos.id_organizacion} onChange={this.manejaCambio} >
                                             <option defaultValue value={""}>Unión Cantonal</option>
-                                            <option  value={"a"}>a</option>
                                             {this.state.uniones.map((u,i) => <option key={i} value={u.id}>{u.nombre}</option>)}
                                         </select>
                                         <div className="invalid-tooltip">

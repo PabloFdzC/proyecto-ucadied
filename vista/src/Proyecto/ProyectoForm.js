@@ -97,12 +97,20 @@ class OrganizacionForm extends React.Component {
         this.validacion.validarCampos(this.state.campos);
         if(!this.state.errores.hayError){
             try{
-                var campos = this.state.campos;
+                var campos = {
+                    nombre: this.state.campos.nombre,
+                    presupuesto: this.state.campos.presupuesto,
+                    inicio: this.state.campos.inicio,
+                    cierre: this.state.campos.cierre,
+                    id_organizacion:this.props.idOrganizacion
+                };
+                var encargados = [];
                 var usuarios = [];
-                for(let e of campos.usuarios){
+                for(let e of this.state.campos.usuarios){
+                    encargados.push(e.value);
                     usuarios.push({id:e.value,nombre:e.label});
                 }
-                campos.usuarios = usuarios;
+                campos.encargados = encargados;
                 var resp = await this.queriesGenerales.postear("/proyecto/crear", campos);
                 console.log(resp);
                 this.setState({

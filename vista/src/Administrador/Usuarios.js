@@ -3,26 +3,43 @@ import QueriesGenerales from "../QueriesGenerales";
 import UsuarioForm from '../Usuario/UsuarioForm';
 import { Navigate } from "react-router-dom";
 import {usuarioContexto} from '../usuarioContexto';
+import Modal from 'react-bootstrap/Modal';
 
-import Tabla from '../Utilidades/Tabla.js'
+import Tabla from '../Utilidades/Table/Table.jsx';
 
 class Usuarios extends React.Component {
     constructor(props){
         super(props);
         this.queriesGenerales = new QueriesGenerales();
         this.state = {
-            usuarios: []
+            usuarios: [],
+            usuario:{},
         }
         this.titulos = [
-            {llave:"nombre",valor:"Nombre"},
-            {llave:"sexo",valor:"Sexo"},
-            {llave:"email",valor:"Email"},
-            {llave:"fecha_nacimiento",valor:"Fecha de nacimiento"},
-            {llave:"profesion",valor:"Profesión"},
-            {llave:"nacionalidad",valor:"Nacionalidad"},
-            {llave:"telefonos",valor:"Teléfonos"},
-        ];
+            {name:'Nombre',selector:row=>row.nombre,sortable:true},
+            {name:'Sexo',selector:row=>row.sexo,sortable:true},
+            {name:'Email',selector:row=>row.email,sortable:true},
+            {name:'Fecha de nacimiento',selector:row=>row.fecha_nacimiento,sortable:true},
+            {name:'Profesión',selector:row=>row.profesion,sortable:true},
+            {name:'Nacionalidad',selector:row=>row.nacionalidad,sortable:true},
+            {name:'Teléfonos',selector:row=>row.telefonos,sortable:true},
+            ];
         this.avisaCreado = this.avisaCreado.bind(this);
+        this.muestraModal = this.muestraModal.bind(this);
+        this.agregarUsuario = this.agregarUsuario.bind(this);
+    }
+
+    agregarUsuario(){
+        this.setState({
+            usuario:{},
+            muestra:true,
+        })
+    }
+
+    muestraModal(muestra){
+        this.setState({
+            muestra:muestra,
+        })
     }
     
     async cargarUsuarios(){
@@ -60,13 +77,18 @@ class Usuarios extends React.Component {
                             <>
                                 <div className="d-flex align-items-center justify-content-between m-3">
                                     <h1>Usuarios</h1>
-                                    <button className="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal"><i className="lni lni-plus"></i>  Agregar usuario</button>
+                                    <button className="btn btn-primary" onClick={this.agregarUsuario}><i className="lni lni-plus"></i>  Agregar usuario</button>
                                 </div>
                                 <div className="d-flex" style={{height:"inherit"}}>
                                     <div className="w-100" style={{backgroundColor:"#137E31", color:"#FFFFFF"}}>
                                         <Tabla titulos={this.titulos} datos={this.state.usuarios} style={{color:"#FFFFFF"}} />
                                     </div>
                                 </div>
+                                <Modal size="lg" show={this.state.muestra} onHide={()=>this.muestraModal(false)} className="modal-green" scrollable>
+                                <Modal.Body>
+                                    <UsuarioForm administrador={false} titulo={"Agregar Usuario"} ocupaAsociacion={true} avisaCreado={this.avisaCreado} campos={this.state.usuario} cerrarModal={()=>this.muestraModal(false)} />
+                                </Modal.Body>
+                                </Modal>
                                 <div className="modal fade" id="exampleModal" tabIndex="-1" aria-labelledby="modalAgregarUnion" aria-hidden="true">
                                     <div className="modal-dialog modal-dialog-scrollable modal-lg">
                                         <div className="modal-content p-3" style={{backgroundColor:"#137E31", color:"#FFFFFF"}}>

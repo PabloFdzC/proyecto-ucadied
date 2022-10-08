@@ -2,7 +2,7 @@ import React from 'react';
 import { Navigate } from "react-router-dom";
 import {usuarioContexto} from '../usuarioContexto';
 import MiembroJuntaDirectivaForm from './MiembroJuntaDirectivaForm.js';
-import Tabla from '../Utilidades/Tabla.js'
+import Tabla from '../Utilidades/Table/Table.jsx';
 import PuestoForm from './PuestoForm.js';
 import QueriesGenerales from "../QueriesGenerales";
 import Tab from 'react-bootstrap/Tab';
@@ -21,18 +21,18 @@ class JuntaDirectiva extends React.Component {
             key: "miembros"
         };
         this.titulos = [
-            {llave:"nombre",valor:"Nombre"},
-            {llave:"puesto",valor:"Puesto"},
-            {llave:"funcion",valor:"Función"},
-        ];
+            {name:'Nombre',selector:row=>row.nombre,sortable:true},
+            {name:'Puesto',selector:row=>row.puesto,sortable:true},
+            {name:'Función',selector:row=>row.funcion,sortable:true},
+            ];
         this.titulosPuestos = [
-            {llave:"nombre",valor:"Nombre"},
-            {llave:"funcion",valor:"Función"},
-            {llave:"edita_pagina",valor:"Edita página"},
-            {llave:"edita_junta",valor:"Edita Junta Directiva"},
-            {llave:"edita_proyecto",valor:"Edita proyectos"},
-            {llave:"edita_actividad",valor:"Edita actividades"},
-        ];
+            {name:'Nombre',selector:row=>row.nombre,sortable:true},
+            {name:'Función',selector:row=>row.funcion,sortable:true},
+            {name:'Edita página',selector:row=>row.edita_pagina,sortable:true},
+            {name:'Edita Junta Directiva',selector:row=>row.edita_junta,sortable:true},
+            {name:'Edita proyectos',selector:row=>row.edita_proyecto,sortable:true},
+            {name:'Edita actividades',selector:row=>row.edita_actividad,sortable:true},
+            ];
         this.organizacionPedida = false;
         this.puestosPedidos = true;
         this.avisaAgregadoMiembro = this.avisaAgregadoMiembro.bind(this);

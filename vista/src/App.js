@@ -18,18 +18,29 @@ import './Estilos/Botones.css';
 import Usuarios from './Administrador/Usuarios';
 
 import { useParams } from "react-router-dom";
-import OrganizacionForm from './Organizacion/OrganizacionForm';
 import Proyectos from './Proyecto/Proyectos';
 import Gastos from './Proyecto/Gastos';
+import Inmuebles from './Inmueble/Inmuebles';
+import CalendarioActividades from './Actividades/CalendarioActividades';
+import Actividades from './Actividades/Actividades';
 
+import Table from './Utilidades/Table/Table.jsx';
+
+// Esta función es necesaria para pasarle el parámetro
+// id de la url a los componentes que la necesitan
+// ya que react-router-dom tiene una función para
+// obtenerlo, pero esta solo funciona con hooks
+// y los hooks no se pueden llamar dentro de las
+// clases
 function ConParams(props) {
   const { id } = useParams();
-  localStorage.setItem("organizacionActual", id);
   return <>{React.cloneElement(props.componente,
     {id:id})}</>;
 }
 
-
+/*
+No recibe props
+ */
 class App extends React.Component {
 
   constructor(props){
@@ -42,6 +53,9 @@ class App extends React.Component {
       tipo: localStorage.getItem("tipo"),
       id_organizacion: localStorage.getItem("id_organizacion"),
     };
+    // En el estado se mantiene la información del usuario
+    // que esté usando el sistema actualmente, la organización
+    // de la que se debe mostrar la información
     this.state = {
       usuario:{
         tipo:usuario.tipo ? usuario.tipo : "",
@@ -71,7 +85,10 @@ class App extends React.Component {
     this.cargarOrganizacion = this.cargarOrganizacion.bind(this);
     this.escogeProyecto = this.escogeProyecto.bind(this);
   }
-
+  
+  // iniciarSesion se usa para actualizar el usuario
+  // que actualmente inició sesión, se le pasa
+  // como contexto a los demás componentes
   async iniciarSesion(usuario) {
     localStorage.setItem("id_usuario", usuario.id_usuario);
     localStorage.setItem("tipo", usuario.tipo);
@@ -87,6 +104,9 @@ class App extends React.Component {
     });
   }
 
+  // cerrarSesion se usa para actualizar el usuario
+  // que actualmente cerró sesión, se le pasa
+  // como contexto a los demás componentes
   cerrarSesion() {
     localStorage.removeItem("id_usuario");
     localStorage.removeItem("tipo");
@@ -96,6 +116,10 @@ class App extends React.Component {
     }});
   }
 
+  // cargarUnion obtiene la información de las uniones
+  // cantonales y se escoge la primera que aparezca
+  // para que sea la organización que se está viendo
+  // actualmente
   async cargarUnion(){
     try{
         const resp = await this.queriesGenerales.obtener("/organizacion/consultarTipo/1", {});
@@ -107,10 +131,14 @@ class App extends React.Component {
     }
   }
 
+  // cargarOrganizacion obtiene la información de la 
+  // organización según se le pase el id, se le pasa
+  // como prop a los componentes que pueden cambiar
+  // de organización según el id que tengan en la
+  // url y se pone en este componente para poder
+  // reutilizarla en los demás
   async cargarOrganizacion(id){
-    console.log(this.state.organizacion);
-    console.log(this.state.organizacion.cedula == "");
-    if(id !== this.state.organizacion.id || this.state.organizacion.cedula == ""){
+    if(id !== this.state.organizacion.id || this.state.organizacion.cedula === ""){
       const resp = await this.queriesGenerales.obtener("/organizacion/consultar/"+id, {});
       console.log(resp);
       if(resp.data.length > 0){
@@ -119,6 +147,12 @@ class App extends React.Component {
     }
   }
 
+  // actualizaOrganizacionActual cambia los datos en 
+  // el localstorage de la organización y cambia el estado
+  // para saber cuál es la organización actual.
+  // Es necesario guardarlo en el localStorage porque si
+  // se recarga la página (en una de las que no tienen id
+  // en la url) no se sabría cuál es la organización actual
   actualizaOrganizacionActual(organizacion){
     if(organizacion.id && organizacion.id !== -1 && organizacion.id !== this.state.organizacion.id){
       localStorage.setItem("organizacionActual", organizacion.id);
@@ -129,6 +163,10 @@ class App extends React.Component {
     }
   }
 
+  // componentDidMount es una función que trae
+  // react que se llama antes de llamar a render
+  // aquí se usa para pedir la unión cantonal en
+  // caso de que no haya ninguna organización actual
   componentDidMount() {
     if(this.state.organizacion.id === -1){
       if(!this.unionPedida){
@@ -138,6 +176,9 @@ class App extends React.Component {
     }
   }
 
+  // escogeProyecto simplemente cambia el estado
+  // de proyecto para saber cuál se está viendo
+  // actualmente
   escogeProyecto(proyecto){
     this.setState({
       proyecto:proyecto,
@@ -165,21 +206,16 @@ class App extends React.Component {
               <Route path="/presidencia/asociaciones/" element={<Asociaciones soloVer={false}/>} />
               <Route path="/proyectos/:id" element={<ConParams app={this}  componente={<Proyectos escogeProyecto={this.escogeProyecto} cargarOrganizacion={this.cargarOrganizacion} />}/>} />
               <Route index path="/proyectos/:id/gastos/:id" element={<ConParams app={this}  componente={<Gastos idProyecto={this.state.proyecto.id} nombreProyecto={this.state.proyecto.nombre} />}/>} />
+              <Route path="/inmuebles/:id" element={<ConParams app={this}  componente={<Inmuebles cargarOrganizacion={this.cargarOrganizacion} />}/>} />
+              <Route path="/calendarioActividades/:id" element={<ConParams app={this}  componente={<CalendarioActividades cargarOrganizacion={this.cargarOrganizacion} />}/>} />
+              <Route path="/actividades/:id" element={<ConParams app={this}  componente={<Actividades cargarOrganizacion={this.cargarOrganizacion} />}/>} />
               
               <Route path="/administradores" element={<Administradores />} />
               <Route path="/unionCantonal" element={<UnionCantonal />} />
               <Route path="/asociaciones" element={<Asociaciones soloVer={ this.state.usuario.tipo !== "Administrador" } />} />
               <Route path="/usuarios" element={<Usuarios />} />
               <Route path="/prueba" element={
-                <div className="modal" id="agregarAsociacionModal" tabIndex="-1" aria-labelledby="modalAgregarUnion">
-                  <div className="modal-dialog modal-dialog-scrollable modal-lg">
-                    <div className="modal-content p-3" style={{backgroundColor:"#137E31", color:"#FFFFFF"}}>
-                      <div className="modal-body">
-                        <OrganizacionForm ingresaJunta={true} titulo="Asociación" />
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                <Table/>
               } />
             </ Routes>
         </BrowserRouter>

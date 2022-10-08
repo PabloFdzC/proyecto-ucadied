@@ -84,6 +84,36 @@ class Validacion {
         if(this.reglas.hasOwnProperty(campo))
             delete this.reglas[campo];
     }
+
+    horaInicialFinalCorrectas(inicio, final){
+        console.log(inicio);
+        console.log(final);
+        let [horaI,minI] = inicio.split(":");
+        let [horaF,minF] = final.split(":");
+        horaI = parseInt(horaI);
+        minI = parseInt(minI);
+        horaF = parseInt(horaF);
+        minF = parseInt(minF);
+        console.log("horaI:"+horaI+" minI:"+minI);
+        console.log("horaF:"+horaF+" minF:"+minF);
+        console.log((horaI === horaF && minI > minF));
+        console.log((horaI > horaF));
+        if((horaI === horaF && minI > minF) || (horaI > horaF)){
+            return {
+                inicio:"Hora inicio debe empezar antes que la final",
+                final:"Hora final debe empezar después que la de inicio",
+            };
+        } else if(horaI === horaF && minI === minF){
+            return {
+                inicio:"Hora de inicio no puede ser igual que hora final",
+                final: "Hora final no puede ser igual que hora de inicio",
+            };
+        }
+        return {
+            inicio:"",
+            final:"",
+        };
+    }
 }
 
 export default Validacion;

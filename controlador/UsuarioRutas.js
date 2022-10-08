@@ -46,6 +46,7 @@ router.get('/consultar', async (req, res) => {
 });
 
 router.get('/consultarTipo/:esAdmin', async (req, res) => {
+    console.log("consulta-tipo")
     try{
         if(req.session.idUsuario && req.session.idUsuario != -1){
             const usuarios = await usuarioCtrl.consultarTipo(req.params.esAdmin);

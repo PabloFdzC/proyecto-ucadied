@@ -5,22 +5,35 @@ const usuarioCtrl = require('.//UsuarioControlador');
 const reserva_inmueble = require('../modelo/reserva_inmueble');
 const { Op } = require("sequelize");
 const Sequelize = require("sequelize");
+const inmueble = require('../modelo/inmueble');
 
-async function consultar(params){
-    if(params.id_actividad){
-        return await queries_generales.consultar(actividad, {
-            include: {
-                model: reserva_inmueble,
-                required: true
+async function consultar(paramsActividad, paramsReserva, paramsInmueble){
+    if(paramsReserva.dia){
+        paramsReserva.dia = Sequelize.fn('DAY', Sequelize.col('reserva_inmuebles.inicio')), parseInt(paramsReserva.dia);
+    }
+    if(paramsReserva.mes){
+        paramsReserva.mes = Sequelize.fn('MONTH', Sequelize.col('reserva_inmuebles.inicio')), parseInt(paramsReserva.mes);
+    }
+    if(paramsReserva.anio){
+        paramsReserva.anio = Sequelize.fn('YEAR', Sequelize.col('reserva_inmuebles.inicio')), parseInt(paramsReserva.anio);
+    }
+
+    return await queries_generales.consultar(actividad, {
+        include:[ 
+            {
+                model: inmueble,
+                required: true,
+                where: paramsInmueble,
+                attributes:["id","nombre","horario",]
             },
-            where: {
-                id: params.id_actividad
+            {
+                model: reserva_inmueble,
+                required: true,
+                where: paramsReserva,
             }
-        });
-    }
-    else{
-        return await queries_generales.consultar(actividad, {include: reserva_inmueble});
-    }
+        ],
+        where: paramsActividad
+    });
 }
 
 async function buscar_disponibilidad_horario(inicio, final, horario){
@@ -151,44 +164,9 @@ async function eliminar(id){
     return await queries_generales.eliminar(actividad, {id});
 }
 
-async function consultar_actividades_habilitadas(habilitado){
-    return await queries_generales.consultar(actividad, {
-        where: {
-            '$reserva_inmuebles.habilitado$': habilitado
-        },
-        include: {
-            model: reserva_inmueble,
-            required: true
-        }
-    });
-}
-
-async function consultar_actividades_dia(dia, mes, anio){
-    const actividades = await queries_generales.consultar(actividad, {where: {
-        [Op.and]: [
-            Sequelize.where(Sequelize.fn('MONTH', Sequelize.col('reserva_inmuebles.inicio')), parseInt(mes)),
-            Sequelize.where(Sequelize.fn('YEAR', Sequelize.col('reserva_inmuebles.inicio')), parseInt(anio)),
-            Sequelize.where(Sequelize.fn('DAY', Sequelize.col('reserva_inmuebles.inicio')), parseInt(dia)),
-            Sequelize.where(Sequelize.col('reserva_inmuebles.habilitado'), 1)
-        ],
-    },
-    include: {
-        model: reserva_inmueble,
-        required: true
-    }
-    });
-    for(var i = 0; i < actividades.length; i+=1){
-        actividades[i].inicio = actividades.reserva_inmuebles[0].inicio; 
-        actividades[i].final = actividades.reserva_inmuebles[0].final; 
-    }
-    return actividades;
-}
-
 module.exports = {
     consultar,
     crear,
     modificar,
     eliminar,
-    consultar_actividades_habilitadas,
-    consultar_actividades_dia
 }

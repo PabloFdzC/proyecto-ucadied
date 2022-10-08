@@ -107,6 +107,16 @@ gasto.belongsTo(proyecto, {
   foreignKey: 'id_proyecto'
 });
 
+actividad.belongsToMany(inmueble,{
+  through: reserva_inmueble,
+  foreignKey: 'id_actividad'
+});
+
+inmueble.belongsToMany(actividad,{
+  through: reserva_inmueble,
+  foreignKey: 'id_inmueble'
+});
+
 actividad.hasMany(reserva_inmueble, {
   foreignKey: 'id_actividad'
 });

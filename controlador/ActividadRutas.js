@@ -3,38 +3,39 @@ const bodyParser = require('body-parser');
 const jsonParser  = bodyParser.json({ extended: false });
 const actividadCtlr = require('./ActividadControlador');
 
-
-router.get('/consultar/:id_actividad', async (req, res) => {
-    try{
-        const actividades = await actividadCtlr.consultar(req.params);
-        res.json(actividades);
-    }catch(err){
-        console.log(err);
-        res.status(400);
-        res.send("Algo salió mal");
-    }
-});
-
 router.get('/consultar', async (req, res) => {
     try{
         var actividades;
-        if(req.query.dia && req.query.mes && req.query.anio){
-            actividades = await actividadCtlr.consultar_actividades_dia(req.query.dia, req.query.mes, req.query.anio);
+        
+        var paramsActividad = {};
+        var paramsReserva = {};
+        var paramsInmueble = {};
+        if(req.query.id){
+            paramsActividad.id = req.query.id;
         }
-        else{
-            actividades = await actividadCtlr.consultar_actividades(req.params);
+        if(req.query.tipo){
+            paramsActividad.tipo = req.query.tipo;
         }
-        res.json(actividades);
-    }catch(err){
-        console.log(err);
-        res.status(400);
-        res.send("Algo salió mal");
-    }
-});
+        if(req.query.id_organizacion){
+            paramsInmueble.id_organizacion = req.query.id_organizacion;
+        }
+        if(req.query.id_inmueble){
+            paramsInmueble.id = req.query.id_inmueble;
+        }
+        if(req.query.habilitado){
+            paramsReserva.habilitado = req.query.habilitado;
+        }
+        if(req.query.dia){
+            paramsReserva.dia = req.query.dia;
+        }
+        if(req.query.mes){
+            paramsReserva.mesdia = req.query.mes;
+        }
+        if(req.query.anio){
+            paramsReserva.anio = req.query.anio;
+        }
+        actividades = await actividadCtlr.consultar(paramsActividad, paramsReserva, paramsInmueble);
 
-router.get('/consultarHabilitado/:Habilitado', async (req, res) => {
-    try{
-        const actividades = await actividadCtlr.consultar_actividades_habilitadas(req.params.Habilitado);
         res.json(actividades);
     }catch(err){
         console.log(err);

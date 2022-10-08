@@ -5,7 +5,7 @@ import {usuarioContexto} from '../usuarioContexto';
 import Tabla from '../Utilidades/Tabla';
 import QueriesGenerales from "../QueriesGenerales";
 
-class UnionCantonal extends React.Component {
+class Gastos extends React.Component {
 
     constructor(props){
         super(props);
@@ -15,12 +15,12 @@ class UnionCantonal extends React.Component {
         }
         this.gastosPedidos = false;
         this.titulos = [
-            {llave:"nombre",valor:"Nombre"},
-            {llave:"monto",valor:"Monto"},
-            {llave:"fecha",valor:"Fecha"},
-            {llave:"numero_acta",valor:"Número de acta"},
-            {llave:"numero_acuerdo",valor:"Número de acuerdo"},
-        ];
+            {name:'Nombre',selector:row=>row.nombre,sortable:true},
+            {name:'Monto',selector:row=>row.monto,sortable:true},
+            {name:'Fecha',selector:row=>row.fecha,sortable:true},
+            {name:'Número de acta',selector:row=>row.numero_acta,sortable:true},
+            {name:'Número de acuerdo',selector:row=>row.numero_acuerdo,sortable:true},
+            ];
 
         this.avisaCreado = this.avisaCreado.bind(this);
     }
@@ -87,4 +87,4 @@ class UnionCantonal extends React.Component {
     }
 }
 
-export default UnionCantonal;
+export default Gastos;

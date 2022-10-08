@@ -2,9 +2,6 @@ function manejarCambio(evento, componente){
     const objetivo = evento.target;
     const valor = objetivo.type === 'checkbox' ? objetivo.checked : objetivo.value;
     const nombre = objetivo.name;
-    console.log("OBJETIVO: ");
-    console.log(nombre);
-    console.log(valor);
 
     
     componente.setState({
