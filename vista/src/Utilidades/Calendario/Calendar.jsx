@@ -5,9 +5,6 @@ import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from "@fullcalendar/interaction";
 
 import './Calendar.css';
-import 'bootstrap/dist/css/bootstrap.css';
-
-/* import AddEventModal from "./AddEventModal"; */
 
 const Calendar = () => {
   const [events, setEvents] = useState([
@@ -30,14 +27,20 @@ const Calendar = () => {
       setStartDate(arg.date.toISOString().slice(0, 16));
       setEndDate(arg.date.toISOString().slice(0, 16));
       /* setAddModalOpen(true); */
+      alert("Selección hoy o futuro.  Fecha:" + arg.date);
+    }
+    else{
+      alert("Selección fecha pasada.  Fecha:" + arg.date);
     }
   };
 
   const onEventClick = (info) => {
+    alert("Click sobre evento")
     //Cuando se le da click a un evento mostado en el calendario caerá acá
   };
 
   return (
+    
     <div className="container-sm background-div" >      
       <div className="row">
         <div style={{zIndex:0, position:"relative", boxSizing: "border-box", marginTop:"2em", paddingTop:"2em",marginBottom:"4em", justifyContent: "center", backgroundColor: "rgb(118, 178, 206)"}}>
