@@ -156,6 +156,7 @@ class UsuarioForm extends React.Component {
                 });
                 var usuario = resp.data.usuario_creado;
                 usuario.persona = resp.data.persona_creada;
+                usuario.puesto = this.state.campos.puesto;
                 this.avisaCreado(usuario);
             }catch(error){
                 console.log(error);
