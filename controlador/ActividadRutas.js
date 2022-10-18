@@ -57,7 +57,7 @@ router.post('/crear', jsonParser, async (req, res) => {
                 res.status(400);
             }
             res.json(actividad_creada);
-        } else {
+        } else { 
             console.log(resp.error);
             res.status(400);
             res.send(resp.error);    
