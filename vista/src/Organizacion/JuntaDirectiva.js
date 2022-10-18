@@ -43,6 +43,7 @@ class JuntaDirectiva extends React.Component {
         this.avisaAgregadoMiembro = this.avisaAgregadoMiembro.bind(this);
         this.agregaPuestos = this.agregaPuestos.bind(this);
         this.muestraModal = this.muestraModal.bind(this);
+        this.avisaCreadoMiembro = this.avisaCreadoMiembro.bind(this);
     }
 
     muestraModal(nombre,muestra){
@@ -104,6 +105,22 @@ class JuntaDirectiva extends React.Component {
         }
     }
 
+    avisaCreadoMiembro(miembroNuevo){
+        var miembro = {
+            nombre: miembroNuevo.nombre,
+        };
+        for(let p of this.state.puestos){
+            if(p.id == miembroNuevo.puesto){
+                miembro.puesto = p.nombre;
+                miembro.funcion = p.funcion;
+            }
+        }
+        var miembros = this.state.miembros;
+        this.setState({
+            miembros:miembros.concat(miembro),
+        });
+    }
+    
     async avisaAgregadoMiembro(miembroNuevo){
         var miembro = {
             nombre: miembroNuevo.nombre,
@@ -165,12 +182,12 @@ class JuntaDirectiva extends React.Component {
                             </Modal>
                             <Modal size='lg' show={this.state.muestraUF} onHide={()=>this.muestraModal("muestraUF",false)} className="modal-green">
                             <Modal.Body>
-                                <UsuarioForm titulo="Usuario" idOrganizacion={this.props.idOrganizacion} cerrarModal={()=>this.muestraModal("muestraUF",false)} />
+                                <UsuarioForm titulo="Usuario" idOrganizacion={this.props.idOrganizacion} cerrarModal={()=>this.muestraModal("muestraUF",false)} avisaCreado={this.avisaCreadoMiembro} />
                             </Modal.Body>
                             </Modal>
                             <Modal show={this.state.muestraPF} onHide={()=>this.muestraModal("muestraPF",false)} className="modal-green">
                             <Modal.Body>
-                                <PuestoForm idOrganizacion={organizacion.id} avisaAgregado={this.agregaPuestos} cerrarModal={()=>this.muestraModal("muestraPF",false)} />
+                                <PuestoForm idOrganizacion={organizacion.id} avisaCreado={this.agregaPuestos} cerrarModal={()=>this.muestraModal("muestraPF",false)} />
                             </Modal.Body>
                             </Modal>
                             </>);
