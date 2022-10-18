@@ -108,7 +108,7 @@ router.post('/agregarMiembro', jsonParser, async (req, res) => {
 router.delete('/eliminarMiembro', jsonParser, async (req, res) => {
     try{
         if(req.session.idUsuario && req.session.idUsuario != -1){
-            const resultado = await organizacionCtrl.eliminarMiembro(req.body.id_persona);
+            const resultado = await organizacionCtrl.eliminarMiembro(req.body.id_usuario);
             res.json(resultado);
         }
         else{

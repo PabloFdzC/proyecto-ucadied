@@ -1,32 +1,23 @@
 const Sequelize = require('sequelize');
 const actividad = require("./modelo/actividad");
-const activo = require("./modelo/activo");
+const inmueble = require("./modelo/inmueble");
 const componente = require("./modelo/componente");
 const gasto = require("./modelo/gasto");
-const junta_directiva = require("./modelo/junta_directiva");
 const organizacion = require("./modelo/organizacion");
 const pagina = require("./modelo/pagina");
-const persona = require("./modelo/persona");
 const proyecto = require("./modelo/proyecto");
 const puesto_jd = require("./modelo/puesto_jd");
-const reserva_activo = require("./modelo/reserva_activo");
+const reserva_inmueble = require("./modelo/reserva_inmueble");
 const usuario = require("./modelo/usuario");
 const sequelize = require('./conexion_base');
-const proyecto_x_persona = require('./modelo/proyecto_x_persona');
+const proyecto_x_usuario = require('./modelo/proyecto_x_usuario');
+const puesto_x_usuario = require('./modelo/puesto_x_usuario');
 
-organizacion.hasOne(junta_directiva, {
+organizacion.hasMany(inmueble, {
   foreignKey: 'id_organizacion'
 });
 
-junta_directiva.belongsTo(organizacion, {
-  foreignKey: 'id_organizacion'
-});
-
-organizacion.hasMany(activo, {
-  foreignKey: 'id_organizacion'
-});
-
-activo.belongsTo(organizacion, {
+inmueble.belongsTo(organizacion, {
   foreignKey: 'id_organizacion'
 });
 
@@ -60,36 +51,36 @@ organizacion.belongsTo(organizacion, {
   }
 });
 
-persona.hasOne(usuario, {
-  foreignKey: 'id_persona'
+puesto_jd.hasMany(puesto_x_usuario, {
+  foreignKey: 'id_puesto_jd'
 });
 
-usuario.belongsTo(persona, {
-  foreignKey: 'id_persona'
+puesto_x_usuario.belongsTo(puesto_jd, {
+  foreignKey: 'id_puesto_jd'
 });
 
-usuario.hasMany(actividad, {
+usuario.hasMany(puesto_x_usuario, {
   foreignKey: 'id_usuario'
 });
 
-actividad.belongsTo(usuario, {
+puesto_x_usuario.belongsTo(usuario, {
   foreignKey: 'id_usuario'
 });
 
-usuario.hasMany(puesto_jd, {
-  foreignKey: 'id_usuario'
+organizacion.hasMany(puesto_x_usuario, {
+  foreignKey: 'id_organizacion'
 });
 
-puesto_jd.belongsTo(usuario, {
-  foreignKey: 'id_usuario'
+puesto_x_usuario.belongsTo(organizacion, {
+  foreignKey: 'id_organizacion'
 });
 
-junta_directiva.hasMany(puesto_jd, {
-  foreignKey: 'id_junta_directiva'
+organizacion.hasMany(puesto_jd, {
+  foreignKey: 'id_organizacion'
 });
 
-puesto_jd.belongsTo(junta_directiva, {
-  foreignKey: 'id_junta_directiva'
+puesto_jd.belongsTo(organizacion, {
+  foreignKey: 'id_organizacion'
 });
 
 pagina.hasMany(componente, {
@@ -116,60 +107,76 @@ gasto.belongsTo(proyecto, {
   foreignKey: 'id_proyecto'
 });
 
-actividad.hasMany(reserva_activo, {
+actividad.belongsToMany(inmueble,{
+  through: {
+    model:reserva_inmueble,
+    unique:false,
+  },
   foreignKey: 'id_actividad'
 });
 
-reserva_activo.belongsTo(actividad, {
+inmueble.belongsToMany(actividad,{
+  through: {
+    model:reserva_inmueble,
+    unique:false,
+  },
+  foreignKey: 'id_inmueble'
+});
+
+actividad.hasMany(reserva_inmueble, {
   foreignKey: 'id_actividad'
 });
 
-activo.hasMany(reserva_activo, {
-  foreignKey: 'id_activo'
+reserva_inmueble.belongsTo(actividad, {
+  foreignKey: 'id_actividad'
 });
 
-reserva_activo.belongsTo(activo, {
-  foreignKey: 'id_activo'
+inmueble.hasMany(reserva_inmueble, {
+  foreignKey: 'id_inmueble'
 });
 
-proyecto.belongsToMany(persona, {
-  through: proyecto_x_persona,
-  foreignKey: 'id_persona'
+reserva_inmueble.belongsTo(inmueble, {
+  foreignKey: 'id_inmueble'
 });
 
-persona.belongsToMany(proyecto, {
-  through: proyecto_x_persona,
+proyecto.belongsToMany(usuario, {
+  through: proyecto_x_usuario,
   foreignKey: 'id_proyecto'
 });
 
-organizacion.hasMany(persona, {
+usuario.belongsToMany(proyecto, {
+  through: proyecto_x_usuario,
+  foreignKey: 'id_usuario'
+});
+
+organizacion.hasMany(usuario, {
   foreignKey: {
     name:'id_organizacion',
     allowNull: true
   }
 });
 
-persona.belongsTo(organizacion, {
+usuario.belongsTo(organizacion, {
   foreignKey: {
     name:'id_organizacion',
     allowNull: true
   }
 });
 
-proyecto.hasMany(proyecto_x_persona, {
+proyecto.hasMany(proyecto_x_usuario, {
   foreignKey: 'id_proyecto'
 });
 
-proyecto_x_persona.belongsTo(proyecto, {
+proyecto_x_usuario.belongsTo(proyecto, {
   foreignKey: 'id_proyecto'
 });
 
-persona.hasMany(proyecto_x_persona, {
-  foreignKey: 'id_persona'
+usuario.hasMany(proyecto_x_usuario, {
+  foreignKey: 'id_usuario'
 });
 
-proyecto_x_persona.belongsTo(persona, {
-  foreignKey: 'id_persona'
+proyecto_x_usuario.belongsTo(usuario, {
+  foreignKey: 'id_usuario'
 });
 
 sequelize.sync({ alter: true })

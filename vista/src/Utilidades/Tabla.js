@@ -8,26 +8,30 @@ class Tabla extends React.Component {
         this.style = props.style;
     }
 
-    render(){
+    creaTabla(titulos, datos){
         return (
             <table className="table" style={this.props.style}>
                 <thead>
                     <tr>
-                    {this.props.titulos.map(titulo =>
+                    {titulos.map(titulo =>
                         <th scope="col" key={titulo.llave}>{titulo.valor}</th>
                         )}
                     </tr>
                 </thead>
                 <tbody>
-                {this.props.datos.map((dato, i) =>
+                {datos.map((dato, i) =>
                         <tr key={i}>
-                            {this.props.titulos.map((t, j) =>
-                                <td key={i+"-"+j}>{this.props.datos[i][t.llave]}</td>)}
+                            {titulos.map((t, j) =>
+                                <td key={i+"-"+j}>{dato[t.llave]}</td>)}
                         </tr>
                         )}
                 </tbody>
-                </table>
+            </table>
         );
+    }
+
+    render(){
+        return this.creaTabla(this.props.titulos, this.props.datos);
     }
 }
 

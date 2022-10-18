@@ -3,6 +3,11 @@ import IniciarSesionForm from './IniciarSesionForm';
 import logoUcadied from '../Imagenes/logo-UCADIED.png';
 
 class IniciarSesion extends React.Component{
+
+    componentDidMount(){
+      document.title = "Iniciar Sesión";
+    }
+
     render(){
         return (
           <div className="row m-0" style={{height:"inherit"}}>

@@ -4,49 +4,24 @@ const jsonParser  = bodyParser.json({ extended: false });
 const JuntaDirectivaCtlr = require('./JuntaDirectivaControlador');
 
 
-router.get('/consultar/:id_organizacion', async (req, res) => {
+router.get('/consultarPuestos/:id_organizacion', async (req, res) => {
     try{
+        var habilitado = false;
         if(req.session.idUsuario && req.session.idUsuario != -1){
-            const juntas = await JuntaDirectivaCtlr.consultar(req.params);
-            res.json(juntas);
+            if(req.session.tipoUsuario === "Administrador"){
+                habilitado = true;
+            }
+            else{
+                habilitado = JuntaDirectivaCtlr.consultar_permisos(req.session.idUsuario, "edita_junta");
+            }
         }
-        else{
-            res.status(400);
-            res.send("Sesión no iniciada");
-        }
-    }catch(err){
-        console.log(err);
-        res.status(400);
-        res.send("Algo salió mal");
-    }
-});
-
-router.get('/consultar', async (req, res) => {
-    try{
-        if(req.session.idUsuario && req.session.idUsuario != -1){
-            const juntas = await JuntaDirectivaCtlr.consultar(req.params);
-            res.json(juntas);
-        }
-        else{
-            res.status(400);
-            res.send("Sesión no iniciada");
-        }
-    }catch(err){
-        console.log(err);
-        res.status(400);
-        res.send("Algo salió mal");
-    }
-});
-
-router.get('/consultarPuestos/:id_junta_directiva', async (req, res) => {
-    try{
-        if(req.session.idUsuario && req.session.idUsuario != -1){
-            const puestos = await JuntaDirectivaCtlr.consultar_puestos(req.params.id_junta_directiva);
+        if(habilitado){
+            const puestos = await JuntaDirectivaCtlr.consultar_puestos(req.params.id_organizacion);
             res.json(puestos);
         }
         else{
             res.status(400);
-            res.send("Sesión no iniciada");
+            res.send("No se cuenta con los permisos necesarios");
         }
     }catch(err){
         console.log(err);
@@ -57,30 +32,22 @@ router.get('/consultarPuestos/:id_junta_directiva', async (req, res) => {
 
 router.get('/consultarPuesto/:id_puesto', async (req, res) => {
     try{
+        var habilitado = false;
         if(req.session.idUsuario && req.session.idUsuario != -1){
+            if(req.session.tipoUsuario === "Administrador"){
+                habilitado = true;
+            }
+            else{
+                habilitado = await JuntaDirectivaCtlr.consultar_permisos(req.session.idUsuario, "edita_junta");
+            }
+        }
+        if(habilitado){
             const puesto = await JuntaDirectivaCtlr.consultar_puesto(req.params.id_puesto);
             res.json(puesto);
         }
         else{
             res.status(400);
-            res.send("Sesión no iniciada");
-        }
-    }catch(err){
-        console.log(err);
-        res.status(400);
-        res.send("Algo salió mal");
-    }
-});
-
-router.post('/crear', jsonParser, async (req, res) => {
-    try{
-        if(req.session.idUsuario && req.session.idUsuario != -1){
-            const junta_directiva_creada = await JuntaDirectivaCtlr.crear(req.body);
-            res.json(junta_directiva_creada);
-        }
-        else{
-            res.status(400);
-            res.send("Sesión no iniciada");
+            res.send("No se cuenta con los permisos necesarios");
         }
     }catch(err){
         console.log(err);
@@ -91,13 +58,22 @@ router.post('/crear', jsonParser, async (req, res) => {
 
 router.post('/crearPuesto', jsonParser, async (req, res) => {
     try{
+        var habilitado = false;
         if(req.session.idUsuario && req.session.idUsuario != -1){
+            if(req.session.tipoUsuario === "Administrador"){
+                habilitado = true;
+            }
+            else{
+                habilitado = await JuntaDirectivaCtlr.consultar_permisos(req.session.idUsuario, "edita_junta");
+            }
+        }
+        if(habilitado){
             const puesto_creado = await JuntaDirectivaCtlr.crear_puesto(req.body);
             res.json(puesto_creado);
         }
         else{
             res.status(400);
-            res.send("Sesión no iniciada");
+            res.send("No se cuenta con los permisos necesarios");
         }
     }catch(err){
         console.log(err);
@@ -108,13 +84,22 @@ router.post('/crearPuesto', jsonParser, async (req, res) => {
 
 router.delete('/eliminarPuesto/:id_puesto', async (req, res) => {
     try{
+        var habilitado = false;
         if(req.session.idUsuario && req.session.idUsuario != -1){
+            if(req.session.tipoUsuario === "Administrador"){
+                habilitado = true;
+            }
+            else{
+                habilitado = await JuntaDirectivaCtlr.consultar_permisos(req.session.idUsuario, "edita_junta");
+            }
+        }
+        if(habilitado){
             const resultado = await JuntaDirectivaCtlr.eliminar_puesto(req.params.id_puesto);
             res.json(resultado);
         }
         else{
             res.status(400);
-            res.send("Sesión no iniciada");
+            res.send("No se cuenta con los permisos necesarios");
         }
     }catch(err){
         console.log(err);
@@ -125,47 +110,22 @@ router.delete('/eliminarPuesto/:id_puesto', async (req, res) => {
 
 router.put('/modificarPuesto/:id_puesto', jsonParser, async (req, res) => {
     try{
+        var habilitado = false;
         if(req.session.idUsuario && req.session.idUsuario != -1){
+            if(req.session.tipoUsuario === "Administrador"){
+                habilitado = true;
+            }
+            else{
+                habilitado = await JuntaDirectivaCtlr.consultar_permisos(req.session.idUsuario, "edita_junta");
+            }
+        }
+        if(habilitado){
             const resultado = await JuntaDirectivaCtlr.modificar_puesto(req.params.id_puesto, req.body)
             res.json(resultado);
         }
         else{
             res.status(400);
-            res.send("Sesión no iniciada");
-        }
-    }catch(err){
-        console.log(err);
-        res.status(400);
-        res.send("Algo salió mal");
-    }
-});
-
-router.put('/modificar/:id_junta_directiva', jsonParser, async (req, res) => {
-    try{
-        if(req.session.idUsuario && req.session.idUsuario != -1){
-            const resultado = await JuntaDirectivaCtlr.modificar(req.params.id_junta_directiva, req.body)
-            res.json(resultado);
-        }
-        else{
-            res.status(400);
-            res.send("Sesión no iniciada");
-        }
-    }catch(err){
-        console.log(err);
-        res.status(400);
-        res.send("Algo salió mal");
-    }
-});
-
-router.delete('/eliminar/:id_junta_directiva', async (req, res) => {
-    try{
-        if(req.session.idUsuario && req.session.idUsuario != -1){
-            const resultado = await JuntaDirectivaCtlr.eliminar(req.params.id_junta_directiva);
-            res.json(resultado);
-        }
-        else{
-            res.status(400);
-            res.send("Sesión no iniciada");
+            res.send("No se cuenta con los permisos necesarios");
         }
     }catch(err){
         console.log(err);
@@ -176,13 +136,22 @@ router.delete('/eliminar/:id_junta_directiva', async (req, res) => {
 
 router.post('/agregarMiembro', jsonParser, async (req, res) => {
     try{
+        var habilitado = false;
         if(req.session.idUsuario && req.session.idUsuario != -1){
+            if(req.session.tipoUsuario === "Administrador"){
+                habilitado = true;
+            }
+            else{
+                habilitado = await JuntaDirectivaCtlr.consultar_permisos(req.session.idUsuario, "edita_junta");
+            }
+        }
+        if(habilitado){
             const miembro_agregado = await JuntaDirectivaCtlr.agregar_miembro(req.body);
             res.json(miembro_agregado);
         }
         else{
             res.status(400);
-            res.send("Sesión no iniciada");
+            res.send("No se cuenta con los permisos necesarios");
         }
     }catch(err){
         console.log(err);
@@ -193,13 +162,34 @@ router.post('/agregarMiembro', jsonParser, async (req, res) => {
 
 router.delete('/eliminarMiembro', jsonParser, async (req, res) => {
     try{
+        var habilitado = false;
         if(req.session.idUsuario && req.session.idUsuario != -1){
-            const resultado = await JuntaDirectivaCtlr.eliminar_miembro(req.body.id_puesto);
-            res.json(resultado);
+            if(req.session.tipoUsuario === "Administrador"){
+                habilitado = true;
+            }
+            else{
+                habilitado = await JuntaDirectivaCtlr.consultar_permisos(req.session.idUsuario, "edita_junta");
+            }
+        }
+        if(habilitado){
+            var params = {};
+            if(req.query.id_puesto_jd){
+                params.id_puesto_jd = req.query.id_puesto_jd;
+            }
+            if(req.query.id_usuario){
+                params.id_usuario = req.query.id_usuario;
+            }
+            if(params.length === 2){
+                const resultado = await JuntaDirectivaCtlr.eliminar_miembro(params);
+                res.json(resultado);
+            } else {
+                res.status(400);
+                res.send("Parametros incorrectos");    
+            }
         }
         else{
             res.status(400);
-            res.send("Sesión no iniciada");
+            res.send("No se cuenta con los permisos necesarios");
         }
     }catch(err){
         console.log(err);
@@ -208,15 +198,24 @@ router.delete('/eliminarMiembro', jsonParser, async (req, res) => {
     }
 });
 
-router.get('/consultarMiembros/:id_junta_directiva', async (req, res) => {
+router.get('/consultarMiembros/:id_organizacion', async (req, res) => {
     try{
+        var habilitado = false;
         if(req.session.idUsuario && req.session.idUsuario != -1){
-            const miembros = await JuntaDirectivaCtlr.consultar_miembros(req.params.id_junta_directiva);
+            if(req.session.tipoUsuario === "Administrador"){
+                habilitado = true;
+            }
+            else{
+                habilitado = await JuntaDirectivaCtlr.consultar_permisos(req.session.idUsuario, "edita_junta");
+            }
+        }
+        if(habilitado){
+            const miembros = await JuntaDirectivaCtlr.consultar_miembros(req.params.id_organizacion);
             res.json(miembros);
         }
         else{
             res.status(400);
-            res.send("Sesión no iniciada");
+            res.send("No se cuenta con los permisos necesarios");
         }
     }catch(err){
         console.log(err);

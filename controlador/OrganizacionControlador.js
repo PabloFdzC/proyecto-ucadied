@@ -1,8 +1,9 @@
 const organizacion = require('../modelo/organizacion');
-const persona = require('../modelo/persona');
+const usuario = require('../modelo/usuario');
 const queries_generales = require('./QueriesGenerales');
 const { Op } = require("sequelize");
 const sequelize = require("sequelize");
+const juntaDirectivaCtrl = require("./JuntaDirectivaControlador");
 
 async function consultar(params){
     if(params.id_organizacion){
@@ -36,10 +37,21 @@ async function crear(info){
     if(isNaN(info.id_organizacion) || info.id_organizacion == ""){
         info.id_organizacion = null;
     }
+    var puestos = [];
+    if(info.puestos && Array.isArray(info.puestos)){
+        puestos = info.puestos;
+        delete info.puestos;
+    }
     const organizacion_creada = await queries_generales.crear(organizacion, info);
     if(!info.id_organizacion){
        await  modificar(organizacion_creada.id, {id_organizacion: organizacion_creada.id});
        organizacion_creada.id_organizacion = organizacion_creada.id;
+    }
+    if(puestos.length > 0){
+        for(let p of puestos){
+            p.id_organizacion = organizacion_creada.id;
+        }
+        juntaDirectivaCtrl.crear_puestos(puestos);
     }
     return organizacion_creada;
 }
@@ -53,15 +65,15 @@ async function eliminar(id){
 }
 
 async function agregarMiembro(info){
-    return await queries_generales.modificar(persona, info.id_persona, {id_organizacion: info.id_organizacion});
+    return await queries_generales.modificar(usuario, info.id_usuario, {id_organizacion: info.id_organizacion});
 }
 
-async function eliminarMiembro(id_persona){
-    return await queries_generales.modificar(persona, id_persona, {id_organizacion: null});
+async function eliminarMiembro(id_usuario){
+    return await queries_generales.modificar(usuario, id_usuario, {id_organizacion: null});
 }
 
 async function consultarMiembros(id_organizacion){
-    return await queries_generales.consultar(persona, {
+    return await queries_generales.consultar(usuario, {
         where: {
             id_organizacion
         }

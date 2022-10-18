@@ -1,6 +1,3 @@
-const https = require('https');
-const fs = require('fs');
-
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
@@ -16,6 +13,7 @@ app.use(cors({
 }));
 
 require("./creacion_base");
+
 
 var sess = {
     secret: 'm!S3ssi0nn0de',

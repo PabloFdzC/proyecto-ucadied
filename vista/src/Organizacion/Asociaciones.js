@@ -1,7 +1,9 @@
 import React from 'react';
 import OrganizacionForm from '../Organizacion/OrganizacionForm';
 import QueriesGenerales from "../QueriesGenerales";
-import Tabla from '../Utilidades/Tabla';
+import CajasOrganizaciones from './CajasOrganizaciones';
+import Modal from 'react-bootstrap/Modal';
+import '../Estilos/Modal.css';
 
 class Asociaciones extends React.Component {
     constructor(props){
@@ -10,17 +12,41 @@ class Asociaciones extends React.Component {
         this.queriesGenerales = new QueriesGenerales();
         this.state = {
             asociaciones: [],
-        }
+            asociacion:{},
+            ingresaJunta:true,
+            muestra:false,
+            indiceAsociacion:null,
+        };
         this.asociacionesPedidas = false;
-        this.titulos = [
-            {llave:"nombre",valor:"Asociación"},
-            {llave:"cedula",valor:"Cédula"},
-            {llave:"domicilio",valor:"Domicilio"},
-            {llave:"territorio",valor:"Territorio"},
-            {llave:"telefonos",valor:"Telefonos"},
-        ];
         this.avisaCreado = this.avisaCreado.bind(this);
         this.eliminarAsociacion = this.eliminarAsociacion.bind(this);
+        this.muestraModal = this.muestraModal.bind(this);
+        this.agregarAsociacion = this.agregarAsociacion.bind(this);
+    }
+
+    agregarAsociacion(asociacion,indice){
+        console.log("agregarAsociacion");
+        console.log(asociacion);
+        console.log(indice);
+        if(asociacion){
+            if(asociacion.puestos){
+                asociacion.puestos = [];
+            }
+        } else {
+            asociacion={};
+        }
+        this.setState({
+            asociacion:asociacion,
+            muestra:true,
+            ingresaJunta: isNaN(indice),
+            indiceAsociacion: indice
+        })
+    }
+
+    muestraModal(muestra){
+        this.setState({
+            muestra:muestra,
+        })
     }
 
     async eliminarAsociacion(id){
@@ -51,7 +77,13 @@ class Asociaciones extends React.Component {
         }
     }
 
+    /*
+    componentDidMount es una función de react que
+    se llama antes de hacer el render y  llama a
+    cargar las asociaciones
+    */
     componentDidMount() {
+        document.title = "Asociaciones";
         if(!this.asociacionesPedidas){
             this.asociacionesPedidas = true;
             this.cargarAsociaciones();
@@ -66,62 +98,22 @@ class Asociaciones extends React.Component {
     }
 
     render(){
-        console.log(this.state.asociaciones);
-        var asociaciones;
-        if(this.state.asociaciones.length > 0){
-            asociaciones = this.state.asociaciones.map((a, i) =>{
-                return (
-                <div className="col-4" key={"aCol"+i} style={i%2==0 ? {backgroundColor:"#137E31",color:"#FFFFFF"} : {backgroundColor:"#76B2CE",color:"#160C28"}}>
-                    <div className="container p-3" key={"aCont"+i}>
-                        <h3 key={"t"+i}>{a.nombre}</h3>
-                        <p key={"c"+i}>Cédula jurídica: {a.cedula}</p>
-                        <p key={"d"+i}>Domicilio: {a.domicilio}</p>
-                        <p key={"te"+i}>Territorio: {a.territorio}</p>
-                        <p key={"tels"+i}>Telefonos:</p>
-                        {a.telefonos.map((t, j) => 
-                            <p key={"tels"+i+"-"+j}>{t}</p>
-                        )}
-                    
-                        <div className="d-flex justify-content-end">
-                            {this.props.soloVer ?
-                            <div className="m-1" key={"vCol"+i}>
-                                <button key={"v"+i} className="btn btn-primary">Visitar</button>
-                            </div> :
-                            <>
-                                <div className="m-1" key={"eCol"+i}>
-                                    <button key={"e"+i} className="btn btn-danger" onClick={()=>this.eliminarAsociacion(a.id)}>Eliminar</button>
-                                </div>
-                                <div className="m-1" key={"vCol"+i}>
-                                    <button key={"v"+i} className="btn btn-primary">Visitar</button>
-                                </div>
-                            </>
-                        }
-                        </div>
-                    </div>
-                </div>
-            );
-            });
-        }
         return (
             <>
                 <div className="d-flex align-items-center justify-content-between m-3">
                     <h1>Asociaciones</h1>
                     {this.props.soloVer ? <></>:
-                    <button className="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal"><i className="lni lni-plus"></i>  Agregar asociación</button>}
+                    <button className="btn btn-primary" onClick={()=>this.agregarAsociacion()}><i className="lni lni-plus"></i>  Agregar asociación</button>}
                 </div>
-                <div className="row">
-                    {asociaciones}
+                <div className="row m-0">
+                    <CajasOrganizaciones organizaciones={this.state.asociaciones} modificar={this.agregarAsociacion} eliminar={this.eliminarAsociacion} soloVer={this.props.soloVer} />
                 </div>
                 {this.props.soloVer ? <></>:
-                    <div className="modal fade" id="exampleModal" tabIndex="-1" aria-labelledby="modalAgregarUnion" aria-hidden="true">
-                        <div className="modal-dialog modal-dialog-scrollable modal-lg">
-                            <div className="modal-content p-3" style={{backgroundColor:"#137E31", color:"#FFFFFF"}}>
-                                <div className="modal-body">
-                                    <OrganizacionForm esUnion={false} titulo={"Agregar Asociación"} avisaCreado={this.avisaCreado} />
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    <Modal size="lg" show={this.state.muestra} onHide={()=>this.muestraModal(false)} className="modal-green">
+                    <Modal.Body>
+                        <OrganizacionForm ingresaJunta={this.state.ingresaJunta} titulo={"Asociación"} avisaCreado={this.avisaCreado} campos={this.state.asociacion} cerrarModal={()=>this.muestraModal(false)} />
+                    </Modal.Body>
+                    </Modal>
                     }
             </>
         );

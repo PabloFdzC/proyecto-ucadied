@@ -1,6 +1,6 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "UCADIED App",
+  "name": "Gestión de las Asociaciones de Desarrollo de Desamparados",
   "icons": [
     {
       "src": "favicon.ico",

@@ -21,10 +21,28 @@ router.get('/consultar/:id_usuario', async (req, res) => {
     }
 });
 
+router.get('/sesionActiva', async (req, res) => {
+    if(req.session.idUsuario && req.session.idUsuario != -1){
+        res.send(true);
+    }else{
+        res.send(false);
+    }
+});
+
 router.get('/consultar', async (req, res) => {
     try{
         if(req.session.idUsuario && req.session.idUsuario != -1){
-            const usuarios = await usuarioCtrl.consultar(req.params);
+            var params = {};
+            if(req.query.id){
+                params.id = req.query.id;
+            }
+            if(req.query.id_organizacion){
+                params.id_organizacion = req.query.id_organizacion;
+            }
+            if(req.query.tipo){
+                params.tipo = req.query.tipo;
+            }
+            const usuarios = await usuarioCtrl.consultar(params);
             res.json(usuarios);
         }
         else{
@@ -85,8 +103,11 @@ router.post('/iniciarSesion', jsonParser, async (req, res) => {
         if(resultado.success){
             req.session.idUsuario = resultado.id_usuario;
             req.session.tipoUsuario = resultado.tipo;
+            res.json(resultado);
+        } else {
+            res.status(401);
+            res.send(resultado);
         }
-        res.json(resultado);
     }catch (err){
         console.log(err);
         res.status(400);

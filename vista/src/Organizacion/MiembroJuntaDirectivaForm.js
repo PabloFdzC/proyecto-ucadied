@@ -2,49 +2,50 @@ import React from 'react';
 import QueriesGenerales from "../QueriesGenerales";
 import Validacion from '../Utilidades/Validacion';
 import manejarCambio from '../Utilidades/manejarCambio';
-import listaPaises from '../Utilidades/listaPaises';
+import Select from 'react-select';
 
 class MiembroJuntaDirectivaForm extends React.Component {
     constructor(props){
         super(props);
         this.queriesGenerales = new QueriesGenerales();
-        this.campos = props.campos;
+        this.campos = props.campos ? props.campos : {};
+        this.accion = Object.entries(this.campos).length > 0 ? "Modificar" : "Agregar";
+        this.titulo = this.accion+" Miembro de Junta Directiva";
         var campos = {
-            id_usuario: "",
-            puesto: "",
+            id_usuario: this.campos.id_usuario ? this.campos.id_usuario : "",
+            id_puesto_jd: this.campos.id_puesto_jd ? this.campos.id_puesto_jd : "",
         };
-        if(props.campos){
-            campos = {
-                id_junta_directiva:this.props.idJunta,
-                id_usuario: props.campos.id_usuario ? props.campos.id_usuario : "",
-                puesto: props.campos.puesto ? props.campos.puesto : "",
-            };
-        }
         this.state = {
+            titulo:this.titulo,
             campos:campos,
             errores: {
                 hayError:false,
                 id_usuario: "",
-                puesto: "",
+                id_puesto_jd: "",
             },
-            puestos:[],
+            usuarios:[],
             agregado:false,
         };
 
         this.validacion = new Validacion({
-            id_usuario: "requerido",
-            puesto: "seleccionado",
+            id_usuario: "seleccionado",
+            id_puesto_jd: "seleccionado",
         }, this);
+        this.usuariosPedidos = false;
 
         this.agregarMiembro = this.agregarMiembro.bind(this);
         this.manejaCambio = this.manejaCambio.bind(this);
         this.reiniciarCampos = this.reiniciarCampos.bind(this);
     }
 
-    // Falta reiniciar los otros campos
     reiniciarCampos(){
         this.setState({
-            agregado:false
+            campos:{
+                id_usuario: "",
+                id_puesto_jd: "",
+            },
+            titulo:this.titulo,
+            agregado:false,
         });
     }
 
@@ -61,53 +62,111 @@ class MiembroJuntaDirectivaForm extends React.Component {
         this.validacion.validarCampos(this.state.campos);
         if(!this.state.errores.hayError){
             try{
-                await this.queriesGenerales.postear("/juntaDirectiva/agregarMiembro", this.state.campos);
+                var campos = {};
+                var mensajeExito = "¡Agregado con éxito!";
+                campos.id_usuario = this.state.campos.id_usuario.value;
+                campos.id_puesto_jd = this.state.campos.id_puesto_jd;
+                campos.id_organizacion = this.props.idOrganizacion;
+                await this.queriesGenerales.postear("/juntaDirectiva/agregarMiembro", campos);
+                this.setState({
+                    agregado:true,
+                    titulo:mensajeExito,
+                });
+                var usuario = {};
+                for(let u of this.state.usuarios){
+                    if(u.value == campos.id_usuario){
+                        usuario.nombre = u.label;
+                    }
+                }
+                for(let p of this.props.puestos){
+                    if(p.id == campos.id_puesto_jd){
+                        usuario.puesto = p.nombre;
+                        usuario.funcion = p.funcion;
+                    }
+                }
+                this.props.avisaAgregado(usuario);
             }catch(error){
                 console.log(error);
             }
         }
     }
 
-    async cargarPuestos(){
-        try{
-            var puestos = this.state.puestos;
-            const resp = await this.queriesGenerales.obtener("/consultarPuestos/"+this.props.idJunta, {});
-            this.setState({
-                puestos:puestos.concat(resp.data),
-            });
-        } catch(err){
-            console.log(err);
+    async cargarUsuarios(){
+        if(this.props.idOrganizacion){
+            try{
+                var usuarios = this.state.usuarios;
+                let params = this.props.esUnion ? {tipo:"Usuario"}: {id_organizacion:this.props.idOrganizacion,tipo:"Usuario"};
+                const resp = await this.queriesGenerales.obtener("/usuario/consultar", params);
+                var usuariosSelect = [];
+                for(let usuario of resp.data){
+                    usuariosSelect.push({
+                        label:usuario.nombre,
+                        value:usuario.id,
+                    });
+                }
+                this.setState({
+                    usuarios:usuarios.concat(usuariosSelect),
+                });
+            } catch(err){
+                console.log(err);
+            }
+        }
+    }
+
+    componentDidUpdate(prevProps, prevState, snapshot){
+        if(prevProps.idOrganizacion != this.props.idOrganizacion){
+            this.cargarUsuarios();
+        }
+    }
+
+    /*
+    componentDidMount es una función de react que
+    se llama antes de hacer el render y llama a cargar
+    los usuarios
+    */
+    componentDidMount() {
+        if(!this.usuariosPedidos){
+            this.usuariosPedidos = true;
+            this.cargarUsuarios();
         }
     }
 
     render(){
         return (
             <>
+            <h2 className="modal-title text-center">{this.state.titulo}</h2>
             {!this.state.agregado ?
             <form onSubmit={this.agregarMiembro} className="needs-validation" noValidate>
                 <div className="mb-3 position-relative">
                     <label htmlFor="id_usuario" className="form-label">Nombre</label>
-                    <select type="text" className={this.state.errores.id_usuario.length > 0 ? "form-select is-invalid":"form-select"} key="id_usuario" name="id_usuario" required value={this.state.campos.id_usuario} onChange={this.manejaCambio} >
-                        
-                    </select>
+                    <div className={this.state.errores.id_usuario.length > 0 ? "p-0 form-control is-invalid":"p-0 form-control"}>
+                        <Select
+                        isClearable
+                        key="id_usuario" name="id_usuario" required value={this.state.campos.id_usuario} onChange={(opcion)=>this.manejaCambio({target:{name:"id_usuario",type:"select",value:opcion}})}
+                        options={this.state.usuarios}
+                        />
+                    </div>
                     <div className="invalid-tooltip">
                         {this.state.errores.id_usuario}
                     </div>
                 </div>
                 <div className="mb-3 position-relative">
-                    <label htmlFor="puesto" className="form-label">Puesto</label>
-                    <select className={this.state.errores.puesto.length > 0 ? "form-select is-invalid":"form-select"} aria-label="nacionalidad" key="puesto" name="puesto" value={this.state.campos.nacionalidad} onChange={this.manejaCambio} >
-                        <option defaultValue>Puesto</option>
-                        {this.state.puestos.map((u,i) => <option key={i} value={u.id}>{u.nombre}</option>)}
+                    <label htmlFor="id_puesto_jd" className="form-label">Puesto</label>
+                    <select className={this.state.errores.id_puesto_jd.length > 0 ? "form-select is-invalid":"form-select"} aria-label="nacionalidad" key="id_puesto_jd" name="id_puesto_jd" value={this.state.campos.nacionalidad} onChange={this.manejaCambio} >
+                        <option defaultValue hidden>Puesto</option>
+                        {this.props.puestos.map((u,i) => <option key={i} value={u.id}>{u.nombre}</option>)}
                     </select>
                     <div className="invalid-tooltip">
-                        {this.state.errores.puesto}
+                        {this.state.errores.id_puesto_jd}
                     </div>
                 </div>
                 <div className="d-flex justify-content-end">
+                    {this.props.cerrarModal ?
                     <div className="m-1">
-                        <button type="button" className="btn btn-secondary" data-bs-dismiss="modal" aria-label="Volver">Volver</button>
-                    </div>
+                        <button type="button" className="btn btn-secondary" aria-label="Volver" onClick={()=>{this.props.cerrarModal();this.reiniciarCampos()}}>Volver</button>
+                    </div>:
+                    <></>
+                    }
                     <div className="m-1">
                         <button type="submit" className="btn btn-primary">Agregar</button>
                     </div>
@@ -116,8 +175,14 @@ class MiembroJuntaDirectivaForm extends React.Component {
             :
             <div className="d-flex justify-content-end">
                 <div className="m-1">
-                    <button type="button" className="btn btn-secondary" data-bs-dismiss="modal" aria-label="Volver" onClick={this.reiniciarCampos}>Volver</button>
+                    <button type="button" className="btn btn-primary" aria-label="Agregar otro" onClick={this.reiniciarCampos}>Agregar otro</button>
                 </div>
+                {this.props.cerrarModal ?
+                <div className="m-1">
+                    <button type="button" className="btn btn-secondary" aria-label="Volver" onClick={()=>{this.props.cerrarModal();this.reiniciarCampos()}}>Volver</button>
+                </div>:
+                <></>
+                }
             </div>}
             </>
         );

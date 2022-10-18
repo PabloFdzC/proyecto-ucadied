@@ -9,6 +9,11 @@ async function crear(modelo, info){
     return objeto_creado;
 }
 
+async function crear_varios(modelo, info){
+    const objeto_creado = await modelo.bulkCreate(info);
+    return objeto_creado;
+}
+
 async function modificar(modelo, id, info){
     await modelo.update(info, {
         where: {id: id}
@@ -26,6 +31,7 @@ async function eliminar(modelo, filtros){
 module.exports = {
     consultar,
     crear,
+    crear_varios,
     modificar,
     eliminar
 }

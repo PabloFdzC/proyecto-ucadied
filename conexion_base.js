@@ -10,9 +10,9 @@ var info = {
 };
 
 if (app.get('env') === 'production') {
-    usuario = 'admin';
-    clave = 'Pr0y3ct0Ucadied!';
-    info.host = '10.0.1.236';
+    usuario = process.env.USUARIO;
+    clave = process.env.CLAVE;
+    info.host = process.env.HOST;
 }
 
 const sequelize = new Sequelize(nombreBase, usuario, clave, info);

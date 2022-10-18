@@ -1,12 +1,16 @@
 const type = require('sequelize');
 const sequelize = require('../conexion_base');
 
-module.exports = sequelize.define('junta_directiva', {
+module.exports = sequelize.define('reserva_inmueble', {
         id: {
             type: type.INTEGER,
             primaryKey: true,
             autoIncrement: true
         },
-        n_miembros: type.INTEGER,
-        forma_elegir: type.STRING
+        inicio: type.DATE,
+        final: type.DATE,
+        habilitado: {
+            type: type.BOOLEAN,
+            defaultValue: '0'
+        }
     });

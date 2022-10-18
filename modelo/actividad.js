@@ -8,7 +8,8 @@ module.exports = sequelize.define('actividad', {
         autoIncrement: true
     },
     nombre: type.STRING,
-    territorio: type.STRING,
-    domicilio: type.STRING,
-    tipo: type.STRING
+    tipo: type.ENUM('Privada', 'Pública'),
+    coordinador: type.STRING,
+    email: type.STRING,
+    telefonos: type.JSON
 });
