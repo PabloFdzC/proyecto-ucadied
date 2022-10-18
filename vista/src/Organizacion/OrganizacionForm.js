@@ -10,6 +10,7 @@ import Tab from 'react-bootstrap/Tab';
 import "../Estilos/Pills.css";
 import Tabla from '../Utilidades/Tabla';
 import PuestoForm from './PuestoForm';
+import Toast from 'react-bootstrap/Toast';
 
 /*
 Recibe los props:
@@ -34,6 +35,7 @@ class OrganizacionForm extends React.Component {
         this.esUnionCantonal = props.esUnionCantonal;
         this.campos = props.campos ? props.campos : {};
         this.unionesCargadas = false;
+        this.accion = Object.entries(this.campos).length > 0 ? "Modificar" : "Agregar";
         var campos = {
             nombre: this.campos.nombre ? this.campos.nombre : "",
             territorio: this.campos.territorio ? this.campos.territorio : "",
@@ -42,12 +44,10 @@ class OrganizacionForm extends React.Component {
             telefonos:this.campos.telefonos ? this.campos.telefonos : [],
             email:this.campos.email ? this.campos.email : "",
             id_organizacion:this.campos.id_organizacion ? this.campos.id_organizacion : "",
-            n_miembros_jd: this.campos.n_miembros_jd ? this.campos.n_miembros_jd : "",
             forma_elegir_jd: this.campos.forma_elegir_jd ? this.campos.forma_elegir_jd : "",
             puestos: [],
         };
 
-        this.titulo = Object.entries(this.campos).length > 0 ? "Modificar" : "Agregar";
 
         this.state = {
             key: 'Organización',
@@ -61,12 +61,12 @@ class OrganizacionForm extends React.Component {
                 telefonos:"",
                 email:"",
                 id_organizacion:"",
-                n_miembros_jd:"",
                 forma_elegir_jd:"",
                 puestos:[],
             },
+            puestosError:false,
             uniones: [],
-            titulo: this.titulo+ " " +this.props.titulo,
+            titulo: this.accion+ " " +this.props.titulo,
             creado:false,
         };
         this.validacion = new Validacion({
@@ -78,7 +78,6 @@ class OrganizacionForm extends React.Component {
             email: "requerido",
             puestos: props.ingresaJunta ? "tiene-valores" : "",
             id_organizacion: props.esUnionCantonal ? "" : "seleccionado",
-            n_miembros_jd: props.ingresaJunta ? "requerido|numeros" : "",
             forma_elegir_jd: props.ingresaJunta ? "requerido" : "",
         }, this);
         // Es necesario poner dos validaciones para el teléfono porque
@@ -100,7 +99,7 @@ class OrganizacionForm extends React.Component {
         this.agregarTelefono = this.agregarTelefono.bind(this);
         this.eliminarTelefono = this.eliminarTelefono.bind(this);
         this.manejaCambio = this.manejaCambio.bind(this);
-        this.crearOrganizacion = this.crearOrganizacion.bind(this);
+        this.enviarOrganizacion = this.enviarOrganizacion.bind(this);
         this.reiniciarCampos = this.reiniciarCampos.bind(this);
         this.agregaPuesto = this.agregaPuesto.bind(this);
     }
@@ -111,7 +110,7 @@ class OrganizacionForm extends React.Component {
     */
     reiniciarCampos(){
         this.setState({
-            titulo: this.titulo+ " " +this.props.titulo,
+            titulo: this.accion+ " " +this.props.titulo,
             creado:false,
             campos: Object.assign({},this.state.campos, {
                 nombre: "",
@@ -120,7 +119,6 @@ class OrganizacionForm extends React.Component {
                 cedula: "",
                 telefonos:[],
                 id_organizacion:"",
-                n_miembros_jd:"",
                 forma_elegir_jd:"",
                 puestos:[],
             })
@@ -174,7 +172,7 @@ class OrganizacionForm extends React.Component {
     Esta es la función que envía la información del formulario
     a la base de datos
     */
-    async crearOrganizacion(evento){
+    async enviarOrganizacion(evento){
         // Es necesario prevenir que lo envíe como lo hace
         // html
         evento.preventDefault();
@@ -187,13 +185,24 @@ class OrganizacionForm extends React.Component {
             try{
                 let campos = this.state.campos;
                 campos.email = campos.email + "@ucadied.org";
-                var resp = await this.queriesGenerales.postear("/organizacion/crear", campos);
-                console.log(resp);
+                var mensajeExito = "¡Agregado con éxito!";
+                var resp;
+                if(this.accion === "Agregar"){
+                    resp = await this.queriesGenerales.postear("/organizacion/crear", campos);
+                } else {
+                    resp = await this.queriesGenerales.modificar("/organizacion/modificar/"+this.campos.id, campos);
+                    mensajeExito = "¡Modificado con éxito!";
+                }
                 this.setState({
                     creado:true,
-                    titulo:"¡Agregado con Éxito!",
+                    titulo:mensajeExito,
                 });
-                this.avisaCreado(resp.data);
+                if(this.accion === "Agregar")
+                    this.props.avisaCreado(resp.data);
+                else{
+                    campos.id = this.campos.id;
+                    this.props.avisaCreado(campos);
+                }
             }catch(error){
                 console.log(error);
             }
@@ -205,10 +214,12 @@ class OrganizacionForm extends React.Component {
                 this.setState({
                     key:"Organización"
                 });
-            } else if(this.state.errores.n_miembros_jd.length !== 0 || this.state.errores.forma_elegir_jd.length !== 0){
+            } else if(this.state.errores.forma_elegir_jd.length !== 0 || this.state.errores.puestos.length !== 0){
                 this.setState({
-                    key:"JuntaDirectiva"
+                    key:"JuntaDirectiva",
+                    puestosError: this.state.errores.puestos.length !== 0,
                 });
+
             }
         }
     }
@@ -234,21 +245,17 @@ class OrganizacionForm extends React.Component {
         });
     }
 
+    /*
+    componentDidMount es una función de react que
+    se llama antes de hacer el render y llama a cargar
+    las uniones cantonales
+    */
     componentDidMount(){
-        console.log("SIIIIIIIIII");
         if(!this.props.esUnionCantonal && !this.unionesCargadas){
             this.unionesCargadas = true;
             this.cargarUniones();
         }
     }
-
-    // componentDidUpdate(prevProps) {
-    //     if(Object.entries(this.props.campos).length !== Object.entries(prevProps.campos).length){
-    //         this.setState({
-    //         campos: this.props.campos,
-    //         });
-    //     }
-    // } 
 
     agregaPuesto(puesto){
         let puestos = this.state.campos.puestos.concat(puesto);
@@ -269,7 +276,7 @@ class OrganizacionForm extends React.Component {
             <>
             <h2 className="modal-title text-center">{this.state.titulo}</h2>
             {!this.state.creado ?
-            <form onSubmit={this.crearOrganizacion} noValidate>
+            <form onSubmit={this.enviarOrganizacion} noValidate>
                 <Tab.Container id="left-tabs-example" activeKey={this.state.key} onSelect={(key) => this.setState({key})}>
                     {this.props.ingresaJunta ? 
                         <Row>
@@ -322,7 +329,7 @@ class OrganizacionForm extends React.Component {
                                     {this.props.esUnionCantonal ? <></>:<div className="mb-3 position-relative">
                                         <label htmlFor="unionCantonal" className="form-label">Unión Cantonal</label>
                                         <select className={this.state.errores.id_organizacion.length > 0 ? "form-select is-invalid":"form-select"} aria-label="unionCantonal" key="unionCantonal" name="id_organizacion" value={this.state.campos.id_organizacion} onChange={this.manejaCambio} >
-                                            <option defaultValue value={""}>Unión Cantonal</option>
+                                            <option defaultValue hidden value={""}>Unión Cantonal</option>
                                             {this.state.uniones.map((u,i) => <option key={i} value={u.id}>{u.nombre}</option>)}
                                         </select>
                                         <div className="invalid-tooltip">
@@ -349,13 +356,6 @@ class OrganizacionForm extends React.Component {
                                 <div className="row">
                                     <div className="col-12 col-md-6">
                                         <div className="mb-3 position-relative">
-                                            <label htmlFor="n_miembros_jd" className="form-label">Cantidad de miembros</label>
-                                            <input type="text" className={this.state.errores.n_miembros_jd.length > 0 ? "form-control is-invalid":"form-control"} key="n_miembros_jd" name="n_miembros_jd" required value={this.state.campos.n_miembros_jd} onChange={this.manejaCambio} />
-                                            <div className="invalid-tooltip">
-                                                {this.state.errores.n_miembros_jd}
-                                            </div>
-                                        </div>
-                                        <div className="mb-3 position-relative">
                                             <label htmlFor="forma_elegir_jd" className="form-label">Forma de elegir</label>
                                             <textarea className={this.state.errores.forma_elegir_jd.length > 0 ? "form-control is-invalid":"form-control"} aria-label="formadeElegir" key="forma_elegir_jd" name="forma_elegir_jd" value={this.state.campos.forma_elegir_jd} onChange={this.manejaCambio} />
                                             <div className="invalid-tooltip">
@@ -369,6 +369,16 @@ class OrganizacionForm extends React.Component {
                                     <h4>Puestos</h4>
                                         <div style={{overflowX:"scroll",overflowY:"auto"}}>
                                             <Tabla titulos={this.titulosPuestos} datos={this.state.campos.puestos} style={{color:"#FFFFFF"}} />
+                                        </div>
+                                        <div className="d-flex justify-content-end">
+                                            <div style={{position:"fixed"}}>
+                                                <Toast bg="danger" onClose={() => this.setState({puestosError:false})} show={this.state.puestosError} delay={4000} autohide>
+                                                <Toast.Header>
+                                                    <strong className="me-auto">Error</strong>
+                                                </Toast.Header>
+                                                <Toast.Body>Se debe agregar por lo menos 1 puesto.</Toast.Body>
+                                                </Toast>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -386,7 +396,7 @@ class OrganizacionForm extends React.Component {
                     <></>
                     }
                     <div className="m-1">
-                        <button type="submit" className="btn btn-primary">Agregar</button>
+                        <button type="submit" className="btn btn-primary">{this.accion}</button>
                     </div>
                 </div>
             </form>

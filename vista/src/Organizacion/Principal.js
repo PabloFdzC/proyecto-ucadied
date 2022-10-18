@@ -1,20 +1,19 @@
 import React from 'react';
 import logoUcadied from '../Imagenes/logo-UCADIED.png';
-import { useParams } from "react-router-dom";
 import Contactenos from './Contactenos';
 
-function ConParams(props) {
-    const { id } = useParams();
-    localStorage.setItem("organizacionActual", id);
-    return <>{React.cloneElement(props.componente,
-      {id:id})}</>;
-  }
-
 class Principal extends React.Component {
-    constructor(props){
-        super(props);
-        this.soloVer = props.soloVer;
-        this.id = props.id; // id de url
+
+    /*
+    componentDidMount es una función de react que
+    se llama antes de hacer el render y llama a cargar la
+    organización en caso de que la url se haya llamado
+    con un id distinto al de la organización en la que
+    se encuentra actualmente
+    */
+    async componentDidMount(){
+        document.title = "Principal";
+        await this.props.cargarOrganizacion(this.props.idOrganizacion);
     }
 
     render(){
@@ -49,7 +48,8 @@ class Principal extends React.Component {
                         </div>
                     </div>
                 </div>
-            </div> <ConParams app={this} componente={<Contactenos />} />
+            </div>
+            <Contactenos idOrganizacion={this.props.idOrganizacion} />
         </div>
        );
     }

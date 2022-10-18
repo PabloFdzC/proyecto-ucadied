@@ -25,17 +25,20 @@ import CalendarioActividades from './Actividades/CalendarioActividades';
 import Actividades from './Actividades/Actividades';
 
 import Table from './Utilidades/Table/Table.jsx';
+//import Calendar from './Utilidades/Calendario/Calendar.jsx';
 
-// Esta función es necesaria para pasarle el parámetro
-// id de la url a los componentes que la necesitan
-// ya que react-router-dom tiene una función para
-// obtenerlo, pero esta solo funciona con hooks
-// y los hooks no se pueden llamar dentro de las
-// clases
+/*
+La función ConParams es necesaria para pasarle
+el parámetro id de la url a los componentes que
+la necesitan ya que react-router-dom tiene una
+función para obtenerlo, pero esta solo funciona
+con hooks y los hooks no se pueden llamar dentro
+de las clases
+*/
 function ConParams(props) {
-  const { id } = useParams();
+  const urlParams = useParams();
   return <>{React.cloneElement(props.componente,
-    {id:id})}</>;
+    urlParams)}</>;
 }
 
 /*
@@ -73,22 +76,20 @@ class App extends React.Component {
         n_miembros_jd: "",
         forma_elegir_jd: "",
       },
-      proyecto:{
-        id:-1,
-        nombre:"",
-      }
     }
     this.unionPedida = false;
+    this.sesionActivaVerificada = false;
 
     this.iniciarSesion = this.iniciarSesion.bind(this);
     this.cerrarSesion = this.cerrarSesion.bind(this);
     this.cargarOrganizacion = this.cargarOrganizacion.bind(this);
-    this.escogeProyecto = this.escogeProyecto.bind(this);
   }
   
-  // iniciarSesion se usa para actualizar el usuario
-  // que actualmente inició sesión, se le pasa
-  // como contexto a los demás componentes
+  /*
+  iniciarSesion se usa para actualizar el usuario
+  que actualmente inició sesión, se le pasa
+  como contexto a los demás componentes
+  */
   async iniciarSesion(usuario) {
     localStorage.setItem("id_usuario", usuario.id_usuario);
     localStorage.setItem("tipo", usuario.tipo);
@@ -104,9 +105,11 @@ class App extends React.Component {
     });
   }
 
-  // cerrarSesion se usa para actualizar el usuario
-  // que actualmente cerró sesión, se le pasa
-  // como contexto a los demás componentes
+  /*
+  cerrarSesion se usa para actualizar el usuario
+  que actualmente cerró sesión, se le pasa
+  como contexto a los demás componentes
+  */
   cerrarSesion() {
     localStorage.removeItem("id_usuario");
     localStorage.removeItem("tipo");
@@ -116,10 +119,12 @@ class App extends React.Component {
     }});
   }
 
-  // cargarUnion obtiene la información de las uniones
-  // cantonales y se escoge la primera que aparezca
-  // para que sea la organización que se está viendo
-  // actualmente
+  /*
+  cargarUnion obtiene la información de las uniones
+  cantonales y se escoge la primera que aparezca
+  para que sea la organización que se está viendo
+  actualmente
+  */
   async cargarUnion(){
     try{
         const resp = await this.queriesGenerales.obtener("/organizacion/consultarTipo/1", {});
@@ -131,28 +136,38 @@ class App extends React.Component {
     }
   }
 
-  // cargarOrganizacion obtiene la información de la 
-  // organización según se le pase el id, se le pasa
-  // como prop a los componentes que pueden cambiar
-  // de organización según el id que tengan en la
-  // url y se pone en este componente para poder
-  // reutilizarla en los demás
+  /*
+  cargarOrganizacion obtiene la información de la 
+  organización según se le pase el id, se le pasa
+  como prop a los componentes que pueden cambiar
+  de organización según el id que tengan en la
+  url y se pone en este componente para poder
+  reutilizarla en los demás
+
+  Entradas:
+  - id: número entero o string de número entero
+  */
   async cargarOrganizacion(id){
     if(id !== this.state.organizacion.id || this.state.organizacion.cedula === ""){
       const resp = await this.queriesGenerales.obtener("/organizacion/consultar/"+id, {});
-      console.log(resp);
       if(resp.data.length > 0){
         this.actualizaOrganizacionActual(resp.data[0]);
       }
     }
   }
 
-  // actualizaOrganizacionActual cambia los datos en 
-  // el localstorage de la organización y cambia el estado
-  // para saber cuál es la organización actual.
-  // Es necesario guardarlo en el localStorage porque si
-  // se recarga la página (en una de las que no tienen id
-  // en la url) no se sabría cuál es la organización actual
+  /*
+  actualizaOrganizacionActual cambia los datos en 
+  el localstorage de la organización y cambia el estado
+  para saber cuál es la organización actual.
+  Es necesario guardarlo en el localStorage porque si
+  se recarga la página (en una de las que no tienen id
+  en la url) no se sabría cuál es la organización actual
+
+  Entradas:
+  - organizacion: objeto de la forma
+      {}
+  */
   actualizaOrganizacionActual(organizacion){
     if(organizacion.id && organizacion.id !== -1 && organizacion.id !== this.state.organizacion.id){
       localStorage.setItem("organizacionActual", organizacion.id);
@@ -163,26 +178,34 @@ class App extends React.Component {
     }
   }
 
-  // componentDidMount es una función que trae
-  // react que se llama antes de llamar a render
-  // aquí se usa para pedir la unión cantonal en
-  // caso de que no haya ninguna organización actual
-  componentDidMount() {
-    if(this.state.organizacion.id === -1){
-      if(!this.unionPedida){
-        this.unionPedida = true;
-        this.cargarUnion();
-      }
+  async verificaSesionActiva(){
+    const resp = await this.queriesGenerales.obtener("/usuario/sesionActiva", {});
+    if(!resp.data){
+      localStorage.clear();
+      this.setState({usuario: {
+        tipo:"",
+        id_usuario: -1
+      }});
     }
   }
 
-  // escogeProyecto simplemente cambia el estado
-  // de proyecto para saber cuál se está viendo
-  // actualmente
-  escogeProyecto(proyecto){
-    this.setState({
-      proyecto:proyecto,
-    });
+  /*
+  componentDidMount es una función que trae
+  react que se llama antes de llamar a render
+  aquí se usa para pedir la unión cantonal en
+  caso de que no haya ninguna organización actual
+  */
+  async componentDidMount() {
+    if(!this.sesionActivaVerificada){
+      this.sesionActivaVerificada = true;
+      await this.verificaSesionActiva();
+      if(this.state.organizacion.id === -1){
+        if(!this.unionPedida){
+          this.unionPedida = true;
+          this.cargarUnion();
+        }
+      }
+    }
   }
 
   render(){
@@ -192,30 +215,29 @@ class App extends React.Component {
       cerrarSesionUsuario: this.cerrarSesion,
       iniciarSesionUsuario: this.iniciarSesion,
     };
-
     return (
       <usuarioContexto.Provider value={autenticacion}>
         <BrowserRouter>
           <Navegacion />
           <Routes>
               <Route path="/" element={<ResuelvePrincipal ruta={this.state.organizacion.id !== -1 ? "/principal/"+this.state.organizacion.id : ""} replace />}></Route>
-              <Route path="/principal/:id" element={<ConParams app={this} componente={<Principal />}/> } />
+              <Route path="/principal/:idOrganizacion" element={<ConParams app={this} componente={<Principal cargarOrganizacion={this.cargarOrganizacion} />}/> } />
               <Route path="/iniciarSesion" element={<IniciarSesion />} />
-              <Route path="/presidencia/juntaDirectiva/:id" element={<ConParams app={this}  componente={<JuntaDirectiva cargarOrganizacion={this.cargarOrganizacion} />}/>} />
-              <Route path="/presidencia/afiliados/:id" element={<ConParams app={this} componente={<Afiliados cargarOrganizacion={this.cargarOrganizacion} />} />} />
-              <Route path="/presidencia/asociaciones/" element={<Asociaciones soloVer={false}/>} />
-              <Route path="/proyectos/:id" element={<ConParams app={this}  componente={<Proyectos escogeProyecto={this.escogeProyecto} cargarOrganizacion={this.cargarOrganizacion} />}/>} />
-              <Route index path="/proyectos/:id/gastos/:id" element={<ConParams app={this}  componente={<Gastos idProyecto={this.state.proyecto.id} nombreProyecto={this.state.proyecto.nombre} />}/>} />
-              <Route path="/inmuebles/:id" element={<ConParams app={this}  componente={<Inmuebles cargarOrganizacion={this.cargarOrganizacion} />}/>} />
-              <Route path="/calendarioActividades/:id" element={<ConParams app={this}  componente={<CalendarioActividades cargarOrganizacion={this.cargarOrganizacion} />}/>} />
-              <Route path="/actividades/:id" element={<ConParams app={this}  componente={<Actividades cargarOrganizacion={this.cargarOrganizacion} />}/>} />
+              <Route path="/presidencia/juntaDirectiva/:idOrganizacion" element={<ConParams app={this}  componente={<JuntaDirectiva cargarOrganizacion={this.cargarOrganizacion} />}/>} />
+              <Route path="/presidencia/afiliados/:idOrganizacion" element={<ConParams app={this} componente={<Afiliados cargarOrganizacion={this.cargarOrganizacion} />} />} />
+              <Route path="/presidencia/asociaciones/" element={<Asociaciones soloVer={this.state.usuario.tipo!=="Administrador"}/>} />
+              <Route path="/proyectos/:idOrganizacion" element={<ConParams app={this}  componente={<Proyectos cargarOrganizacion={this.cargarOrganizacion} />}/>} />
+              <Route index path="/proyectos/:idOrganizacion/gastos/:idProyecto" element={<ConParams app={this}  componente={<Gastos />}/>} />
+              <Route path="/inmuebles/:idOrganizacion" element={<ConParams app={this}  componente={<Inmuebles cargarOrganizacion={this.cargarOrganizacion} />}/>} />
+              <Route path="/calendarioActividades/:idOrganizacion" element={<ConParams app={this}  componente={<CalendarioActividades cargarOrganizacion={this.cargarOrganizacion} />}/>} />
+              <Route path="/actividades/:idOrganizacion" element={<ConParams app={this}  componente={<Actividades cargarOrganizacion={this.cargarOrganizacion} />}/>} />
               
               <Route path="/administradores" element={<Administradores />} />
               <Route path="/unionCantonal" element={<UnionCantonal />} />
               <Route path="/asociaciones" element={<Asociaciones soloVer={ this.state.usuario.tipo !== "Administrador" } />} />
               <Route path="/usuarios" element={<Usuarios />} />
               <Route path="/prueba" element={
-                <Table/>
+                <></>
               } />
             </ Routes>
         </BrowserRouter>

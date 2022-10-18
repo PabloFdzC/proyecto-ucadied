@@ -61,16 +61,19 @@ class PuestoForm extends React.Component {
     async crearPuesto(evento){
         evento.preventDefault();
         this.validacion.validarCampos(this.state.campos);
-        let datos = this.state.campos;
-        datos.id_organizacion = this.props.idOrganizacion;
-        try{
-            const resp = await this.queriesGenerales.postear("/juntaDirectiva/crearPuesto", datos);
-            this.setState({
-                creado:true,
-            });
-            this.props.avisaCreado(resp.data);
-        }catch(error){
-            console.log(error);
+        if(!this.state.errores.hayError){
+            let datos = this.state.campos;
+            datos.id_organizacion = this.props.idOrganizacion;
+            try{
+                const resp = await this.queriesGenerales.postear("/juntaDirectiva/crearPuesto", datos);
+                this.setState({
+                    creado:true,
+                    titulo: "¡Creado con éxito!"
+                });
+                this.props.avisaCreado(resp.data);
+            }catch(error){
+                console.log(error);
+            }
         }
     }
 
@@ -139,9 +142,12 @@ class PuestoForm extends React.Component {
                 <form onSubmit={this.crearPuesto} className="needs-validation" noValidate>
                     {campos}
                     <div className="d-flex justify-content-end">
+                        {this.props.cerrarModal ?
                         <div className="m-1">
-                            <button type="button" className="btn btn-secondary" data-bs-dismiss="modal" aria-label="Volver">Volver</button>
-                        </div>
+                            <button type="button" className="btn btn-secondary" aria-label="Volver" onClick={()=>{this.props.cerrarModal();this.reiniciarCampos()}}>Volver</button>
+                        </div>:
+                        <></>
+                        }
                         <div className="m-1">
                             <button type="submit" className="btn btn-primary">Agregar</button>
                         </div>
@@ -150,11 +156,14 @@ class PuestoForm extends React.Component {
                 :
                 <div className="d-flex justify-content-end">
                     <div className="m-1">
-                        <button type="button" className="btn btn-primary" aria-label="Agregar Otro" onClick={this.reiniciarCampos}>Agregar Otra</button>
+                        <button type="button" className="btn btn-primary" aria-label="Agregar Otro" onClick={this.reiniciarCampos}>Agregar otro</button>
                     </div>
+                    {this.props.cerrarModal ?
                     <div className="m-1">
-                        <button type="button" className="btn btn-secondary" data-bs-dismiss="modal" aria-label="Volver" onClick={this.reiniciarCampos}>Volver</button>
-                    </div>
+                        <button type="button" className="btn btn-secondary" aria-label="Volver" onClick={()=>{this.props.cerrarModal();this.reiniciarCampos()}}>Volver</button>
+                    </div>:
+                    <></>
+                    }
                 </div>
                 }
             </> 

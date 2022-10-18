@@ -108,12 +108,18 @@ gasto.belongsTo(proyecto, {
 });
 
 actividad.belongsToMany(inmueble,{
-  through: reserva_inmueble,
+  through: {
+    model:reserva_inmueble,
+    unique:false,
+  },
   foreignKey: 'id_actividad'
 });
 
 inmueble.belongsToMany(actividad,{
-  through: reserva_inmueble,
+  through: {
+    model:reserva_inmueble,
+    unique:false,
+  },
   foreignKey: 'id_inmueble'
 });
 

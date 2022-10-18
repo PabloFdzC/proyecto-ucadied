@@ -55,3 +55,16 @@
     --bs-btn-disabled-border-color: #160C28;
 
 }
+
+.btn-outline-primary{
+    --bs-btn-color: #FCE762;
+    --bs-btn-border-color: #FCE762;
+    --bs-btn-hover-color: #160C28;
+    --bs-btn-hover-bg: #FCE762;
+    --bs-btn-hover-border-color: #FCE762;
+    --bs-btn-active-color: #160C28;
+    --bs-btn-active-bg: #FCE762;
+    --bs-btn-active-border-color: #FCE762;
+    --bs-btn-disabled-color: #FCE762;
+    --bs-btn-disabled-border-color: #FCE762;
+}

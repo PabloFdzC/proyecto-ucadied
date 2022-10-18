@@ -22,13 +22,7 @@ class Tabla extends React.Component {
                 {datos.map((dato, i) =>
                         <tr key={i}>
                             {titulos.map((t, j) =>
-                                <td key={i+"-"+j}>{Array.isArray(dato[t.llave]) ?
-                                    (typeof dato[t.llave][0]) === "object" ?
-                                        this.creaTabla(titulos, dato[t.llave]):
-                                        dato[t.llave].map((val)=>val)
-                                    :
-                                    dato[t.llave]}
-                                </td>)}
+                                <td key={i+"-"+j}>{dato[t.llave]}</td>)}
                         </tr>
                         )}
                 </tbody>

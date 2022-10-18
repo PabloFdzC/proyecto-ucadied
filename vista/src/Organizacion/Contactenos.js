@@ -7,9 +7,6 @@ class Contactenos extends React.Component {
     constructor(props){
         super(props);
         this.queriesGenerales = new QueriesGenerales();
-        this.enviarMensaje = props.enviarMensaje;
-        this.campos = props.campos;
-        this.id = props.id; // id de url
         this.organizacionPedida = false;
         var campos = {
             nombre: "",
@@ -47,6 +44,7 @@ class Contactenos extends React.Component {
         }, this);
 
         this.manejaCambio = this.manejaCambio.bind(this);
+        this.enviarMensaje = this.enviarMensaje.bind(this);
     }
 
     reiniciarCampos(){
@@ -62,12 +60,17 @@ class Contactenos extends React.Component {
         });
     }
 
+    // Hay que hacerla
+    enviarMensaje(){
+
+    }
+
     async cargarOrganizacion(){
         try{
-            const resp = await this.queriesGenerales.obtener("/organizacion/consultar/"+this.props.id, {});
+            const resp = await this.queriesGenerales.obtener("/organizacion/consultar/"+this.props.idOrganizacion, {});
             this.setState({
                 territorio: resp.data[0].territorio,
-                //email:(resp.data[0].email),
+                email:(resp.data[0].email),
                 telefonos: resp.data[0].telefonos
             });
         } catch(err){
@@ -88,14 +91,10 @@ class Contactenos extends React.Component {
 
     async enviarMensaje(evento){
         evento.preventDefault();
-        const datos = this.state;
-        console.log(datos)
-    
         this.validacion.validarCampos(this.state.campos);
         if(!this.state.errores.hayError){
             try{
                 var resp = await this.queriesGenerales.postear("/enviarMensaje", this.state.campos);
-                console.log(resp);
                 this.setState({
                     creado:true,
                     titulo:"¡Enviado con Éxito!",
@@ -113,73 +112,71 @@ class Contactenos extends React.Component {
 
 
     render(){
-        var territorio;
-        var telefonos;
-        territorio = this.state.territorio;
-        telefonos = this.state.telefonos;
         return (
             
-                <div className="container px-5 py-3 my-5" style={{backgroundColor:"#137E31", color:"#FFFFFF"}}>
-                    <div className="row">
+            <div className="row p-3" style={{backgroundColor:"#137E31", color:"#FFFFFF"}}>
 
-                        <h2 className="text-center mb-4">Contáctenos</h2>
+            <h2 className="text-center mb-4">Contáctenos</h2>
 
-                        <div className="col p-0">
-                            <div className="row">
-                                <h3 className="ml-4 mb-4">Información de contacto</h3>
-                                <div style={{textAlign:"center"}}>
-                                    <ul style={{textAlign:"left", listStyle:"none"}}>
-                                        <li className="mb-2"><span>Lunes - Viernes:</span> 8:00 a.m to 4:00 p.m</li>
-                                        <li className="mb-2"><span>Dirección:</span> {territorio}</li>
-                                        <li className="mb-2"><span>Email:</span> email@ucadied.org</li>
-                                        <li className="mb-2"><span>Teléfono:</span> {telefonos}</li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="col p-0">
-                            <div className="row">
-                                <h3>Envíar mensaje</h3>
-                                <form  onSubmit={this.enviarMensaje} noValidate>
-                                    <div className="mb-3 position-relative">
-                                        <label htmlFor="nombre" className="form-label">Nombre</label>
-                                        <input type="text" className={this.state.errores.nombre.length > 0 ? "form-control is-invalid":"form-control"} key="nombre" name="nombre" required value={this.state.campos.nombre} onChange={this.manejaCambio} />
-                                        <div className="invalid-tooltip">
-                                            {this.state.errores.nombre}
-                                        </div>
-                                    </div>
-
-                                    <div className="mb-3 position-relative">
-                                        <label htmlFor="email" className="form-label">Email</label>
-                                        <input type="text" className={this.state.errores.email.length > 0 ? "form-control is-invalid":"form-control"} key="email" name="email" required value={this.state.campos.email} onChange={this.manejaCambio} />
-                                        <div className="invalid-tooltip">
-                                            {this.state.errores.email}
-                                        </div>
-                                    </div>
-
-                                    <div className="mb-3 position-relative">
-                                        <label htmlFor="telefono" className="form-label">Telefono</label>
-                                        <input type="text" className={this.state.errores.telefono.length > 0 ? "form-control is-invalid":"form-control"} key="telefono" name="telefono" required value={this.state.campos.telefono} onChange={this.manejaCambio} />
-                                        <div className="invalid-tooltip">
-                                            {this.state.errores.telefono}
-                                        </div>
-                                    </div>      
-
-                                    <div className="mb-3 position-relative">
-                                        <label htmlFor="mensaje" className="form-label">Mensaje</label>
-                                        <textarea type="text" cols="30" rows="6" className={this.state.errores.mensaje.length > 0 ? "form-control is-invalid":"form-control"} key="mensaje" name="mensaje" required value={this.state.campos.mensaje} onChange={this.manejaCambio}></textarea>
-                                        <div className="invalid-tooltip">
-                                            {this.state.errores.mensaje}
-                                        </div>
-                                    </div>                                  
-                                    <button type="submit" className="btn btn-primary">Enviar</button>
-                                </form>
-                            </div>
-                        </div>
-                
+            <div className="col p-0">
+                <div className="row">
+                    <h3 className="ml-4 mb-4">Información de contacto</h3>
+                    <div style={{textAlign:"center"}}>
+                        <ul style={{textAlign:"left", listStyle:"none"}}>
+                            <li className="mb-2"><span>Lunes - Viernes:</span> 8:00 a.m - 4:00 p.m</li>
+                            <li className="mb-2"><span>Dirección:</span> {this.state.territorio}</li>
+                            <li className="mb-2"><span>Email:</span> {this.state.email}</li>
+                            <li className="mb-2"><span>Teléfono:</span> {this.state.telefonos}</li>
+                        </ul>
                     </div>
                 </div>
+            </div>
+
+            <div className="col p-0">
+                <div className="row">
+                    <h3>Envíar mensaje</h3>
+                    <form  onSubmit={this.enviarMensaje} noValidate>
+                        <div className="mb-3 position-relative">
+                            <label htmlFor="nombre" className="form-label">Nombre</label>
+                            <input type="text" className={this.state.errores.nombre.length > 0 ? "form-control is-invalid":"form-control"} key="nombre" name="nombre" required value={this.state.campos.nombre} onChange={this.manejaCambio} />
+                            <div className="invalid-tooltip">
+                                {this.state.errores.nombre}
+                            </div>
+                        </div>
+
+                        <div className="mb-3 position-relative">
+                            <label htmlFor="email" className="form-label">Email</label>
+                            <input type="text" className={this.state.errores.email.length > 0 ? "form-control is-invalid":"form-control"} key="email" name="email" required value={this.state.campos.email} onChange={this.manejaCambio} />
+                            <div className="invalid-tooltip">
+                                {this.state.errores.email}
+                            </div>
+                        </div>
+
+                        <div className="mb-3 position-relative">
+                            <label htmlFor="telefono" className="form-label">Telefono</label>
+                            <input type="text" className={this.state.errores.telefono.length > 0 ? "form-control is-invalid":"form-control"} key="telefono" name="telefono" required value={this.state.campos.telefono} onChange={this.manejaCambio} />
+                            <div className="invalid-tooltip">
+                                {this.state.errores.telefono}
+                            </div>
+                        </div>      
+
+                        <div className="mb-3 position-relative">
+                            <label htmlFor="mensaje" className="form-label">Mensaje</label>
+                            <textarea type="text" cols="30" rows="6" className={this.state.errores.mensaje.length > 0 ? "form-control is-invalid":"form-control"} key="mensaje" name="mensaje" required value={this.state.campos.mensaje} onChange={this.manejaCambio}></textarea>
+                            <div className="invalid-tooltip">
+                                {this.state.errores.mensaje}
+                            </div>
+                        </div>
+                        <div className="d-flex justify-content-end">
+                            <div className="m-1">
+                                <button type="submit" className="btn btn-primary">Enviar</button>
+                            </div> 
+                        </div> 
+                    </form>
+                </div>
+            </div>
+    
+        </div>
         );
     }
 }

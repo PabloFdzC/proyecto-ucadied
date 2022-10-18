@@ -6,14 +6,7 @@ const queries_generales = require('./QueriesGenerales');
 
 
 async function consultar(params){
-    if(params.id_inmueble){
-        return await queries_generales.consultar(inmueble, {where: {
-            id: params.id_inmueble
-        }});
-    }
-    else{
-        return await queries_generales.consultar(inmueble, {});
-    }
+    return await queries_generales.consultar(inmueble, {where: params});
 }
 
 async function consultar_reservas(params){

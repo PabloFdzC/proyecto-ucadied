@@ -1,3 +1,6 @@
+import {stringAFecha} from './ManejoFechas';
+import {partirStringHora} from './ManejoHoras';
+
 class Validacion {
     constructor(reglas, componente){
         this.reglas = reglas;
@@ -56,6 +59,12 @@ class Validacion {
                     errores.hayError = true;
                 }
             }
+            if (reglasDeCampo.indexOf("fecha") > -1){
+                if(!this.validaFecha(campos[c])){
+                    errores[c] = "No es una fecha válida."
+                    errores.hayError = true;
+                }
+            }
         }
         var estadoNuevo = this.componente.state.errores;
         for (let e in errores){
@@ -76,6 +85,18 @@ class Validacion {
         return valor.match(/^[0-9]+$/);
     }
 
+    validaFecha(valor){
+        if(valor.match(/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/)){
+            let [anio,mes,dia] = valor.split("-");
+            anio = parseInt(anio);
+            mes = parseInt(mes);
+            dia = parseInt(dia);
+            let fecha = new Date(anio, mes-1, dia);
+            return anio === fecha.getFullYear() && mes === fecha.getMonth()+1 && dia === fecha.getDate();
+        }
+        return false;
+    }
+
     agregarRegla(campo, reglas){
         this.reglas[campo] = reglas;
     }
@@ -86,18 +107,12 @@ class Validacion {
     }
 
     horaInicialFinalCorrectas(inicio, final){
-        console.log(inicio);
-        console.log(final);
-        let [horaI,minI] = inicio.split(":");
-        let [horaF,minF] = final.split(":");
+        let [horaI,minI] = partirStringHora(inicio);
+        let [horaF,minF] = partirStringHora(final);
         horaI = parseInt(horaI);
         minI = parseInt(minI);
         horaF = parseInt(horaF);
         minF = parseInt(minF);
-        console.log("horaI:"+horaI+" minI:"+minI);
-        console.log("horaF:"+horaF+" minF:"+minF);
-        console.log((horaI === horaF && minI > minF));
-        console.log((horaI > horaF));
         if((horaI === horaF && minI > minF) || (horaI > horaF)){
             return {
                 inicio:"Hora inicio debe empezar antes que la final",
@@ -114,6 +129,26 @@ class Validacion {
             final:"",
         };
     }
+    fechaInicialFinalCorrectas(inicio, final, puedenIguales){
+        let fechaInicio = stringAFecha(inicio);
+        let fechaFinal = stringAFecha(final);
+        if(fechaInicio > fechaFinal){
+            return {
+                inicio:"Fecha de inicio debe empezar antes que final",
+                final:"Fecha final debe empezar después que la de inicio",
+            };
+        } if(!puedenIguales && fechaInicio == fechaFinal){
+            return {
+                inicio:"Fecha de inicio debe ser distinta a final",
+                final:"Fecha final debe ser distinta a la de inicio",
+            };
+        }
+        return {
+            inicio:"",
+            final:"",
+        };
+    }
+
 }
 
 export default Validacion;

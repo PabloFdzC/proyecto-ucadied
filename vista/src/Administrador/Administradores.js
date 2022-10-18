@@ -10,6 +10,7 @@ class Administradores extends React.Component {
         this.queriesGenerales = new QueriesGenerales();
         this.state = {
             administradores: [],
+            administrador:{},
         }
         this.administradoresPedidos = false;
         this.titulos = [
@@ -23,7 +24,7 @@ class Administradores extends React.Component {
             ];
         this.avisaCreado = this.avisaCreado.bind(this);
         this.muestraModal = this.muestraModal.bind(this);
-        this.agregarUsuario = this.agregarUsuario.bind(this);
+        this.agregarAdministrador = this.agregarAdministrador.bind(this);
     }
     // Hay que hacer que se puedan pedir solo administradores con información importante
     async cargarAdministradores(){
@@ -37,23 +38,30 @@ class Administradores extends React.Component {
         }
     }
 
-    async avisaCreado(usuario){
+    async avisaCreado(administrador){
         var administradores = this.state.administradores;
         this.setState({
-            administradores:administradores.concat(usuario),
+            administradores:administradores.concat(administrador),
         });
     }
 
+    /*
+    componentDidMount es una función de react que
+    se llama antes de hacer el render y llama a cargar
+    los administradores existentes en el sistema
+    */
     componentDidMount() {
+        document.title = "Administradores";
         if(!this.administradoresPedidos){
             this.administradoresPedidos = true;
             this.cargarAdministradores();
         }
     }
 
-    agregarUsuario(){
+    agregarAdministrador(administrador){
+        if(!administrador) administrador={};
         this.setState({
-            usuario:{},
+            administrador:administrador,
             muestra:true,
         })
     }
@@ -65,20 +73,28 @@ class Administradores extends React.Component {
     }
 
     render(){
+        var accionesTabla = null;
+        // const accionesTabla = [
+        //     {
+        //         className:"btn-primary",
+        //         onClick:this.agregarAdministrador,
+        //         icon:"lni-pencil-alt",
+        //     },
+        // ];
         return (
             <>
                 <div className="d-flex align-items-center justify-content-between m-3">
                     <h1>Administradores</h1>
-                    <button className="btn btn-primary" onClick={this.agregarUsuario}><i className="lni lni-plus"></i>  Agregar administrador</button>
+                    <button className="btn btn-primary" onClick={()=>this.agregarAdministrador()}><i className="lni lni-plus"></i>  Agregar administrador</button>
                 </div>
                 <div className="d-flex" style={{height:"inherit"}}>
                     <div className="w-100" style={{backgroundColor:"#137E31", color:"#FFFFFF"}}>
-                        <Tabla titulos={this.titulos} datos={this.state.administradores} style={{color:"#FFFFFF"}} />
+                        <Tabla titulos={this.titulos} datos={this.state.administradores} acciones={accionesTabla} />
                     </div>
                 </div>
-                <Modal size="lg" show={this.state.muestra} onHide={()=>this.muestraModal(false)} className="modal-green" scrollable>
+                <Modal size="lg" show={this.state.muestra} onHide={()=>this.muestraModal(false)} className="modal-green">
                 <Modal.Body>
-                    <UsuarioForm administrador={true} titulo={"Agregar Administrador"} avisaCreado={this.avisaCreado} campos={this.state.administrador} cerrarModal={()=>this.muestraModal(false)} />
+                    <UsuarioForm administrador={true} titulo={"Administrador"} avisaCreado={this.avisaCreado} campos={this.state.administrador} cerrarModal={()=>this.muestraModal(false)} />
                 </Modal.Body>
                 </Modal>
             </>

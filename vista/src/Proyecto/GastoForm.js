@@ -48,12 +48,12 @@ class GastoForm extends React.Component {
             titulo: this.titulo,
             creado:false,
             campos: Object.assign({},this.state.campos, {
+                id_proyecto:this.props.idProyecto,
                 nombre: "",
-                funcion: "",
-                edita_pagina: false,
-                edita_junta: false,
-                edita_proyecto: false,
-                edita_actividad: false,
+                monto: "",
+                fecha: "",
+                numero_acta:"",
+                numero_acuerdo:"",
             })
         });
     }
@@ -65,7 +65,6 @@ class GastoForm extends React.Component {
     async crearGasto(evento){
         evento.preventDefault();
         this.validacion.validarCampos(this.state.campos);
-        console.log(this.state.campos);
         if(!this.state.errores.hayError){
           try{
               const resp = await this.queriesGenerales.postear("/gasto/crear", this.state.campos);
@@ -127,9 +126,12 @@ class GastoForm extends React.Component {
             </div>
           </div>
             <div className="d-flex justify-content-end">
+                {this.props.cerrarModal ?
                 <div className="m-1">
-                    <button type="button" className="btn btn-secondary" data-bs-dismiss="modal" aria-label="Volver">Volver</button>
-                </div>
+                    <button type="button" className="btn btn-secondary" aria-label="Volver" onClick={()=>{this.props.cerrarModal();this.reiniciarCampos()}}>Volver</button>
+                </div>:
+                <></>
+                }
                 <div className="m-1">
                     <button type="submit" className="btn btn-primary">Agregar</button>
                 </div>
@@ -140,9 +142,12 @@ class GastoForm extends React.Component {
             <div className="m-1">
                 <button type="button" className="btn btn-primary" aria-label="Agregar otro" onClick={this.reiniciarCampos}>Agregar otro</button>
             </div>
+            {this.props.cerrarModal ?
             <div className="m-1">
-                <button type="button" className="btn btn-secondary" data-bs-dismiss="modal" aria-label="Volver" onClick={this.reiniciarCampos}>Volver</button>
-            </div>
+                <button type="button" className="btn btn-secondary" aria-label="Volver" onClick={()=>{this.props.cerrarModal();this.reiniciarCampos()}}>Volver</button>
+            </div>:
+            <></>
+            }
         </div>
         }
         </>

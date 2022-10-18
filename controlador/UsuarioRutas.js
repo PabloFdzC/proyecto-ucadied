@@ -21,6 +21,14 @@ router.get('/consultar/:id_usuario', async (req, res) => {
     }
 });
 
+router.get('/sesionActiva', async (req, res) => {
+    if(req.session.idUsuario && req.session.idUsuario != -1){
+        res.send(true);
+    }else{
+        res.send(false);
+    }
+});
+
 router.get('/consultar', async (req, res) => {
     try{
         if(req.session.idUsuario && req.session.idUsuario != -1){
@@ -30,6 +38,9 @@ router.get('/consultar', async (req, res) => {
             }
             if(req.query.id_organizacion){
                 params.id_organizacion = req.query.id_organizacion;
+            }
+            if(req.query.tipo){
+                params.tipo = req.query.tipo;
             }
             const usuarios = await usuarioCtrl.consultar(params);
             res.json(usuarios);
@@ -46,7 +57,6 @@ router.get('/consultar', async (req, res) => {
 });
 
 router.get('/consultarTipo/:esAdmin', async (req, res) => {
-    console.log("consulta-tipo")
     try{
         if(req.session.idUsuario && req.session.idUsuario != -1){
             const usuarios = await usuarioCtrl.consultarTipo(req.params.esAdmin);

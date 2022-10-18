@@ -18,7 +18,6 @@ class ResuelvePrincipal extends React.Component {
 
     async existeAdministrador(){
         const resp = await this.queriesGenerales.obtener("/administrador/existeAdministrador",{});
-        console.log(resp);
         this.setState({
             existeAdministrador: resp.data.existeAdministrador
         });

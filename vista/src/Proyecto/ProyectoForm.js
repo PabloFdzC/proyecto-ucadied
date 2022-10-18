@@ -112,7 +112,6 @@ class OrganizacionForm extends React.Component {
                 }
                 campos.encargados = encargados;
                 var resp = await this.queriesGenerales.postear("/proyecto/crear", campos);
-                console.log(resp);
                 this.setState({
                     creado:true,
                     titulo:"¡Agregado con Éxito!",
@@ -200,9 +199,12 @@ class OrganizacionForm extends React.Component {
                     </div>
                 </div>
                 <div className="d-flex justify-content-end">
+                    {this.props.cerrarModal ?
                     <div className="m-1">
-                        <button type="button" className="btn btn-secondary" data-bs-dismiss="modal" aria-label="Volver">Volver</button>
-                    </div>
+                        <button type="button" className="btn btn-secondary" aria-label="Volver" onClick={()=>{this.props.cerrarModal();this.reiniciarCampos()}}>Volver</button>
+                    </div>:
+                    <></>
+                    }
                     <div className="m-1">
                         <button type="submit" className="btn btn-primary">Agregar</button>
                     </div>
@@ -213,9 +215,12 @@ class OrganizacionForm extends React.Component {
                     <div className="m-1">
                     <button type="button" className="btn btn-primary" aria-label="Agregar otro" onClick={this.reiniciarCampos}>Agregar otro</button>
                     </div>
+                    {this.props.cerrarModal ?
                     <div className="m-1">
-                        <button type="button" className="btn btn-secondary" data-bs-dismiss="modal" aria-label="Volver" onClick={this.reiniciarCampos}>Volver</button>
-                    </div>
+                        <button type="button" className="btn btn-secondary" aria-label="Volver" onClick={()=>{this.props.cerrarModal();this.reiniciarCampos()}}>Volver</button>
+                    </div>:
+                    <></>
+                    }
                 </div>
             </>}
                 

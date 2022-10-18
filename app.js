@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
@@ -14,6 +13,7 @@ app.use(cors({
 }));
 
 require("./creacion_base");
+
 
 var sess = {
     secret: 'm!S3ssi0nn0de',

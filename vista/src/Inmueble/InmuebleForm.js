@@ -8,6 +8,7 @@ import Row from 'react-bootstrap/Row';
 import Tab from 'react-bootstrap/Tab';
 import Toast from 'react-bootstrap/Toast';
 import Select from 'react-select';
+import { convertirHoraAMPM } from '../Utilidades/ManejoHoras';
 
 /*
 Recibe los props:
@@ -25,17 +26,35 @@ class InmuebleForm extends React.Component {
         super(props);
         this.queriesGenerales = new QueriesGenerales();
         this.horas = listaHoras();
-        this.titulo = "Agregar Inmueble";
-        this.diasLetra = ["D","L","M","K","J","V","S"];
+        this.diasLetra = ["D","L","K","M","J","V","S"];
         var horario = this.diasLetra.map((letra)=>{return {dia:letra,inicio:"",final:""}});
         var horarioErrores = this.diasLetra.map((letra)=>{return {inicio:"",final:""}});
+        this.campos = props.campos ? props.campos : {};
+        if(this.campos.horario){
+          for(let i = 0; i < this.campos.horario.length; i++){
+            for(let j = 0; j < horario.length; j++){
+              if(this.campos.horario[i].dia === horario[j].dia){
+                horario[j].inicio = {
+                  value:this.campos.horario[i].inicio,
+                  label:convertirHoraAMPM(this.campos.horario[i].inicio,true)
+                };
+                horario[j].final = {
+                  value:this.campos.horario[i].final,
+                  label:convertirHoraAMPM(this.campos.horario[i].final,true),
+                };
+              }
+            }
+          }
+        }
+        this.accion = (Object.entries(this.campos).length > 0 ? "Modificar" : "Agregar");
+        this.titulo = "Inmueble";
         var campos = {
-            id_organizacion:props.id,
-            nombre: "",
+            id_organizacion:props.idOrganizacion,
+            nombre: this.campos.nombre ? this.campos.nombre : "",
             horario: horario,
         };
         this.state = {
-            titulo: this.titulo,
+            titulo: this.accion + " " +this.titulo,
             campos:campos,
             key:this.diasLetra[0],
             errores: {
@@ -52,7 +71,7 @@ class InmuebleForm extends React.Component {
         }, this);
 
         this.manejaCambio = this.manejaCambio.bind(this);
-        this.crearInmueble = this.crearInmueble.bind(this);
+        this.enviarInmueble = this.enviarInmueble.bind(this);
         this.reiniciarCampos = this.reiniciarCampos.bind(this);
         this.manejaCambioHorario = this.manejaCambioHorario.bind(this);
     }
@@ -62,7 +81,7 @@ class InmuebleForm extends React.Component {
       let errores = [...this.state.errores.horario];
       let horario = {...horarios[indice]};
       let error = {...errores[indice]};
-      horario[nombre] = valor;
+      horario[nombre] = valor ? valor : "";
       error.inicio = "";
       error.final = "";
       horarios[indice] = horario;
@@ -79,7 +98,7 @@ class InmuebleForm extends React.Component {
 
     reiniciarCampos(){
         this.setState({
-            titulo: this.titulo,
+            titulo: this.accion + " " +this.titulo,
             creado:false,
             campos: Object.assign({},this.state.campos, {
                 nombre: "",
@@ -97,15 +116,17 @@ class InmuebleForm extends React.Component {
       var llenos = 0;
       var hayError = false;
       for (let i = 0; i < this.state.campos.horario.length; i++){
-        if(this.state.campos.horario[i].inicio.value !== "" && this.state.campos.horario[i].inicio.value && this.state.campos.horario[i].final.value !== "" && this.state.campos.horario[i].final.value){
-          llenos++;
-          var r = this.validacion.horaInicialFinalCorrectas(this.state.campos.horario[i].inicio.value,this.state.campos.horario[i].final.value);
-          if(r.inicio !== "" && r.final !== ""){
-            var error = {...errores[i]};
-            error.inicio = r.inicio;
-            error.final = r.final;
-            errores[i] = error;
-            hayError = true;
+        if(this.state.campos.horario[i].inicio && this.state.campos.horario[i].final){
+          if(this.state.campos.horario[i].inicio.value !== "" && this.state.campos.horario[i].inicio.value && this.state.campos.horario[i].final.value !== "" && this.state.campos.horario[i].final.value){
+            llenos++;
+            var r = this.validacion.horaInicialFinalCorrectas(this.state.campos.horario[i].inicio.value,this.state.campos.horario[i].final.value);
+            if(r.inicio !== "" && r.final !== ""){
+              var error = {...errores[i]};
+              error.inicio = r.inicio;
+              error.final = r.final;
+              errores[i] = error;
+              hayError = true;
+            }
           }
         }
       }
@@ -127,14 +148,14 @@ class InmuebleForm extends React.Component {
       }
     }
 
-    async crearInmueble(evento){
+    async enviarInmueble(evento){
         evento.preventDefault();
         this.validacion.validarCampos(this.state.campos);
         this.validarHorario();
         if(!this.state.errores.hayError){
           var campos = {
             nombre:this.state.campos.nombre,
-            id_organizacion: this.props.id,
+            id_organizacion: this.props.idOrganizacion,
           };
           var horario = [];
           for (let h of this.state.campos.horario){
@@ -148,23 +169,35 @@ class InmuebleForm extends React.Component {
           }
           campos.horario = horario;
           try{
-              const resp = await this.queriesGenerales.postear("/inmueble/crear", campos);
+              var resp;
+              var mensajeExito = "¡Agregado con éxito!";
+              if(this.accion === "Agregar"){
+                resp = await this.queriesGenerales.postear("/inmueble/crear", campos);
+              } else {
+                resp = await this.queriesGenerales.modificar("/inmueble/modificar/"+this.campos.id, campos);
+                mensajeExito = "¡Modificado con éxito!";
+              }
               this.setState({
                   creado:true,
-                  titulo:"¡Agregado con éxito!",
+                  titulo:mensajeExito,
               });
-              this.props.avisaCreado(resp.data);
+              if(this.accion === "Agregar")
+                this.props.avisaCreado(resp.data);
+              else{
+                campos.id = this.campos.id;
+                this.props.avisaCreado(campos);
+              }
           }catch(error){
               console.log(error);
           }
-      }
+        }
     }
 
     render(){
         return (<>
         <h2 className="modal-title text-center">{this.state.titulo}</h2>
         {!this.state.creado ? 
-        <form onSubmit={this.crearInmueble} className="needs-validation" noValidate>
+        <form onSubmit={this.enviarInmueble} className="needs-validation" noValidate>
           <div className="row">
             <div className="col-12 ">
               <div className="mb-3 position-relative">
@@ -193,9 +226,10 @@ class InmuebleForm extends React.Component {
                         <div className="row">
                           <div className="col">
                             <div className="mb-3 position-relative">
-                              <label htmlFor="inicio" className="form-label">Inicio</label>
+                              <label htmlFor="inicio" className="form-label">Apertura</label>
                               <div className={this.state.errores.horario[i].inicio.length > 0 ? "p-0 form-control is-invalid":"p-0 form-control"}>
                               <Select 
+                              isClearable
                               key="inicio" name="inicio" value={this.state.campos.horario[i].inicio} onChange={(opcion)=>this.manejaCambioHorario(i,"inicio",opcion)}
                               options={this.horas}
                               />
@@ -207,9 +241,10 @@ class InmuebleForm extends React.Component {
                           </div>
                           <div className="col">
                             <div className="mb-3 position-relative">
-                              <label htmlFor="final" className="form-label">Final</label>
+                              <label htmlFor="final" className="form-label">Cierre</label>
                               <div className={this.state.errores.horario[i].final.length > 0 ? "p-0 form-control is-invalid":"p-0 form-control"}>
                               <Select 
+                              isClearable
                               key="final" name="final" value={this.state.campos.horario[i].final} onChange={(opcion)=>this.manejaCambioHorario(i,"final",opcion)}
                               options={this.horas}
                               />
@@ -235,7 +270,7 @@ class InmuebleForm extends React.Component {
                 <></>
                 }
                 <div className="m-1">
-                    <button type="submit" className="btn btn-primary">Agregar</button>
+                    <button type="submit" className="btn btn-primary">{this.accion}</button>
                 </div>
             </div>
             <div className="d-flex justify-content-end">
@@ -251,9 +286,10 @@ class InmuebleForm extends React.Component {
         </form>
         :
         <div className="d-flex justify-content-end">
-            <div className="m-1">
+            {this.accion === "Agregar" ? <div className="m-1">
                 <button type="button" className="btn btn-primary" aria-label="Agregar otro" onClick={this.reiniciarCampos}>Agregar otro</button>
-            </div>
+            </div>:
+            <></>}
             {this.props.cerrarModal ?
             <div className="m-1">
                 <button type="button" className="btn btn-secondary" aria-label="Volver" onClick={()=>{this.props.cerrarModal();this.reiniciarCampos()}}>Volver</button>

@@ -3,19 +3,21 @@ import { Navigate, Link } from "react-router-dom";
 import {usuarioContexto} from '../usuarioContexto';
 import ProyectoForm from './ProyectoForm';
 import QueriesGenerales from "../QueriesGenerales";
+import Modal from 'react-bootstrap/Modal';
 
 class Proyectos extends React.Component {
     constructor(props){
         super(props);
         this.soloVer = props.soloVer;
         this.queriesGenerales = new QueriesGenerales();
-        let d = new Date();
         this.state = {
             proyectos: [],
+            muestraPF:false,
         }
-        this.proyectosPedidas = false;
+        this.proyectosPedidos = false;
         this.avisaCreado = this.avisaCreado.bind(this);
         this.eliminarProyecto = this.eliminarProyecto.bind(this);
+        this.muestraModal = this.muestraModal.bind(this);
     }
 
     async eliminarProyecto(id){
@@ -37,7 +39,7 @@ class Proyectos extends React.Component {
     async cargarProyectos(){
         try{
             var proyectos = this.state.proyectos;
-            const resp = await this.queriesGenerales.obtener("/proyecto/consultar", {id_organizacion:this.props.id});
+            const resp = await this.queriesGenerales.obtener("/proyecto/consultar", {id_organizacion:this.props.idOrganizacion});
             this.setState({
                 proyectos:proyectos.concat(resp.data),
             });
@@ -46,9 +48,23 @@ class Proyectos extends React.Component {
         }
     }
 
-    componentDidMount() {
-        if(!this.proyectosPedidas){
-            this.proyectosPedidas = true;
+    muestraModal(muestra){
+        this.setState({
+            muestraPF:muestra,
+        });
+    }
+
+    /*
+    componentDidMount es una función de react que
+    se llama antes de hacer el render y llama a cargar la
+    organización en caso de que la url se haya llamado
+    con un id distinto al de la organización en la que
+    se encuentra actualmente y llama a cargar los proyectos
+    */
+    async componentDidMount() {
+        await this.props.cargarOrganizacion(this.props.idOrganizacion);
+        if(!this.proyectosPedidos){
+            this.proyectosPedidos = true;
             this.cargarProyectos();
         }
     }
@@ -62,11 +78,10 @@ class Proyectos extends React.Component {
 
     render(){
         var proyectos;
-        console.log(this.state.proyectos);
         if(this.state.proyectos.length > 0){
             proyectos = this.state.proyectos.map((p, i) =>{
                 return (
-                <div className="col-4 d-flex flex-column" key={"aCol"+i} style={i%2==0 ? {backgroundColor:"#137E31",color:"#FFFFFF"} : {backgroundColor:"#76B2CE",color:"#160C28"}}>
+                <div className="col-4 d-flex flex-column" key={"aCol"+i} style={i%2===0 ? {backgroundColor:"#137E31",color:"#FFFFFF"} : {backgroundColor:"#76B2CE",color:"#160C28"}}>
                     <div className="row">
                         <div className="col">
                             <div className="container p-3" key={"aCont"+i}>
@@ -83,7 +98,7 @@ class Proyectos extends React.Component {
                             </div>
                         </div>
                         <div className="col d-flex flex-column p-3">
-                            <Link onClick={()=>this.props.escogeProyecto(p)} key={"g"+i} className="btn btn-primary m-1" to={"gastos/"+p.id}><i className="lni lni-coin"></i>  Gastos</Link>
+                            <Link key={"g"+i} className="btn btn-primary m-1" to={"gastos/"+p.id}><i className="lni lni-coin"></i>  Gastos</Link>
                             <button key={"e"+i} className="btn btn-danger m-1" onClick={()=>this.eliminarProyecto(p.id)}><i className="lni lni-trash-can"></i>  Eliminar</button>
                         </div>
                     </div>
@@ -98,21 +113,16 @@ class Proyectos extends React.Component {
                         return (<>
                         <div className="d-flex align-items-center justify-content-between m-3">
                             <h1>Proyectos</h1>
-                            {this.props.soloVer ? <></>:
-                            <button className="btn btn-primary" data-bs-toggle="modal" data-bs-target="#agregarProyectoModal"><i className="lni lni-plus"></i>  Agregar proyecto</button>}
+                            <button className="btn btn-primary" onClick={()=>this.muestraModal(true)} ><i className="lni lni-plus"></i>  Agregar proyecto</button>
                         </div>
                         <div className="row m-0">
                             {proyectos}
                         </div>
-                        <div className="modal fade" id="agregarProyectoModal" tabIndex="-1" aria-labelledby="modalAgregarUnion" aria-hidden="true">
-                            <div className="modal-dialog modal-dialog-scrollable modal-lg">
-                                <div className="modal-content p-3" style={{backgroundColor:"#137E31", color:"#FFFFFF"}}>
-                                    <div className="modal-body">
-                                        <ProyectoForm idOrganizacion={organizacion.id} esUnion={false} avisaCreado={this.avisaCreado} />
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                        <Modal size="lg" show={this.state.muestraPF} onHide={()=>this.muestraModal(false)} className="modal-green">
+                        <Modal.Body>
+                            <ProyectoForm idOrganizacion={organizacion.id} esUnion={false} avisaCreado={this.avisaCreado} cerrarModal={()=>this.muestraModal(false)} />
+                        </Modal.Body>
+                        </Modal>
                             </>);
                     } else {
                         return <Navigate to='/iniciarSesion' replace={true}/>;

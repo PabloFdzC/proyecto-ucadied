@@ -9,13 +9,11 @@ import listaPaises from '../Utilidades/listaPaises';
 class UsuarioForm extends React.Component {
     constructor(props){
         super(props);
-        this.url = props.url;
-        this.administrador = props.administrador;
-        this.ocupaAsociacion = props.ocupaAsociacion;
 
         this.queriesGenerales = new QueriesGenerales();
         
         this.campos = props.campos ? props.campos : {};
+        this.titulo = Object.entries(this.campos).length > 0 ? "Modificar" : "Agregar";
         
         var campos = {
             nombre: this.campos.nombre ? this.campos.nombre : "",
@@ -30,7 +28,7 @@ class UsuarioForm extends React.Component {
         };
         
         this.state = {
-            titulo:this.props.titulo,
+            titulo: this.titulo+ " " +this.props.titulo,
             campos:campos,
             errores: {
                 hayError:false,
@@ -51,18 +49,22 @@ class UsuarioForm extends React.Component {
         
         this.validacion = new Validacion({
             nombre: "requerido",
-            fecha_nacimiento: "requerido",
+            fecha_nacimiento: "requerido|fecha",
             nacionalidad: "seleccionado",
             sexo: "seleccionado",
             profesion: "requerido",
             telefonos: "tiene-valores",
             email: "requerido|email",
+            puesto: "seleccionado",
             id_organizacion: props.ocupaAsociacion ? "requerido" : "",
         }, this);
         
         this.validacionTelefono = new Validacion({
             telefonos: "requerido|numeros"
         }, this);
+
+        this.asociacionesPedidas = false;
+        this.puestosPedidos = false;
 
         this.agregarTelefono = this.agregarTelefono.bind(this);
         this.eliminarTelefono = this.eliminarTelefono.bind(this);
@@ -128,13 +130,26 @@ class UsuarioForm extends React.Component {
         evento.preventDefault();
         this.validacion.validarCampos(this.state.campos);
         if(!this.state.errores.hayError){
-            console.log(this.state.campos);
             let url = "usuario";
-            if(this.administrador){
+            if(this.props.administrador){
                 url = "administrador";
             }
             try{
-                const resp = await this.queriesGenerales.postear(url+"/crear", this.state.campos);
+                var campos = {
+                    nombre: this.state.campos.nombre,
+                    fecha_nacimiento: this.state.campos.fecha_nacimiento,
+                    nacionalidad: this.state.campos.nacionalidad,
+                    sexo:this.state.campos.sexo,
+                    profesion: this.state.campos.profesion,
+                    email: this.state.campos.email,
+                    telefonos:this.state.campos.telefonos,
+                    id_organizacion: this.state.campos.id_organizacion,
+                    puesto: this.state.campos.puesto,
+                };
+                if(campos.id_organizacion === "" && this.props.idOrganizacion && !isNaN(this.props.idOrganizacion)){
+                    campos.id_organizacion = this.props.idOrganizacion;
+                }
+                const resp = await this.queriesGenerales.postear(url+"/crear", campos);
                 this.setState({
                     titulo:"¡Agregado con Éxito!",
                     contrasenna:resp.data.contrasenna,
@@ -183,6 +198,10 @@ class UsuarioForm extends React.Component {
                 this.cargarAsociaciones();
             }
         }
+        if(!isNaN(this.props.idOrganizacion) && !this.puestosPedidos){
+            this.puestosPedidos = true;
+            this.cargarPuestos(parseInt(this.props.idOrganizacion));
+        }
     }
 
     render(){
@@ -190,7 +209,7 @@ class UsuarioForm extends React.Component {
             <>
             <h2 className="modal-title text-center">{this.state.titulo}</h2>
             {this.state.contrasenna === "" ?
-                <form onSubmit={this.crearUsuario}  noValidate>
+                <form onSubmit={this.crearUsuario} noValidate>
                     <div className="row">
                         <div className="col-12 col-md-6">
                             <div className="mb-3 position-relative">
@@ -210,7 +229,7 @@ class UsuarioForm extends React.Component {
                             <div className="mb-3 position-relative">
                                 <label htmlFor="nacionalidad" className="form-label">Nacionalidad</label>
                                 <select className={this.state.errores.nacionalidad.length > 0 ? "form-select is-invalid":"form-select"} aria-label="nacionalidad" key="nacionalidad" name="nacionalidad" value={this.state.campos.nacionalidad} onChange={this.manejaCambio} >
-                                    <option defaultValue>Nacionalidad</option>
+                                    <option defaultValue hidden>Nacionalidad</option>
                                     {listaPaises.map((pais, i)=><option key={i} value={pais}>{pais}</option>)}
                                 </select>
                                 <div className="invalid-tooltip">
@@ -220,7 +239,7 @@ class UsuarioForm extends React.Component {
                             <div className="mb-3 position-relative">
                                 <label htmlFor="sexo" className="form-label">Sexo</label>
                                 <select className={this.state.errores.sexo.length > 0 ? "form-select is-invalid":"form-select"} aria-label="sexo" key="sexo" name="sexo" value={this.state.campos.sexo} onChange={this.manejaCambio} >
-                                    <option defaultValue>Sexo</option>
+                                    <option defaultValue hidden>Sexo</option>
                                     <option value={"Masculino"}>Masculino</option>
                                     <option value={"Femenino"}>Femenino</option>
                                     <option value={"No Especificado"}>No Especificado</option>
@@ -240,21 +259,23 @@ class UsuarioForm extends React.Component {
                         </div>
                         <div className="col-12 col-md-6">
                             {this.props.ocupaAsociacion ?
-                                <>
                                 <div className="mb-3 position-relative">
                                     <label htmlFor="asociacion" className="form-label">Asociación</label>
                                     <select className={this.state.errores.nacionalidad.length > 0 ? "form-select is-invalid":"form-select"} aria-label="asociacion" key="asociacion" name="id_organizacion" value={this.state.campos.id_organizacion} onChange={this.manejaCambioOrganizacion} >
-                                        <option defaultValue>Asociación</option>
+                                        <option defaultValue hidden>Asociación</option>
                                         {this.state.asociaciones.map((u,i) => <option key={i} value={u.id}>{u.nombre}</option>)}
                                     </select>
                                     <div className="invalid-tooltip">
                                         {this.state.errores.nacionalidad}
                                     </div>
                                 </div>
+                                :
+                                <></>}
+                            {this.props.ocupaAsociacion || this.props.idOrganizacion ?
                                 <div className="mb-3 position-relative">
                                     <label htmlFor="puesto" className="form-label">Puesto en Junta Directiva</label>
                                     <select className={this.state.errores.puesto.length > 0 ? "form-select is-invalid":"form-select"} aria-label="puesto" key="puesto" name="puesto" value={this.state.campos.puesto} onChange={this.manejaCambio}>
-                                        <option defaultValue>Puesto en Junta Directiva</option>
+                                        <option defaultValue hidden>Puesto en Junta Directiva</option>
                                         {this.state.puestos.map((p,i) => <option key={i} value={p.id}>{p.nombre}</option>)}
                                     </select>
                                     
@@ -262,9 +283,7 @@ class UsuarioForm extends React.Component {
                                         {this.state.errores.puesto}
                                     </div>
                                 </div>
-                                </>
-                                :
-                                <></>}
+                                :<></>}
                             <div className="mb-3 position-relative">
                                 <label htmlFor="email" className="form-label">Email</label>
                                 <input type="email" className={this.state.errores.email.length > 0 ? "form-control is-invalid":"form-control"} key="email" name="email" value={this.state.campos.email} onChange={this.manejaCambio} />
@@ -284,7 +303,7 @@ class UsuarioForm extends React.Component {
                         <></>
                         }
                         <div className="m-1">
-                            <button type="submit" className="btn btn-primary">Agregar</button>
+                            <button type="submit" className="btn btn-primary">{this.titulo}</button>
                         </div>
                     </div>
                 </form>:

@@ -18,7 +18,14 @@ router.get('/consultar/:id_inmueble', async (req, res) => {
 
 router.get('/consultar', async (req, res) => {
     try{
-        const inmuebles = await inmuebleCtlr.consultar(req.params);
+        var params = {};
+        if(req.query.id){
+            params.id = req.query.id;
+        }
+        if(req.query.id_organizacion){
+            params.id_organizacion = req.query.id_organizacion;
+        }
+        const inmuebles = await inmuebleCtlr.consultar(params);
         res.json(inmuebles);
     }catch(err){
         console.log(err);

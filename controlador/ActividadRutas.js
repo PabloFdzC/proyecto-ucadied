@@ -2,6 +2,7 @@ const router = require('express').Router();
 const bodyParser = require('body-parser');
 const jsonParser  = bodyParser.json({ extended: false });
 const actividadCtlr = require('./ActividadControlador');
+const { verificarCaptcha } = require('./captcha');
 
 router.get('/consultar', async (req, res) => {
     try{
@@ -23,18 +24,19 @@ router.get('/consultar', async (req, res) => {
             paramsInmueble.id = req.query.id_inmueble;
         }
         if(req.query.habilitado){
-            paramsReserva.habilitado = req.query.habilitado;
+            paramsReserva.habilitado = req.query.habilitado === "false" ? false : true;
         }
         if(req.query.dia){
             paramsReserva.dia = req.query.dia;
         }
         if(req.query.mes){
-            paramsReserva.mesdia = req.query.mes;
+            paramsReserva.mes = req.query.mes;
         }
         if(req.query.anio){
             paramsReserva.anio = req.query.anio;
         }
-        actividades = await actividadCtlr.consultar(paramsActividad, paramsReserva, paramsInmueble);
+        
+        actividades = await actividadCtlr.consultar(paramsActividad, paramsReserva, paramsInmueble, req.session.idUsuario);
 
         res.json(actividades);
     }catch(err){
@@ -46,8 +48,20 @@ router.get('/consultar', async (req, res) => {
 
 router.post('/crear', jsonParser, async (req, res) => {
     try{
-        const actividad_creada = await actividadCtlr.crear(req.body, req.session.idUsuario);
-        res.json(actividad_creada);
+        // const resp = await verificarCaptcha(req.body.captcha);
+        // delete req.body.captcha;
+        // if(resp.exito){
+            const actividad_creada = await actividadCtlr.crear(req.body, req.session.idUsuario);
+            if(actividad_creada.error || actividad_creada.errores){
+                console.log(actividad_creada);
+                res.status(400);
+            }
+            res.json(actividad_creada);
+        // } else {
+        //     console.log(resp.error);
+        //     res.status(400);
+        //     res.send(resp.error);    
+        // }
     }catch(err){
         console.log(err);
         res.status(400);
@@ -68,6 +82,9 @@ router.put('/modificar/:id_actividad', jsonParser, async (req, res) => {
         }
         if(habilitado){
             const resultado = await actividadCtlr.modificar(req.params.id_actividad, req.body)
+            if(resultado.error || resultado.errores){
+                res.status(400);
+            }
             res.json(resultado);
         }
         else{

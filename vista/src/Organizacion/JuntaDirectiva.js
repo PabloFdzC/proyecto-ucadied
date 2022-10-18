@@ -7,7 +7,9 @@ import PuestoForm from './PuestoForm.js';
 import QueriesGenerales from "../QueriesGenerales";
 import Tab from 'react-bootstrap/Tab';
 import Tabs from 'react-bootstrap/Tabs';
+import Modal from 'react-bootstrap/Modal';
 import '../Estilos/Tabs.css';
+import UsuarioForm from '../Usuario/UsuarioForm';
 
 class JuntaDirectiva extends React.Component {
     constructor(props){
@@ -18,7 +20,10 @@ class JuntaDirectiva extends React.Component {
         this.state = {
             miembros:[],
             puestos:[],
-            key: "miembros"
+            key: "miembros",
+            muestraMJDF:false,
+            muestraPF:false,
+            muestraUF:false,
         };
         this.titulos = [
             {name:'Nombre',selector:row=>row.nombre,sortable:true},
@@ -28,27 +33,41 @@ class JuntaDirectiva extends React.Component {
         this.titulosPuestos = [
             {name:'Nombre',selector:row=>row.nombre,sortable:true},
             {name:'Función',selector:row=>row.funcion,sortable:true},
-            {name:'Edita página',selector:row=>row.edita_pagina,sortable:true},
-            {name:'Edita Junta Directiva',selector:row=>row.edita_junta,sortable:true},
-            {name:'Edita proyectos',selector:row=>row.edita_proyecto,sortable:true},
-            {name:'Edita actividades',selector:row=>row.edita_actividad,sortable:true},
+            {name:'Edita página',selector:row=>row.edita_pagina ? "Sí":"No"},
+            {name:'Edita Junta Directiva',selector:row=>row.edita_junta ? "Sí":"No"},
+            {name:'Edita proyectos',selector:row=>row.edita_proyecto ? "Sí":"No"},
+            {name:'Edita actividades',selector:row=>row.edita_actividad ? "Sí":"No"},
             ];
         this.organizacionPedida = false;
         this.puestosPedidos = true;
         this.avisaAgregadoMiembro = this.avisaAgregadoMiembro.bind(this);
         this.agregaPuestos = this.agregaPuestos.bind(this);
+        this.muestraModal = this.muestraModal.bind(this);
     }
 
+    muestraModal(nombre,muestra){
+        this.setState({
+            [nombre]:muestra,
+        });
+    }
     
 
+    /*
+    componentDidMount es una función de react que
+    se llama antes de hacer el render y llama a cargar la
+    organización en caso de que la url se haya llamado
+    con un id distinto al de la organización en la que
+    se encuentra actualmente, llama a cargar los puestos
+    y llama a cargar los miembros
+    */
     async componentDidMount() {
+        document.title = "Junta Directiva";
         if(!this.organizacionPedida){
             this.organizacionPedida = true;
             try{
-                console.log("PIDEEEEEEEEEEEEEEEEEEEEEEEEEEEE")
-                await this.props.cargarOrganizacion(this.props.id);
-                this.cargarPuestos(this.props.id);
-                this.cargarMiembros(this.props.id);
+                await this.props.cargarOrganizacion(this.props.idOrganizacion);
+                this.cargarPuestos(this.props.idOrganizacion);
+                this.cargarMiembros(this.props.idOrganizacion);
             }catch(err){
                 console.log(err);
             }
@@ -87,14 +106,10 @@ class JuntaDirectiva extends React.Component {
 
     async avisaAgregadoMiembro(miembroNuevo){
         var miembro = {
-            nombre: miembroNuevo.label,
+            nombre: miembroNuevo.nombre,
+            puesto: miembroNuevo.puesto,
+            funcion: miembroNuevo.funcion,
         };
-        for(let p of this.state.puestos){
-            if(p.id === miembroNuevo.id_puesto_jd){
-                miembro.puesto = p.nombre;
-                miembro.funcion = p.funcion;
-            }
-        }
         var miembros = this.state.miembros;
         this.setState({
             miembros:miembros.concat(miembro),
@@ -118,16 +133,15 @@ class JuntaDirectiva extends React.Component {
                                 <h1>Junta Directiva</h1>
                                 <div className="d-flex justify-content-end">
                                     <div className="m-1">
-                                        <button className="btn btn-dark" data-bs-toggle="modal" data-bs-target="#puestoModal"><i className="lni lni-plus"></i>  Agregar puesto</button>
+                                        <button className="btn btn-dark" onClick={()=>this.muestraModal("muestraPF",true)} ><i className="lni lni-plus"></i>  Agregar puesto</button>
                                     </div>
                                     <div className="m-1">
-                                        <button className="btn btn-primary" data-bs-toggle="modal" data-bs-target="#miembroModal"><i className="lni lni-plus"></i>  Agregar miembro</button>
+                                        <button className="btn btn-primary" onClick={()=>this.muestraModal(organizacion.id === organizacion.id_organizacion ?"muestraMJDF":"muestraUF",true)}><i className="lni lni-plus"></i>  Agregar miembro</button>
                                     </div>
                                 </div>
                             </div>
                             <div className="d-flex align-items-center justify-content-between">
                                 <div className="m-3">
-                                    <h4>Cantidad máxima de miembros: {organizacion.n_miembros_jd}</h4>
                                     <h4>Forma de elegir:</h4>
                                     <p>{organizacion.forma_elegir_jd}</p>
                                 </div>
@@ -144,25 +158,21 @@ class JuntaDirectiva extends React.Component {
                                 </Tabs>
                                 </div>
                             </div>
-                            <div className="modal fade" id="miembroModal" tabIndex="-1" aria-labelledby="modalAgregarMiembroJuntaDirectiva" aria-hidden="true">
-                                <div className="modal-dialog modal-dialog-scrollable modal-lg">
-                                <div className="modal-content p-3" style={{backgroundColor:"#137E31", color:"#FFFFFF"}}>
-                                    <div className="modal-body">
-                                        <h2 className="modal-title">Agregar Miembro de Junta Directiva</h2>
-                                        <MiembroJuntaDirectivaForm puestos={this.state.puestos} idOrganizacion={organizacion.id} avisaAgregado={this.avisaAgregadoMiembro} />
-                                    </div>
-                                </div>
-                                </div>
-                            </div>
-                            <div className="modal fade" id="puestoModal" tabIndex="-1" aria-labelledby="modalAgregarPuesto" aria-hidden="true">
-                                <div className="modal-dialog modal-dialog-scrollable modal-lg">
-                                <div className="modal-content p-3" style={{backgroundColor:"#137E31", color:"#FFFFFF"}}>
-                                    <div className="modal-body">
-                                        <PuestoForm idOrganizacion={organizacion.id} avisaAgregado={this.agregaPuestos} />
-                                    </div>
-                                </div>
-                                </div>
-                            </div>
+                            <Modal show={this.state.muestraMJDF} onHide={()=>this.muestraModal("muestraMJDF",false)} className="modal-green">
+                            <Modal.Body>
+                                <MiembroJuntaDirectivaForm esUnion={organizacion.id === organizacion.id_organizacion} puestos={this.state.puestos} idOrganizacion={organizacion.id} avisaAgregado={this.avisaAgregadoMiembro} cerrarModal={()=>this.muestraModal("muestraMJDF",false)} />
+                            </Modal.Body>
+                            </Modal>
+                            <Modal size='lg' show={this.state.muestraUF} onHide={()=>this.muestraModal("muestraUF",false)} className="modal-green">
+                            <Modal.Body>
+                                <UsuarioForm titulo="Usuario" idOrganizacion={this.props.idOrganizacion} cerrarModal={()=>this.muestraModal("muestraUF",false)} />
+                            </Modal.Body>
+                            </Modal>
+                            <Modal show={this.state.muestraPF} onHide={()=>this.muestraModal("muestraPF",false)} className="modal-green">
+                            <Modal.Body>
+                                <PuestoForm idOrganizacion={organizacion.id} avisaAgregado={this.agregaPuestos} cerrarModal={()=>this.muestraModal("muestraPF",false)} />
+                            </Modal.Body>
+                            </Modal>
                             </>);
                     } else {
                         return <Navigate to='/iniciarSesion' replace={true}/>;

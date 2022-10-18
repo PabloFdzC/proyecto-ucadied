@@ -38,6 +38,7 @@ class AgregaElemento extends React.Component {
                         {this.props.opciones ? 
                         <div className={this.props.error.length > 0 ? "p-0 form-control is-invalid":"p-0 form-control"}>
                         <Select 
+                        isClearable
                         key="elemento" name="elemento" value={this.state.elemento} onChange={(opcion)=>this.manejaCambio({target:{name:"elemento",type:"select",value:opcion}})}
                         options={this.props.opciones}
                         />

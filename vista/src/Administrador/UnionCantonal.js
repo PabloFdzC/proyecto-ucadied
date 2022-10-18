@@ -5,6 +5,7 @@ import {usuarioContexto} from '../usuarioContexto';
 import Tabla from '../Utilidades/Table/Table.jsx';
 import Modal from 'react-bootstrap/Modal';
 import QueriesGenerales from "../QueriesGenerales";
+import CajasOrganizaciones from '../Organizacion/CajasOrganizaciones';
 
 /*
 No recibe props
@@ -17,7 +18,9 @@ class UnionCantonal extends React.Component {
         this.state = {
             uniones: [],
             muestra:false,
+            ingresaJunta:true,
             union:{},
+            indiceUnion: null,
         }
         this.unionesPedidas = false;
         this.titulos = [
@@ -31,6 +34,7 @@ class UnionCantonal extends React.Component {
         this.avisaCreado = this.avisaCreado.bind(this);
         this.muestraModal = this.muestraModal.bind(this);
         this.agregarUnion = this.agregarUnion.bind(this);
+        this.eliminarUnion = this.eliminarUnion.bind(this);
     }
 
     async cargarUniones(){
@@ -45,7 +49,13 @@ class UnionCantonal extends React.Component {
         }
     }
 
+    /*
+    componentDidMount es una función de react que
+    se llama antes de hacer el render y llama a cargar
+    las uniones cantonales que existan en el sistema
+    */
     componentDidMount() {
+        document.title = "Uniones Cantonales";
         if(!this.unionesPedidas){
             this.unionesPedidas = true;
             this.cargarUniones();
@@ -59,10 +69,19 @@ class UnionCantonal extends React.Component {
         });
     }
 
-    agregarUnion(){
+    agregarUnion(union,indice){
+        if(union){
+            if(union.puestos){
+                union.puestos = [];
+            }
+        } else {
+            union={};
+        }
         this.setState({
-            union:{},
+            union:union,
             muestra:true,
+            ingresaJunta: !indice,
+            indiceUnion: indice
         })
     }
 
@@ -70,6 +89,23 @@ class UnionCantonal extends React.Component {
         this.setState({
             muestra:muestra,
         })
+    }
+
+
+    async eliminarUnion(id){
+        try{
+            await this.queriesGenerales.eliminar("/organizacion/eliminar/"+id, {});
+            let i = -1;
+            for (let j = 0; j < this.state.uniones.length; j++){
+                if(this.state.uniones[j].id === id) i = j;
+            }
+            if (i > -1){
+                this.state.uniones.splice(i, 1);
+                this.setState({});
+            }
+        } catch(err){
+            console.log(err);
+        }
     }
 
     render(){
@@ -81,16 +117,14 @@ class UnionCantonal extends React.Component {
                             <>
                                 <div className="d-flex align-items-center justify-content-between m-3">
                                     <h1>Uniones Cantonales</h1>
-                                    <button className="btn btn-primary" onClick={this.agregarUnion}><i className="lni lni-plus"></i>  Agregar unión</button>
+                                    <button className="btn btn-primary" onClick={()=>this.agregarUnion()}><i className="lni lni-plus"></i>  Agregar unión</button>
                                 </div>
-                                <div className="d-flex" style={{height:"inherit"}}>
-                                    <div className="w-100" style={{backgroundColor:"#137E31", color:"#FFFFFF"}}>
-                                    <Tabla titulos={this.titulos} datos={this.state.uniones} style={{color:"#FFFFFF"}} />
-                                    </div>
+                                <div className="row m-0">
+                                    <CajasOrganizaciones organizaciones={this.state.uniones} modificar={this.agregarUnion} eliminar={this.eliminarUnion} />
                                 </div>
-                                <Modal size="lg" show={this.state.muestra} onHide={()=>this.muestraModal(false)} className="modal-green" scrollable>
+                                <Modal size="lg" show={this.state.muestra} onHide={()=>this.muestraModal(false)} className="modal-green" >
                                 <Modal.Body>
-                                    <OrganizacionForm ingresaJunta={true} esUnionCantonal={true} titulo={"Unión Cantonal"} avisaCreado={this.avisaCreado} campos={this.state.union} cerrarModal={()=>this.muestraModal(false)} />
+                                    <OrganizacionForm ingresaJunta={this.state.ingresaJunta} esUnionCantonal={true} titulo={"Unión Cantonal"} avisaCreado={this.avisaCreado} campos={this.state.union} cerrarModal={()=>this.muestraModal(false)} />
                                 </Modal.Body>
                                 </Modal>
                             </>

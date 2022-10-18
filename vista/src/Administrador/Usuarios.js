@@ -14,6 +14,7 @@ class Usuarios extends React.Component {
         this.state = {
             usuarios: [],
             usuario:{},
+            indiceUsuario: null,
         }
         this.titulos = [
             {name:'Nombre',selector:row=>row.nombre,sortable:true},
@@ -29,9 +30,11 @@ class Usuarios extends React.Component {
         this.agregarUsuario = this.agregarUsuario.bind(this);
     }
 
-    agregarUsuario(){
+    agregarUsuario(usuario,indice){
+        if(!usuario) usuario={};
         this.setState({
-            usuario:{},
+            indiceInmueble:indice,
+            usuario:usuario,
             muestra:true,
         })
     }
@@ -45,7 +48,6 @@ class Usuarios extends React.Component {
     async cargarUsuarios(){
         try{
             const resp = await this.queriesGenerales.obtener("/usuario/consultarTipo/0", {});
-            console.log(resp);
             this.setState({
                 usuarios:this.state.usuarios.concat(resp.data),
             });
@@ -54,7 +56,13 @@ class Usuarios extends React.Component {
         }
     }
 
+    /*
+    componentDidMount es una función de react que
+    se llama antes de hacer el render y llama a cargar
+    los usuarios existentes en el sistema
+    */
     componentDidMount() {
+        document.title = "Usuarios";
         if(!this.usuariosPedidos){
             this.usuariosPedidos = true;
             this.cargarUsuarios();
@@ -63,12 +71,27 @@ class Usuarios extends React.Component {
 
     async avisaCreado(usuario){
         var usuarios = this.state.usuarios;
-        this.setState({
-            usuarios:usuarios.concat(usuario),
-        });
+        if(!isNaN(this.state.indiceUsuario)){
+            usuarios[this.state.indiceUsuario] = usuario;
+            this.setState({
+                usuarios:usuarios,
+            });
+        } else {
+            this.setState({
+                usuarios:usuarios.concat(usuario),
+            });
+        }
     }
 
     render(){
+        var accionesTabla = null;
+        // const accionesTabla = [
+        //     {
+        //         className:"btn-primary",
+        //         onClick:this.agregarUsuario,
+        //         icon:"lni-pencil-alt",
+        //     },
+        // ];
         return (
             <usuarioContexto.Consumer >
                 {({usuario})=>{
@@ -77,27 +100,18 @@ class Usuarios extends React.Component {
                             <>
                                 <div className="d-flex align-items-center justify-content-between m-3">
                                     <h1>Usuarios</h1>
-                                    <button className="btn btn-primary" onClick={this.agregarUsuario}><i className="lni lni-plus"></i>  Agregar usuario</button>
+                                    <button className="btn btn-primary" onClick={()=>this.agregarUsuario()}><i className="lni lni-plus"></i>  Agregar usuario</button>
                                 </div>
                                 <div className="d-flex" style={{height:"inherit"}}>
                                     <div className="w-100" style={{backgroundColor:"#137E31", color:"#FFFFFF"}}>
-                                        <Tabla titulos={this.titulos} datos={this.state.usuarios} style={{color:"#FFFFFF"}} />
+                                        <Tabla titulos={this.titulos} datos={this.state.usuarios} acciones={accionesTabla} />
                                     </div>
                                 </div>
-                                <Modal size="lg" show={this.state.muestra} onHide={()=>this.muestraModal(false)} className="modal-green" scrollable>
+                                <Modal size="lg" show={this.state.muestra} onHide={()=>this.muestraModal(false)} className="modal-green">
                                 <Modal.Body>
-                                    <UsuarioForm administrador={false} titulo={"Agregar Usuario"} ocupaAsociacion={true} avisaCreado={this.avisaCreado} campos={this.state.usuario} cerrarModal={()=>this.muestraModal(false)} />
+                                    <UsuarioForm administrador={false} titulo={"Usuario"} ocupaAsociacion={true} avisaCreado={this.avisaCreado} campos={this.state.usuario} cerrarModal={()=>this.muestraModal(false)} />
                                 </Modal.Body>
                                 </Modal>
-                                <div className="modal fade" id="exampleModal" tabIndex="-1" aria-labelledby="modalAgregarUnion" aria-hidden="true">
-                                    <div className="modal-dialog modal-dialog-scrollable modal-lg">
-                                        <div className="modal-content p-3" style={{backgroundColor:"#137E31", color:"#FFFFFF"}}>
-                                            <div className="modal-body">
-                                                <UsuarioForm administrador={false} titulo={"Agregar Usuario"} ocupaAsociacion={true} avisaCreado={this.avisaCreado} />
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
                             </>
                         );
                 } else {
