@@ -48,20 +48,20 @@ router.get('/consultar', async (req, res) => {
 
 router.post('/crear', jsonParser, async (req, res) => {
     try{
-        // const resp = await verificarCaptcha(req.body.captcha);
-        // delete req.body.captcha;
-        // if(resp.exito){
+        const resp = await verificarCaptcha(req.body.captcha);
+        delete req.body.captcha;
+        if(resp.exito){
             const actividad_creada = await actividadCtlr.crear(req.body, req.session.idUsuario);
             if(actividad_creada.error || actividad_creada.errores){
                 console.log(actividad_creada);
                 res.status(400);
             }
             res.json(actividad_creada);
-        // } else {
-        //     console.log(resp.error);
-        //     res.status(400);
-        //     res.send(resp.error);    
-        // }
+        } else {
+            console.log(resp.error);
+            res.status(400);
+            res.send(resp.error);    
+        }
     }catch(err){
         console.log(err);
         res.status(400);
