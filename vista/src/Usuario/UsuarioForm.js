@@ -55,7 +55,7 @@ class UsuarioForm extends React.Component {
             profesion: "requerido",
             telefonos: "tiene-valores",
             email: "requerido|email",
-            puesto: "seleccionado",
+            puesto: props.ocupaAsociacion || props.idOrganizacion ? "seleccionado" : "",
             id_organizacion: props.ocupaAsociacion ? "requerido" : "",
         }, this);
         
