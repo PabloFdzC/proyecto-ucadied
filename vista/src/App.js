@@ -79,7 +79,7 @@ class App extends React.Component {
     }
     this.unionPedida = false;
     this.sesionActivaVerificada = false;
-
+    this.queriesGenerales = new QueriesGenerales();
     this.iniciarSesion = this.iniciarSesion.bind(this);
     this.cerrarSesion = this.cerrarSesion.bind(this);
     this.cargarOrganizacion = this.cargarOrganizacion.bind(this);
@@ -110,13 +110,18 @@ class App extends React.Component {
   que actualmente cerró sesión, se le pasa
   como contexto a los demás componentes
   */
-  cerrarSesion() {
-    localStorage.removeItem("id_usuario");
-    localStorage.removeItem("tipo");
-    this.setState({usuario: {
-      tipo:"",
-      id_usuario: -1
-    }});
+  async cerrarSesion() {
+    try{
+      const resp = await this.queriesGenerales.postear("/usuario/cerrarSesion", {});
+      localStorage.removeItem("id_usuario");
+      localStorage.removeItem("tipo");
+      this.setState({usuario: {
+        tipo:"",
+        id_usuario: -1
+      }});
+    }catch(error){
+      console.log(error);
+    }
   }
 
   /*

@@ -289,6 +289,7 @@ class ActividadForm extends React.Component {
                 const resp = await this.queriesGenerales.postear("/actividad/crear", datos);
                 this.setState({
                     creado:true,
+                    titulo:"¡Creada con éxito!"
                 });
             }catch(error){
                 console.log(error);
@@ -509,6 +510,8 @@ class ActividadForm extends React.Component {
                     </div>
                 </div>
             </form>:
+            <>
+            <span className="text-center">Debe esperar a que sea habilitada por un administrador.</span>
             <div className="d-flex justify-content-end">
                 <div className="m-1">
                     <button type="button" className="btn btn-primary" aria-label="Agregar otra" onClick={this.reiniciarCampos}>Agregar otra</button>
@@ -519,7 +522,8 @@ class ActividadForm extends React.Component {
                 </div>:
                 <></>
                 }
-            </div>}
+            </div>
+            </>}
             </>
         );
     }
