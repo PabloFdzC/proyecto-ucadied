@@ -488,7 +488,7 @@ class ActividadForm extends React.Component {
                                         <ReCAPTCHA
                                             ref={this.captcha}
                                             sitekey="6Leu-2kiAAAAAMHi78aFYa-E444kM55j7bRqQyMa"
-                                        />, }
+                                        /> }
                                     </div>
                                 </div>
                             </div>
