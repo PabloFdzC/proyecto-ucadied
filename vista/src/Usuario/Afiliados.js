@@ -7,7 +7,14 @@ import Modal from 'react-bootstrap/Modal';
 
 import Tabla from '../Utilidades/Table/Table.jsx';
 
-class Usuarios extends React.Component {
+/*
+Recibe los props:
+cargarOrganizacion: Función de App.js para cargar la organización
+    en la que se encuentra actualmente el usuario,
+idOrganizacion: Número entero que es el id de la organización en la que se
+    encuentra actualmente (es el mismo que está en la url),
+ */
+class Afiliados extends React.Component {
     constructor(props){
         super(props);
         this.queriesGenerales = new QueriesGenerales();
@@ -33,7 +40,7 @@ class Usuarios extends React.Component {
     agregarUsuario(usuario,indice){
         if(!usuario) usuario={};
         this.setState({
-//            indiceInmueble:indice,
+            indiceUsuario:indice,
             usuario:usuario,
             muestra:true,
         })
@@ -45,7 +52,7 @@ class Usuarios extends React.Component {
         })
     }
     
-    async cargarUsuarios(){
+    async cargarAfiliados(){
         try{
             const resp = await this.queriesGenerales.obtener("/usuario/consultar", {id_organizacion:this.props.idOrganizacion});
             this.setState({
@@ -62,17 +69,17 @@ class Usuarios extends React.Component {
     los usuarios existentes en el sistema
     */
     async componentDidMount() {
-        document.title = "Usuarios";
+        document.title = "Afiliados";
         await this.props.cargarOrganizacion(this.props.idOrganizacion);
         if(!this.usuariosPedidos){
             this.usuariosPedidos = true;
-            this.cargarUsuarios();
+            this.cargarAfiliados();
         }
     }
 
     async avisaCreado(usuario){
         var usuarios = this.state.usuarios;
-        if(!isNaN(this.state.indiceUsuario)){
+        if(!isNaN(this.state.indiceUsuario) && this.state.indiceUsuario){
             usuarios[this.state.indiceUsuario] = usuario;
             this.setState({
                 usuarios:usuarios,
@@ -104,7 +111,10 @@ class Usuarios extends React.Component {
                         return (
                             <>
                                 <div className="d-flex align-items-center justify-content-between m-3">
-                                    <h1>Usuarios</h1>
+                                    <div>
+                                        <h1>Afiliados</h1>
+                                        <h2 className="ms-3 fs-4">{organizacion.nombre}</h2>
+                                    </div>
                                     <button className="btn btn-primary" onClick={()=>this.agregarUsuario()}><i className="lni lni-plus"></i>  Agregar usuario</button>
                                 </div>
                                 <div className="d-flex" style={{height:"inherit"}}>
@@ -127,4 +137,4 @@ class Usuarios extends React.Component {
     }
 }
 
-export default Usuarios;
+export default Afiliados;

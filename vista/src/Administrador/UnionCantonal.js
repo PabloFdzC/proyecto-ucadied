@@ -116,7 +116,7 @@ class UnionCantonal extends React.Component {
                         return (
                             <>
                                 <div className="d-flex align-items-center justify-content-between m-3">
-                                    <h1>Uniones Cantonales</h1>
+                                    <h1>Unión Cantonal</h1>
                                     <button className="btn btn-primary" onClick={()=>this.agregarUnion()}><i className="lni lni-plus"></i>  Agregar unión</button>
                                 </div>
                                 <div className="row m-0">

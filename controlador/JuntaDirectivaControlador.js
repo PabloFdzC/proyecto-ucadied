@@ -44,7 +44,6 @@ async function eliminar_miembro(info){
     return await queries_generales.eliminar(puesto_x_usuario, {
         id_usuario: info.id_usuario,
         id_puesto_jd: info.id_puesto_jd,
-        id_organizacion: info.id_organizacion,
     });
 }
 

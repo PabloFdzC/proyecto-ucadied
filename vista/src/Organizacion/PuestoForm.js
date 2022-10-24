@@ -3,49 +3,67 @@ import QueriesGenerales from "../QueriesGenerales";
 import manejarCambio from '../Utilidades/manejarCambio';
 import Validacion from '../Utilidades/Validacion';
 
+/*
+Recibe los props:
+idOrganizacion: número entero que indica la organización actual
+soloCampos: booleano que indica si se debe solo usar la parte del formulario
+    sin enviar la información directamente al server, sino que se envia a
+    la función del prop agregaPuesto
+agregaPuesto: función que envia la información del puesto para que lo use
+    el componente padre
+campos: Objeto con la forma de los campos (es opcional porque solo se ocupa
+    si se va a usar el formulario para editar la organización)
+avisaEnviado: Función que permite enviar la información del formulario
+    al componente que sea el padre del componente actual (o sea este),
+    se usa para actualizar la tabla con la información que se agrega
+    cuando se envía el formulario
+cerrarModal: Función para que se cierre el modal que contiene al formulario
+    entonces solo si se pone en un modal es necesaria
+*/
 class PuestoForm extends React.Component {
     constructor(props){
         super(props);
         this.queriesGenerales = new QueriesGenerales();
-        this.url = props.url;
-        this.titulo = "Agregar Puesto";
+        this.campos = props.campos ? props.campos : {};
+        this.accion = Object.entries(this.campos).length > 0 ? "Modificar" : "Agregar";
+        this.titulo = this.accion+" Puesto";
         var campos = {
             id_organizacion:props.idOrganizacion,
-            nombre: "",
-            funcion: "",
-            edita_pagina: false,
-            edita_junta: false,
-            edita_proyecto: false,
-            edita_actividad: false,
+            nombre: this.campos.nombre ? this.campos.nombre : "",
+            edita_pagina: this.campos.edita_pagina ? this.campos.edita_pagina : false,
+            edita_junta: this.campos.edita_junta ? this.campos.edita_junta : false,
+            edita_proyecto: this.campos.edita_proyecto ? this.campos.edita_proyecto : false,
+            edita_actividad: this.campos.edita_actividad ? this.campos.edita_actividad : false,
         };
         this.state = {
             titulo: this.titulo,
             campos:campos,
             errores: {
                 nombre: "",
-                funcion:"",
                 hayError: false,
             },
-            creado:false,
+            enviado:false,
         };
         this.validacion = new Validacion({
             nombre: "requerido",
-            funcion: "requerido"
         }, this);
 
         this.manejaCambio = this.manejaCambio.bind(this);
-        this.crearPuesto = this.crearPuesto.bind(this);
+        this.enviarPuesto = this.enviarPuesto.bind(this);
         this.reiniciarCampos = this.reiniciarCampos.bind(this);
         this.agregarPuesto = this.agregarPuesto.bind(this);
     }
 
+    /*
+    reiniciarCampos devuelve los campos del formulario
+    a su valor inicial
+     */
     reiniciarCampos(){
         this.setState({
             titulo: this.titulo,
-            creado:false,
+            enviado:false,
             campos: Object.assign({},this.state.campos, {
                 nombre: "",
-                funcion: "",
                 edita_pagina: false,
                 edita_junta: false,
                 edita_proyecto: false,
@@ -54,29 +72,60 @@ class PuestoForm extends React.Component {
         });
     }
 
+    /*
+    Se llama a la función manejarCambio que actualiza el
+    estado con los valores de campos en el formulario
+    Parámetros:
+    - evento: objeto del DOM o puede ser un objeto
+        de la forma
+        {
+            target:{
+                name:string con nombre que tiene el campo,
+                type:string con el tipo de input que es,
+                value:puede ser cualquiercosa con lo que
+                    se deba llenar el input,
+            }
+        }
+    */
     manejaCambio(evento){
         manejarCambio(evento, this);
     }
 
-    async crearPuesto(evento){
+    /*
+    enviarPuesto se encarga de enviar la información del
+    puesto al server ya sea para crear uno nuevo o para
+    modificar uno
+     */
+    async enviarPuesto(evento){
         evento.preventDefault();
         this.validacion.validarCampos(this.state.campos);
         if(!this.state.errores.hayError){
             let datos = this.state.campos;
             datos.id_organizacion = this.props.idOrganizacion;
             try{
-                const resp = await this.queriesGenerales.postear("/juntaDirectiva/crearPuesto", datos);
+                var resp;
+                var titulo = "¡Creado con éxito!";
+                if(this.accion === "Agregar"){
+                    resp = await this.queriesGenerales.postear("/juntaDirectiva/crearPuesto", datos);
+                } else {
+                    resp = await this.queriesGenerales.postear("/juntaDirectiva/crearPuesto", datos);
+                    titulo = "¡Modificado con éxito!";
+                }
                 this.setState({
-                    creado:true,
-                    titulo: "¡Creado con éxito!"
+                    enviado:true,
+                    titulo: titulo,
                 });
-                this.props.avisaCreado(resp.data);
+                this.props.avisaEnviado(resp.data);
             }catch(error){
                 console.log(error);
             }
         }
     }
 
+    /*
+    agregarPuesto envia la información del puesto al componente
+    padre
+     */
     agregarPuesto(){
         this.validacion.validarCampos(this.state.campos);
         if(!this.state.errores.hayError){
@@ -91,14 +140,6 @@ class PuestoForm extends React.Component {
             <input type="text" className={this.state.errores.nombre.length > 0 ? "form-control is-invalid":"form-control"} key="nombre" name="nombre" required value={this.state.campos.nombre} onChange={this.manejaCambio} />
             <div className="invalid-tooltip">
                 {this.state.errores.nombre}
-            </div>
-        </div>
-        
-        <div className="mb-3 position-relative">
-            <label htmlFor="funcion" className="form-label">Función</label>
-            <input type="text" className={this.state.errores.funcion.length > 0 ? "form-control is-invalid":"form-control"} key="funcion" name="funcion" required value={this.state.campos.funcion} onChange={this.manejaCambio} />
-            <div className="invalid-tooltip">
-                {this.state.errores.funcion}
             </div>
         </div>
         <div className="form-check">
@@ -138,8 +179,8 @@ class PuestoForm extends React.Component {
             </> : 
             <>
                 <h2 className="modal-title text-center">{this.state.titulo}</h2>
-                {!this.state.creado ? 
-                <form onSubmit={this.crearPuesto} className="needs-validation" noValidate>
+                {!this.state.enviado ? 
+                <form onSubmit={this.enviarPuesto} className="needs-validation" noValidate>
                     {campos}
                     <div className="d-flex justify-content-end">
                         {this.props.cerrarModal ?
@@ -149,15 +190,17 @@ class PuestoForm extends React.Component {
                         <></>
                         }
                         <div className="m-1">
-                            <button type="submit" className="btn btn-primary">Agregar</button>
+                            <button type="submit" className="btn btn-primary">{this.accion}</button>
                         </div>
                     </div>
                 </form>
                 :
                 <div className="d-flex justify-content-end">
+                    {this.accion === "Agregar" ?
                     <div className="m-1">
                         <button type="button" className="btn btn-primary" aria-label="Agregar Otro" onClick={this.reiniciarCampos}>Agregar otro</button>
-                    </div>
+                    </div>:
+                    <></>}
                     {this.props.cerrarModal ?
                     <div className="m-1">
                         <button type="button" className="btn btn-secondary" aria-label="Volver" onClick={()=>{this.props.cerrarModal();this.reiniciarCampos()}}>Volver</button>

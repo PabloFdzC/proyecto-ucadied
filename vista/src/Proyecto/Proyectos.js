@@ -5,6 +5,13 @@ import ProyectoForm from './ProyectoForm';
 import QueriesGenerales from "../QueriesGenerales";
 import Modal from 'react-bootstrap/Modal';
 
+/*
+Recibe los props:
+cargarOrganizacion: Función de App.js para cargar la organización
+    en la que se encuentra actualmente el usuario,
+idOrganizacion: Número entero que es el id de la organización en la que se
+    encuentra actualmente (es el mismo que está en la url),
+ */
 class Proyectos extends React.Component {
     constructor(props){
         super(props);
@@ -112,7 +119,10 @@ class Proyectos extends React.Component {
                     if(usuario.tipo === "Administrador" || usuario.tipo === "Usuario"){
                         return (<>
                         <div className="d-flex align-items-center justify-content-between m-3">
-                            <h1>Proyectos</h1>
+                            <div>
+                                <h1>Proyectos</h1>
+                                <h2 className="ms-3 fs-4">{organizacion.nombre}</h2>
+                            </div>
                             <button className="btn btn-primary" onClick={()=>this.muestraModal(true)} ><i className="lni lni-plus"></i>  Agregar proyecto</button>
                         </div>
                         <div className="row m-0">

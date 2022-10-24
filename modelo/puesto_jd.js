@@ -8,7 +8,6 @@ module.exports = sequelize.define('puesto_jd', {
             autoIncrement: true
         },
         nombre: type.STRING,
-        funcion: type.STRING,
         edita_pagina: type.BOOLEAN,
         edita_junta: type.BOOLEAN,
         edita_proyecto: type.BOOLEAN,

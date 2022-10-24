@@ -9,13 +9,14 @@ import Row from 'react-bootstrap/Row';
 import Tab from 'react-bootstrap/Tab';
 import listaHoras from '../Utilidades/listaHoras';
 import Select from 'react-select';
-import {partirStringHora, convertirHoraAMPM} from '../Utilidades/ManejoHoras';
+import {fechaAHoraAMPM, horaAFecha,partirStringHora} from '../Utilidades/ManejoHoras';
 // SOLO ES NECESARIO PONER EL CAPTCHA EN PRODUCCIÓN
 // EN DESARROLLO MEJOR SOLO CUANDO SE QUIERA PROBAR
 // FUNCIONAMIENTO
 //import ReCAPTCHA from "react-google-recaptcha";
 
 import {stringAFecha, fechaAString} from '../Utilidades/ManejoFechas';
+import Toast from 'react-bootstrap/Toast';
 
 /*
 Recibe los props:
@@ -30,12 +31,8 @@ inmuebles: lista con objetos de inmueble con la forma
         horario: lista con objetos de la
         forma {
             dia: una letra que indica día,
-            inicio: string de la forma
-                número_entero:número_entero
-                por ejemplo 12:30,
-            final: string de la forma
-                número_entero:número_entero
-                por ejemplo 12:30,
+            inicio: string con fecha,
+            final: string con fecha,
         },
     },
 cerrarModal: función que permite cerrar el modal en
@@ -70,6 +67,9 @@ class ActividadForm extends React.Component {
             key:"Actividad",
             titulo: this.titulo,
             campos:campos,
+            muestraMensajeError:false,
+            mensajeError: "",
+            diasPosibles:[],
             errores: {
                 nombre: "",
                 tipo: "",
@@ -167,6 +167,7 @@ class ActividadForm extends React.Component {
         this.setState({
             titulo: this.titulo,
             creado:false,
+            key:"Actividad",
             campos: Object.assign({},this.state.campos, {
                 id_organizacion:this.props.idOrganizacion,
                 nombre: "",
@@ -176,9 +177,9 @@ class ActividadForm extends React.Component {
                 email: "",
                 telefonos: [],
                 repeticion: this.diasLetra.map(()=>false),
-                fechaInicio:"",
+                fechaInicio:this.fechaHoy,
                 fechaFinal:this.fechaHoy,
-                horaInicio:this.fechaHoy,
+                horaInicio:"",
                 horaFinal:"",
             })
         });
@@ -203,6 +204,25 @@ class ActividadForm extends React.Component {
         manejarCambio(evento, this);
     }
 
+    diasPosibles(dias, diasError){
+        var posibles = [];
+        for(let i = 0; i < dias.length; i++){
+            let mete = true;
+            for(let j = 0; j < diasError.length; j++){
+                if(dias[i].inicio === diasError[j].inicio){
+                    mete = false;
+                    break;
+                }
+            }
+            if(mete){
+                posibles.push(dias[i]);
+            }
+        }
+        this.setState({
+            diasPosibles:posibles,
+        });
+    }
+
     /*
     obtenerDias devuelve una lista con las
     fechas listas para subirlas al serve
@@ -214,26 +234,31 @@ class ActividadForm extends React.Component {
         }
      */
     obtenerDias(){
+        if(this.state.diasPosibles.length > 0){
+            return this.state.diasPosibles;
+        }
         var dias = [];
         var fechaInicio = stringAFecha(this.state.campos.fechaInicio);
         var fechaFinal = stringAFecha(this.state.campos.fechaFinal);
         while(fechaInicio <= fechaFinal){
-            if(this.state.campos.repeticion[fechaInicio.getDay()]){
-                let [horaI, minI] = partirStringHora(this.state.campos.horaInicio.value);
-                let [horaF, minF] = partirStringHora(this.state.campos.horaFinal.value);
-                let inicio = new Date(fechaInicio.getTime());
-                inicio.setHours(horaI, minI,0,0);
-                let final = new Date(fechaInicio.getTime());
-                final.setHours(horaF, minF,0,0);
+            if(this.state.campos.repeticion[fechaInicio.getUTCDay()]){
+                let [horaI,minI] = partirStringHora(this.state.campos.horaInicio.value);
+                let [horaF,minF] = partirStringHora(this.state.campos.horaFinal.value);
+                let inicio = new Date(fechaInicio);
+                let final = new Date(fechaInicio);
+                inicio.setUTCHours(horaI, minI, 0, 0);
+                final.setUTCHours(horaF, minF, 0, 0);
                 dias.push({
-                    inicio:inicio.toISOString(),
-                    final:final.toISOString(),
+                    inicio:inicio.toUTCString(),
+                    final:final.toUTCString(),
                 })
             }
-            fechaInicio.setDate(fechaInicio.getDate()+1);
+            fechaInicio.setUTCDate(fechaInicio.getUTCDate()+1);
         }
         return dias;
     }
+
+    
 
     /*
     crearActividad primero valida que los campos estén
@@ -289,9 +314,18 @@ class ActividadForm extends React.Component {
                 const resp = await this.queriesGenerales.postear("/actividad/crear", datos);
                 this.setState({
                     creado:true,
+                    titulo:"¡Agregada con éxito!",
                 });
             }catch(error){
                 console.log(error);
+                if(error.response.data.errores.length === datos.dias.length){
+                    this.setState({
+                        mensajeError:"No hay espacios disponibles en las fechas seleccionadas.",
+                        muestraMensajeError:true,
+                    });
+                } else {
+                    this.diasPosibles(datos.dias, error.response.data.errores);
+                }
             }
         } else {
             if(this.state.errores.nombre.length !== 0 || this.state.errores.tipo.length !== 0 ||
@@ -301,7 +335,7 @@ class ActividadForm extends React.Component {
                     key:"Actividad"
                 });
             } else if(this.state.errores.fechaInicio.length !== 0 || this.state.errores.fechaFinal.length !== 0 ||
-                this.state.errores.horaInicio.length !== 0 || this.state.errores.horaInicio.length !== 0){
+                this.state.errores.horaInicio.length !== 0 || this.state.errores.horaInicio.length !== 0 /*|| !this.captcha.current.getValue() */){
                 this.setState({
                     key:"Fechas"
                 });
@@ -310,6 +344,7 @@ class ActividadForm extends React.Component {
 
     }
 
+
     /*
     manejaCambioRepeticion actualiza el valor que tienen los
     checkboxes (en la interfaz se ven como botónes)
@@ -317,9 +352,11 @@ class ActividadForm extends React.Component {
     Entradas:
     - indice: número entero que indica cuál de los días
         se seleccionó
-    - valor: booleano
+    - valor: checkbox del DOM
      */
-    manejaCambioRepeticion(indice, valor){
+    manejaCambioRepeticion(indice, checkbox){
+        const objetivo = checkbox.target;
+        const valor = objetivo.checked;
         let repeticion = [...this.state.campos.repeticion];
         repeticion[indice] = valor;
         this.setState({
@@ -342,12 +379,42 @@ class ActividadForm extends React.Component {
                 break;
             }
         }
-        const fechaHoy = new Date();
+        const captcha = /*(
+        // El captcha se pone de esta forma para que sea
+        // más fácil comentarlo cuando no lo queremos
+        // usar en desarrollo
+        <ReCAPTCHA
+            ref={this.captcha}
+            sitekey="6Leu-2kiAAAAAMHi78aFYa-E444kM55j7bRqQyMa"
+        />, )*/ null;
+        
 
         return (
             <>
-            <h2 className="text-center">{this.titulo}</h2>
+            <h2 className="text-center">{this.state.titulo}</h2>
             {!this.state.creado ? 
+            this.state.diasPosibles.length > 0 ?
+            <form onSubmit={this.crearActividad} noValidate>
+                <h3 className="text-center">Solo se puede reservar los días</h3>
+                <div className="ps-2" style={{maxHeight:"150px",overflow:"scroll"}}>
+                    {this.state.diasPosibles.map((valor, i)=>{
+                        let inicio = new Date(valor.inicio);
+                        let final = new Date(valor.final);
+                        return <p key={i}>{inicio.toLocaleDateString()} {fechaAHoraAMPM(inicio, true)}-{fechaAHoraAMPM(final, true)}</p>;
+                        })}
+                </div>
+                <h3 className="text-center">¿Desea agregar la actividad de todas formas?</h3>
+                {captcha}
+                <div className="d-flex justify-content-end">
+                    <div className="m-1">
+                        <button type="button" className="btn btn-secondary" aria-label="Volver" onClick={()=>{this.setState({diasPosibles:[]})}}>Volver</button>
+                    </div>
+                    <div className="m-1">
+                        <button type="submit" className="btn btn-primary">Agregar</button>
+                    </div>
+                </div>
+            </form>
+            :
             <form onSubmit={this.crearActividad} noValidate>
                 <Tab.Container id="left-tabs-example" activeKey={this.state.key} onSelect={(key) => this.setState({key})}>
                     <Row>
@@ -420,7 +487,7 @@ class ActividadForm extends React.Component {
                                     {inmuebleSeleccionado.horario.map((horario,i)=>
                                     <div className="input-group mb-3" key={i} style={{width:"auto"}}>
                                         <span className="input-group-text bg-info" id={horario.dia}>{horario.dia}</span>
-                                        <label  className="form-control bg-info" aria-describedby={horario.dia}>{convertirHoraAMPM(horario.inicio,true)}-{convertirHoraAMPM(horario.final,true)}</label>
+                                        <label  className="form-control bg-info" aria-describedby={horario.dia}>{fechaAHoraAMPM(new Date(horario.inicio),true)}-{fechaAHoraAMPM(new Date(horario.final),true)}</label>
                                     </div>)}
                                 </div>
                                 <div className="row">
@@ -444,7 +511,7 @@ class ActividadForm extends React.Component {
                                             <div className="btn-group" role="group" aria-label="Basic checkbox toggle button group" style={{width:"100%"}}>
                                             {this.diasLetra.map((valor,i)=>
                                                 <React.Fragment key={"c-"+i}>
-                                                <input type="checkbox" className="btn-check" id={"btn-check-"+i} key={"i-"+i} value={this.state.campos.repeticion[i]} onChange={(valor)=>this.manejaCambioRepeticion(i, valor)} />
+                                                <input type="checkbox" className="btn-check" id={"btn-check-"+i} key={"i-"+i} checked={this.state.campos.repeticion[i]} onChange={(checkbox)=>this.manejaCambioRepeticion(i, checkbox)} />
                                                 <label className="btn btn-outline-info" htmlFor={"btn-check-"+i} key={"l-"+i}>{valor}</label>
                                                 </React.Fragment>
                                             )}
@@ -481,14 +548,7 @@ class ActividadForm extends React.Component {
                                                 {this.state.errores.horaFinal}
                                             </div>
                                         </div>
-                                        {/*
-                                        // El captcha se pone de esta forma para que sea
-                                        // más fácil comentarlo cuando no lo queremos
-                                        // usar en desarrollo
-                                        <ReCAPTCHA
-                                            ref={this.captcha}
-                                            sitekey="6Leu-2kiAAAAAMHi78aFYa-E444kM55j7bRqQyMa"
-                                        />, */}
+                                        {captcha}
                                     </div>
                                 </div>
                             </div>
@@ -508,7 +568,20 @@ class ActividadForm extends React.Component {
                         <button type="submit" className="btn btn-primary">Agregar</button>
                     </div>
                 </div>
-            </form>:
+                <div className="d-flex justify-content-end">
+                    <div style={{position:"fixed"}}>
+                        <Toast bg="danger" onClose={() => this.setState({muestraMensajeError:false,mensajeError:""})} show={this.state.muestraMensajeError} delay={4000} autohide>
+                        <Toast.Header>
+                            <strong className="me-auto">Error</strong>
+                        </Toast.Header>
+                        <Toast.Body>{this.state.mensajeError}</Toast.Body>
+                        </Toast>
+                    </div>
+                </div>
+            </form>
+            :
+            <>
+            <p className="text-center">Debe esperar a que la actividad sea habilitada por un administrador</p>
             <div className="d-flex justify-content-end">
                 <div className="m-1">
                     <button type="button" className="btn btn-primary" aria-label="Agregar otra" onClick={this.reiniciarCampos}>Agregar otra</button>
@@ -519,7 +592,8 @@ class ActividadForm extends React.Component {
                 </div>:
                 <></>
                 }
-            </div>}
+            </div>
+            </>}
             </>
         );
     }

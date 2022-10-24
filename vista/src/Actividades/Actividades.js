@@ -3,14 +3,18 @@ import { Link } from 'react-router-dom';
 import Tabla from '../Utilidades/Table/Table.jsx'
 import QueriesGenerales from "../QueriesGenerales";
 import Offcanvas from 'react-bootstrap/Offcanvas';
-import {convertirHoraAMPM} from '../Utilidades/ManejoHoras';
+import {convertirHoraAMPM, fechaAHoraAMPM} from '../Utilidades/ManejoHoras';
+import { Navigate } from "react-router-dom";
 import {fechaAStringSlash} from '../Utilidades/ManejoFechas';
 import '../Estilos/Offcanvas.css';
+import {usuarioContexto} from '../usuarioContexto';
 
 /*
 Recibe los props:
-id: número entero con el id de la organización en la
-    que se encuentra actualmente
+cargarOrganizacion: Función de App.js para cargar la organización
+    en la que se encuentra actualmente el usuario,
+idOrganizacion: Número entero que es el id de la organización en la que se
+    encuentra actualmente (es el mismo que está en la url),
  */
 class Actividades extends React.Component {
     constructor(props){
@@ -36,8 +40,8 @@ class Actividades extends React.Component {
             ];
         this.titulosAnidados = [
             {name:'Día',selector:row=>row.diaBonito},
-            {name:'Hora Inicio',selector:row=>convertirHoraAMPM(row.inicio, true)},
-            {name:'Hora Final',selector:row=>convertirHoraAMPM(row.final, true)},
+            {name:'Hora Inicio',selector:row=>row.inicio},
+            {name:'Hora Final',selector:row=>row.final},
         ];
         this.titulosInmueble = [
             {name:'Día',selector:row=>{
@@ -51,13 +55,13 @@ class Actividades extends React.Component {
                     S:"Sábado",
                 };
                 return dias[row.dia]}},
-            {name:'Hora Apertura',selector:row=>convertirHoraAMPM(row.inicio, true)},
-            {name:'Hora Cierre',selector:row=>convertirHoraAMPM(row.final, true)},
+            {name:'Hora Apertura',selector:row=>fechaAHoraAMPM(new Date(row.inicio), true)},
+            {name:'Hora Cierre',selector:row=>fechaAHoraAMPM(new Date(row.final), true)},
         ];
         this.titulosReservas = [
             {name:'Nombre',selector:row=>row.nombre,sortable:true},
-            {name:'Hora Inicio',selector:row=>convertirHoraAMPM(row.inicio, true)},
-            {name:'Hora Final',selector:row=>convertirHoraAMPM(row.final, true)},
+            {name:'Hora Inicio',selector:row=>row.inicio},
+            {name:'Hora Final',selector:row=>row.final},
         ];
         this.muestraOffcanvas = this.muestraOffcanvas.bind(this);
         this.verReservasHabilitadas = this.verReservasHabilitadas.bind(this);
@@ -132,8 +136,8 @@ class Actividades extends React.Component {
                 let fechaF = new Date(datos[i].reserva_inmuebles[j].final);
                 datos[i].reserva_inmuebles[j].dia = fechaI;
                 datos[i].reserva_inmuebles[j].diaBonito = fechaAStringSlash(fechaI);
-                datos[i].reserva_inmuebles[j].inicio = fechaI.getHours()+":"+fechaI.getMinutes();
-                datos[i].reserva_inmuebles[j].final = fechaF.getHours()+":"+fechaF.getMinutes();
+                datos[i].reserva_inmuebles[j].inicio = fechaAHoraAMPM(fechaI, true);
+                datos[i].reserva_inmuebles[j].final = fechaAHoraAMPM(fechaF, true);
                 let horario = [];
                 for(let k = 0; k < datos[i].inmuebles[0].horario.length; k++){
                     if(datos[i].inmuebles[0].horario[k].dia === dias[fechaI.getDay()]){
@@ -158,8 +162,8 @@ class Actividades extends React.Component {
                 let fechaF = new Date(datos[i].reserva_inmuebles[j].final);
                 resp.push({
                     nombre:datos[i].nombre,
-                    inicio: fechaI.getHours()+":"+fechaI.getMinutes(),
-                    final: fechaF.getHours()+":"+fechaF.getMinutes(),
+                    inicio: fechaAHoraAMPM(fechaI, true),
+                    final: fechaAHoraAMPM(fechaF, true),
                 })
             }
         }
@@ -235,8 +239,6 @@ class Actividades extends React.Component {
     del día según el que haya seleccionado el usuario
      */
     async verReservasHabilitadas(datosFila){
-        console.log("datosFila");
-        console.log(datosFila);
         let dia = datosFila.dia.getDate();
         let mes = datosFila.dia.getMonth()+1;
         let anio = datosFila.dia.getFullYear();
@@ -259,25 +261,38 @@ class Actividades extends React.Component {
             },
         ];
         return (
-            <>
-                <div className="d-flex align-items-center justify-content-between m-3">
-                    <h1>Actividades</h1>
-                    <Link className="btn btn-primary" to={"/calendarioActividades/"+this.props.idOrganizacion}><i className="lni lni-plus"></i>  Agregar actividad</Link>
-                </div>
-                <div className="d-flex" style={{height:"inherit"}}>
-                    <div className="w-100" style={{backgroundColor:"#137E31", color:"#FFFFFF"}}>
-                        <Tabla titulos={this.titulos} titulosAnidados={this.titulosAnidados} valorAnidado={"reserva_inmuebles"} datos={this.state.actividades} accionesAnidadas={accionesAnidadas} />
-                    </div>
-                </div>
-                <Offcanvas className="offcanvas-green" show={this.state.muestra} onHide={()=>this.muestraOffcanvas(false)}>
-                    <Offcanvas.Body>
-                        <h3>Horario de {this.state.inmueble.nombre}</h3>
-                        <Tabla titulos={this.titulosInmueble} datos={this.state.inmueble.horario} style={{color:"#FFFFFF"}} />
-                        <h3>Reservas habilitadas el día {this.state.diaReservas}</h3>
-                        <Tabla titulos={this.titulosReservas} datos={this.state.reservas ? this.state.reservas : []} style={{color:"#FFFFFF"}} />
-                    </Offcanvas.Body>
-                </Offcanvas>
-            </>
+            <usuarioContexto.Consumer>
+                {({usuario, organizacion})=>{
+                    if(usuario.tipo === "Usuario"){
+                        return (
+                            <>
+                                <div className="d-flex align-items-center justify-content-between m-3">
+                                    <div>
+                                        <h1>Actividades</h1>
+                                        <h2 className="ms-3 fs-4">{organizacion.nombre}</h2>
+                                    </div>
+                                    <Link className="btn btn-primary" to={"/calendarioActividades/"+this.props.idOrganizacion}><i className="lni lni-plus"></i>  Agregar actividad</Link>
+                                </div>
+                                <div className="d-flex" style={{height:"inherit"}}>
+                                    <div className="w-100" style={{backgroundColor:"#137E31", color:"#FFFFFF"}}>
+                                        <Tabla titulos={this.titulos} titulosAnidados={this.titulosAnidados} valorAnidado={"reserva_inmuebles"} datos={this.state.actividades} accionesAnidadas={accionesAnidadas} />
+                                    </div>
+                                </div>
+                                <Offcanvas className="offcanvas-green" show={this.state.muestra} onHide={()=>this.muestraOffcanvas(false)}>
+                                    <Offcanvas.Body>
+                                        <h3>Horario de {this.state.inmueble.nombre}</h3>
+                                        <Tabla titulos={this.titulosInmueble} datos={this.state.inmueble.horario} style={{color:"#FFFFFF"}} />
+                                        <h3>Reservas habilitadas el día {this.state.diaReservas}</h3>
+                                        <Tabla titulos={this.titulosReservas} datos={this.state.reservas ? this.state.reservas : []} style={{color:"#FFFFFF"}} />
+                                    </Offcanvas.Body>
+                                </Offcanvas>
+                            </>
+                        );
+                    } else {
+                        return <Navigate to='/iniciarSesion' replace={true}/>;
+                    }
+                }}
+            </usuarioContexto.Consumer>
         );
     }
 }

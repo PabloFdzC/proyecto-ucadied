@@ -4,6 +4,9 @@ import Tabla from '../Utilidades/Table/Table.jsx';
 import QueriesGenerales from "../QueriesGenerales";
 import Modal from 'react-bootstrap/Modal';
 
+/*
+No recibe props
+ */
 class Administradores extends React.Component {
     constructor(props){
         super(props);

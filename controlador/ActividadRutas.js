@@ -81,7 +81,7 @@ router.put('/modificar/:id_actividad', jsonParser, async (req, res) => {
             }
         }
         if(habilitado){
-            const resultado = await actividadCtlr.modificar(req.params.id_actividad, req.body)
+            const resultado = await actividadCtlr.modificar(req.params.id_actividad, req.body);
             if(resultado.error || resultado.errores){
                 res.status(400);
             }

@@ -93,10 +93,10 @@ async function buscar_disponibilidad_horario(inicio, final, horario){
     for(var i = 0; i < horario.length; i+=1){
         dia_horario = horario[i].dia;
         if(dia_horario === dia){
-            let [horaI, minI] = horario[i].inicio.split(":");
-            let [horaF, minF] = horario[i].final.split(":");
-            if(((inicio.getHours() >= horaI) || (inicio.getHours() === horaI && inicio.getMinutes() >= minI))
-             && ((final.getHours() <= horaF) || (final.getHours() === horaF && final.getMinutes() <= minF))){
+            let inicio_horario = new Date(horario[i].inicio);
+            let final_horario = new Date(horario[i].final);
+            if(((inicio.getUTCHours() > inicio_horario.getUTCHours()) ||(inicio.getUTCHours() === inicio_horario.getUTCHours() && inicio.getUTCMinutes() >= inicio_horario.getUTCMinutes()))
+             && ((final.getUTCHours() < final_horario.getUTCHours()) || (final.getUTCHours() === final_horario.getUTCHours() && final.getUTCMinutes() <= final_horario.getUTCMinutes()))){
                 return true;
             }
         }
@@ -111,8 +111,11 @@ async function buscar_disponibilidad_reservas(inicio, final, id_inmueble){
     for(var i = 0; i < reservas.length; i+=1){
         inicio_reservas = new Date(reservas[i].inicio);
         final_reservas = new Date(reservas[i].final);
-        if(((inicio.getHours() < final_reservas.getHours()) || (inicio.getHours() === final_reservas.getHours() && inicio.getMinutes() < final_reservas.getMinutes())) 
-        && ((final.getHours() >= inicio_reservas.getHours()) || (final.getHours() === inicio_reservas.getHours() && final.getMinutes() >= inicio_reservas.getMinutes()))){
+        if((inicio_reservas.getUTCHours() <= inicio.getUTCHours() && final_reservas.getUTCHours() >= final.getUTCHours()) ||
+        (final_reservas.getUTCHours() == inicio.getUTCHours() && final_reservas.getUTCMinutes() > inicio.getUTCMinutes()) ||
+        (inicio_reservas.getUTCHours() > inicio.getUTCHours() && inicio_reservas.getUTCHours() < final.getUTCHours()) ||
+        (final_reservas.getUTCHours() > inicio.getUTCHours() && final_reservas.getUTCHours() < final.getUTCHours()) ||
+        (inicio_reservas.getUTCHours() == final.getUTCHours() && inicio_reservas.getUTCMinutes() < final.getUTCMinutes())){
             return false;
         }
     }
@@ -128,11 +131,17 @@ async function buscar_disponibilidad_dias(dias, horario, id_inmueble){
         final = new Date(dias[i].final);
         if(await buscar_disponibilidad_horario(inicio, final, horario)){
             if(await !buscar_disponibilidad_reservas(inicio, final, id_inmueble)){
-                errores = errores.concat([{inicio, final}]);
+                errores = errores.concat([{
+                    inicio:inicio.toUTCString(),
+                    final:final.toUTCString()
+                }]);
             }
         }
         else{
-            errores = errores.concat([{inicio, final}]);
+            errores = errores.concat([{
+                inicio:inicio.toUTCString(),
+                final:final.toUTCString()
+            }]);
         }
     }
     return errores;
