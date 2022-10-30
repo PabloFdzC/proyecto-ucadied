@@ -29,6 +29,10 @@ class AgregaElemento extends React.Component {
         
     }
 
+    getElemento(){
+        return this.state.elemento;
+    }
+
     render(){
         return (
             <div className="mb-3 position-relative">

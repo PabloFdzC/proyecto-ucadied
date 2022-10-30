@@ -4,6 +4,9 @@ import Tabla from '../Utilidades/Table/Table.jsx';
 import QueriesGenerales from "../QueriesGenerales";
 import Modal from 'react-bootstrap/Modal';
 
+/*
+No recibe props
+ */
 class Administradores extends React.Component {
     constructor(props){
         super(props);
@@ -73,14 +76,6 @@ class Administradores extends React.Component {
     }
 
     render(){
-        var accionesTabla = null;
-        // const accionesTabla = [
-        //     {
-        //         className:"btn-primary",
-        //         onClick:this.agregarAdministrador,
-        //         icon:"lni-pencil-alt",
-        //     },
-        // ];
         return (
             <>
                 <div className="d-flex align-items-center justify-content-between m-3">
@@ -89,7 +84,7 @@ class Administradores extends React.Component {
                 </div>
                 <div className="d-flex" style={{height:"inherit"}}>
                     <div className="w-100" style={{backgroundColor:"#137E31", color:"#FFFFFF"}}>
-                        <Tabla titulos={this.titulos} datos={this.state.administradores} acciones={accionesTabla} />
+                        <Tabla titulos={this.titulos} datos={this.state.administradores} />
                     </div>
                 </div>
                 <Modal size="lg" show={this.state.muestra} onHide={()=>this.muestraModal(false)} className="modal-green">

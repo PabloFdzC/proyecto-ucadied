@@ -57,7 +57,7 @@ async function crear(info){
 }
 
 async function modificar(id, info){
-    return await queries_generales.modificar(organizacion, id, info)
+    return await queries_generales.modificar(organizacion, {id}, info)
 }
 
 async function eliminar(id){
@@ -65,11 +65,11 @@ async function eliminar(id){
 }
 
 async function agregarMiembro(info){
-    return await queries_generales.modificar(usuario, info.id_usuario, {id_organizacion: info.id_organizacion});
+    return await queries_generales.modificar(usuario, {id:info.id_usuario}, {id_organizacion: info.id_organizacion});
 }
 
 async function eliminarMiembro(id_usuario){
-    return await queries_generales.modificar(usuario, id_usuario, {id_organizacion: null});
+    return await queries_generales.modificar(usuario, {id:id_usuario}, {id_organizacion: null});
 }
 
 async function consultarMiembros(id_organizacion){

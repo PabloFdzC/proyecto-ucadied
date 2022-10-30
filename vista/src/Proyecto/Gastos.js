@@ -6,6 +6,11 @@ import Tabla from '../Utilidades/Table/Table';
 import QueriesGenerales from "../QueriesGenerales";
 import Modal from 'react-bootstrap/Modal';
 
+/*
+Recibe los props:
+idProyecto: Número entero que es el id de la organización en la que se
+    encuentra actualmente (es el mismo que está en la url),
+ */
 class Gastos extends React.Component {
 
     constructor(props){
@@ -89,12 +94,15 @@ class Gastos extends React.Component {
     render(){
         return (
             <usuarioContexto.Consumer >
-                {({usuario})=>{
+                {({usuario, organizacion})=>{
                     if(usuario.tipo === "Administrador" || usuario.tipo === "Usuario"){
                         return (
                             <>
                                 <div className="d-flex align-items-center justify-content-between m-3">
-                                    <h1>{this.state.proyecto.nombre} - Gastos</h1>
+                                    <div>
+                                        <h1>{this.state.proyecto.nombre} - Gastos</h1>
+                                        <h2 className="ms-3 fs-4">{organizacion.nombre}</h2>
+                                    </div>
                                     <button className="btn btn-primary" onClick={()=>this.muestraModal(true)} ><i className="lni lni-plus"></i>  Agregar gasto</button>
                                 </div>
                                 <div className="d-flex" style={{height:"inherit"}}>

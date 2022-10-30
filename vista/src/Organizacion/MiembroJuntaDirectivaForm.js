@@ -12,7 +12,10 @@ class MiembroJuntaDirectivaForm extends React.Component {
         this.accion = Object.entries(this.campos).length > 0 ? "Modificar" : "Agregar";
         this.titulo = this.accion+" Miembro de Junta Directiva";
         var campos = {
-            id_usuario: this.campos.id_usuario ? this.campos.id_usuario : "",
+            id_usuario: this.campos.id_usuario ? {
+                value: this.campos.id_usuario,
+                label: this.campos.nombre,
+            } : "",
             id_puesto_jd: this.campos.id_puesto_jd ? this.campos.id_puesto_jd : "",
         };
         this.state = {
@@ -49,10 +52,6 @@ class MiembroJuntaDirectivaForm extends React.Component {
         });
     }
 
-    avisaAgregado(){
-        this.props.avisaAgregado();
-    }
-
     manejaCambio(evento){
         manejarCambio(evento, this);
     }
@@ -75,13 +74,14 @@ class MiembroJuntaDirectivaForm extends React.Component {
                 var usuario = {};
                 for(let u of this.state.usuarios){
                     if(u.value == campos.id_usuario){
+                        usuario.id_usuario = u.value;
                         usuario.nombre = u.label;
                     }
                 }
                 for(let p of this.props.puestos){
                     if(p.id == campos.id_puesto_jd){
+                        usuario.id_puesto_jd = p.id;
                         usuario.puesto = p.nombre;
-                        usuario.funcion = p.funcion;
                     }
                 }
                 this.props.avisaAgregado(usuario);
@@ -141,6 +141,7 @@ class MiembroJuntaDirectivaForm extends React.Component {
                     <label htmlFor="id_usuario" className="form-label">Nombre</label>
                     <div className={this.state.errores.id_usuario.length > 0 ? "p-0 form-control is-invalid":"p-0 form-control"}>
                         <Select
+                        isDisabled={this.accion === "Modificar"}
                         isClearable
                         key="id_usuario" name="id_usuario" required value={this.state.campos.id_usuario} onChange={(opcion)=>this.manejaCambio({target:{name:"id_usuario",type:"select",value:opcion}})}
                         options={this.state.usuarios}
@@ -152,7 +153,7 @@ class MiembroJuntaDirectivaForm extends React.Component {
                 </div>
                 <div className="mb-3 position-relative">
                     <label htmlFor="id_puesto_jd" className="form-label">Puesto</label>
-                    <select className={this.state.errores.id_puesto_jd.length > 0 ? "form-select is-invalid":"form-select"} aria-label="nacionalidad" key="id_puesto_jd" name="id_puesto_jd" value={this.state.campos.nacionalidad} onChange={this.manejaCambio} >
+                    <select className={this.state.errores.id_puesto_jd.length > 0 ? "form-select is-invalid":"form-select"} aria-label="nacionalidad" key="id_puesto_jd" name="id_puesto_jd" value={this.state.campos.id_puesto_jd} onChange={this.manejaCambio} >
                         <option defaultValue hidden>Puesto</option>
                         {this.props.puestos.map((u,i) => <option key={i} value={u.id}>{u.nombre}</option>)}
                     </select>
@@ -168,15 +169,16 @@ class MiembroJuntaDirectivaForm extends React.Component {
                     <></>
                     }
                     <div className="m-1">
-                        <button type="submit" className="btn btn-primary">Agregar</button>
+                        <button type="submit" className="btn btn-primary">{this.accion}</button>
                     </div>
                 </div>
             </form>
             :
             <div className="d-flex justify-content-end">
-                <div className="m-1">
+                {this.accion === "Agregar" ? <div className="m-1">
                     <button type="button" className="btn btn-primary" aria-label="Agregar otro" onClick={this.reiniciarCampos}>Agregar otro</button>
-                </div>
+                </div>:
+                <></>}
                 {this.props.cerrarModal ?
                 <div className="m-1">
                     <button type="button" className="btn btn-secondary" aria-label="Volver" onClick={()=>{this.props.cerrarModal();this.reiniciarCampos()}}>Volver</button>

@@ -3,14 +3,20 @@ import { Link } from 'react-router-dom';
 import Tabla from '../Utilidades/Table/Table.jsx'
 import QueriesGenerales from "../QueriesGenerales";
 import Offcanvas from 'react-bootstrap/Offcanvas';
-import {convertirHoraAMPM} from '../Utilidades/ManejoHoras';
+import {convertirHoraAMPM, fechaAHoraAMPM} from '../Utilidades/ManejoHoras';
+import { Navigate } from "react-router-dom";
 import {fechaAStringSlash} from '../Utilidades/ManejoFechas';
 import '../Estilos/Offcanvas.css';
+import {usuarioContexto} from '../usuarioContexto';
+import Modal from 'react-bootstrap/Modal';
+import ConfirmaAccion from '../Utilidades/ConfirmaAccion';
 
 /*
 Recibe los props:
-id: número entero con el id de la organización en la
-    que se encuentra actualmente
+cargarOrganizacion: Función de App.js para cargar la organización
+    en la que se encuentra actualmente el usuario,
+idOrganizacion: Número entero que es el id de la organización en la que se
+    encuentra actualmente (es el mismo que está en la url),
  */
 class Actividades extends React.Component {
     constructor(props){
@@ -18,6 +24,14 @@ class Actividades extends React.Component {
         this.queriesGenerales = new QueriesGenerales();
         this.state = {
             muestra:false,
+            indiceActividad:null,
+            Actividad:{},
+            muestraHabilitarActividad:false,
+            muestraEliminarActividad:false,
+            indiceReserva:null,
+            Reserva:{},
+            muestraHabilitarReserva:false,
+            muestraEliminarReserva:false,
             actividades: [],
             diaReservas: "",
             inmueble: {
@@ -25,6 +39,7 @@ class Actividades extends React.Component {
                 horario:[]
             },
             reservas: [],
+            mensajeModal: "",
         }
         this.actividadesPedidas = false;
         this.titulos = [
@@ -36,8 +51,8 @@ class Actividades extends React.Component {
             ];
         this.titulosAnidados = [
             {name:'Día',selector:row=>row.diaBonito},
-            {name:'Hora Inicio',selector:row=>convertirHoraAMPM(row.inicio, true)},
-            {name:'Hora Final',selector:row=>convertirHoraAMPM(row.final, true)},
+            {name:'Hora Inicio',selector:row=>row.inicioBonito},
+            {name:'Hora Final',selector:row=>row.finalBonito},
         ];
         this.titulosInmueble = [
             {name:'Día',selector:row=>{
@@ -51,16 +66,18 @@ class Actividades extends React.Component {
                     S:"Sábado",
                 };
                 return dias[row.dia]}},
-            {name:'Hora Apertura',selector:row=>convertirHoraAMPM(row.inicio, true)},
-            {name:'Hora Cierre',selector:row=>convertirHoraAMPM(row.final, true)},
+            {name:'Hora Apertura',selector:row=>fechaAHoraAMPM(new Date(row.inicio), true)},
+            {name:'Hora Cierre',selector:row=>fechaAHoraAMPM(new Date(row.final), true)},
         ];
         this.titulosReservas = [
             {name:'Nombre',selector:row=>row.nombre,sortable:true},
-            {name:'Hora Inicio',selector:row=>convertirHoraAMPM(row.inicio, true)},
-            {name:'Hora Final',selector:row=>convertirHoraAMPM(row.final, true)},
+            {name:'Hora Inicio',selector:row=>row.inicioBonito},
+            {name:'Hora Final',selector:row=>row.finalBonito},
         ];
         this.muestraOffcanvas = this.muestraOffcanvas.bind(this);
         this.verReservasHabilitadas = this.verReservasHabilitadas.bind(this);
+        this.habilitarReservas = this.habilitarReservas.bind(this);
+        this.eliminarReservas = this.eliminarReservas.bind(this);
     }
 
     /*
@@ -132,8 +149,8 @@ class Actividades extends React.Component {
                 let fechaF = new Date(datos[i].reserva_inmuebles[j].final);
                 datos[i].reserva_inmuebles[j].dia = fechaI;
                 datos[i].reserva_inmuebles[j].diaBonito = fechaAStringSlash(fechaI);
-                datos[i].reserva_inmuebles[j].inicio = fechaI.getHours()+":"+fechaI.getMinutes();
-                datos[i].reserva_inmuebles[j].final = fechaF.getHours()+":"+fechaF.getMinutes();
+                datos[i].reserva_inmuebles[j].inicioBonito = fechaAHoraAMPM(fechaI, true);
+                datos[i].reserva_inmuebles[j].finalBonito = fechaAHoraAMPM(fechaF, true);
                 let horario = [];
                 for(let k = 0; k < datos[i].inmuebles[0].horario.length; k++){
                     if(datos[i].inmuebles[0].horario[k].dia === dias[fechaI.getDay()]){
@@ -158,8 +175,10 @@ class Actividades extends React.Component {
                 let fechaF = new Date(datos[i].reserva_inmuebles[j].final);
                 resp.push({
                     nombre:datos[i].nombre,
-                    inicio: fechaI.getHours()+":"+fechaI.getMinutes(),
-                    final: fechaF.getHours()+":"+fechaF.getMinutes(),
+                    inicio: datos[i].reserva_inmuebles[j].inicio,
+                    final: datos[i].reserva_inmuebles[j].final,
+                    inicioBonito: fechaAHoraAMPM(fechaI, true),
+                    finalBonito: fechaAHoraAMPM(fechaF, true),
                 })
             }
         }
@@ -235,8 +254,6 @@ class Actividades extends React.Component {
     del día según el que haya seleccionado el usuario
      */
     async verReservasHabilitadas(datosFila){
-        console.log("datosFila");
-        console.log(datosFila);
         let dia = datosFila.dia.getDate();
         let mes = datosFila.dia.getMonth()+1;
         let anio = datosFila.dia.getFullYear();
@@ -250,34 +267,240 @@ class Actividades extends React.Component {
         });
     }
 
+    muestraModal(nombre, accion, muestra, valor, indice){
+        if(!valor) valor={};
+        this.setState({
+            ["indice"+nombre]:indice,
+            [nombre]:valor,
+            ["muestra"+accion+nombre]:muestra,
+            mensajeModal: muestra ? "" :  this.state.mensajeModal,
+        })
+    }
+
+    async habilitarReservas(){
+        var datos;
+        if(Object.keys(this.state.Reserva).length > 0){
+            datos = {
+                id_inmueble: this.state.Reserva.id_inmueble,
+                dias: [{
+                    id:this.state.Reserva.id,
+                    inicio:this.state.Reserva.inicio,
+                    final:this.state.Reserva.final,
+                }]
+            };
+        } else if(Object.keys(this.state.Actividad).length > 0){
+            datos = {
+                id_inmueble: this.state.Actividad.id_inmueble,
+                dias: this.state.Actividad.reserva_inmuebles,
+            };
+        }
+        if(datos){
+            try{
+                const resp = await this.queriesGenerales.postear("/actividad/habilitarReservas", datos);
+                this.setState({
+                    mensajeModal: "¡Habilitada con éxito!",
+                });
+                this.eliminaElementoTablaPrincipal();
+            } catch(error){
+                if(error.response.data.errores){
+                    if(error.response.data.errores.length > 1){
+                        this.setState({
+                            mensajeModal: "No se puede habilitar, ya hay reservas habilitadas en esos horarios.",
+                        });
+                    } else {
+                        this.setState({
+                            mensajeModal: "No se puede habilitar la reserva, ya hay reservas habilitadas en ese horario.",
+                        });
+                    }
+                }
+                console.log(error);
+            }
+        }
+        
+    }
+
+    eliminaElementoTablaPrincipal(){
+        var actividades = this.state.actividades;
+        if(Object.keys(this.state.Reserva).length > 0){
+            for(let i = 0; i < actividades.length; i++){
+                if(actividades[i].id === this.state.Reserva.id_actividad){
+                    for(let j = 0; j < actividades[i].reserva_inmuebles.length; j++){
+                        if(actividades[i].reserva_inmuebles[j].id === this.state.Reserva.id){
+                            actividades[i].reserva_inmuebles.splice(j, 1);
+                            if(actividades[i].reserva_inmuebles.length === 0){
+                                actividades.splice(i, 1);
+                            }
+                            this.setState({});
+                            break;
+                        }
+                    }
+                    break;
+                }
+            }
+        } else if(Object.keys(this.state.Actividad).length > 0){
+            for(let i = 0; i < actividades.length; i++){
+                if(actividades[i].id === this.state.Actividad.id){
+                    actividades.splice(i, 1);
+                    this.setState({});
+                    break;
+                }
+            }
+        }
+    }
+
+    async eliminarReservas(){
+        if(Object.keys(this.state.Reserva).length > 0){
+            try{
+                const resp = await this.queriesGenerales.eliminar("/actividad/eliminarReserva/"+this.state.Reserva.id, {});
+                this.setState({
+                    mensajeModal: "¡Eliminada con éxito!",
+                });
+                this.eliminaElementoTablaPrincipal();
+            } catch(error){
+                console.log(error);
+            }
+        } else if(Object.keys(this.state.Actividad).length > 0){
+            try{
+                const resp = await this.queriesGenerales.eliminar("/actividad/eliminarReservasInhabilitadas/"+this.state.Actividad.id, {});
+                this.setState({
+                    mensajeModal: "¡Eliminada con éxito!",
+                });
+                this.eliminaElementoTablaPrincipal();
+            } catch(error){
+                console.log(error);
+            }
+        }
+        
+    }
+
     render(){
+        const acciones = [
+            {
+                nombre: "Habilitar",
+                className:"btn-primary",
+                onClick:(valor, indice)=>this.muestraModal("Actividad", "Habilitar",true, valor, indice),
+                icon:"lni-checkmark-circle",
+            },
+            {
+                nombre: "Eliminar",
+                className:"btn-danger",
+                onClick:(valor, indice)=>this.muestraModal("Actividad", "Eliminar",true, valor, indice),
+                icon:"lni-trash-can",
+            },
+        ];
         const accionesAnidadas = [
             {
+                nombre:"Habilitar",
+                className:"btn-primary",
+                onClick:(valor, indice)=>this.muestraModal("Reserva", "Habilitar",true, valor, indice),
+                icon:"lni-checkmark-circle",
+            },
+            {
+                nombre:"Ver Habilitadas",
                 className:"btn-secondary",
                 onClick:this.verReservasHabilitadas,
                 icon:"lni-calendar",
             },
+            {
+                nombre:"Eliminar",
+                className:"btn-danger",
+                onClick:(valor, indice)=>this.muestraModal("Reserva", "Eliminar",true, valor, indice),
+                icon:"lni-trash-can",
+            },
         ];
         return (
-            <>
-                <div className="d-flex align-items-center justify-content-between m-3">
-                    <h1>Actividades</h1>
-                    <Link className="btn btn-primary" to={"/calendarioActividades/"+this.props.idOrganizacion}><i className="lni lni-plus"></i>  Agregar actividad</Link>
-                </div>
-                <div className="d-flex" style={{height:"inherit"}}>
-                    <div className="w-100" style={{backgroundColor:"#137E31", color:"#FFFFFF"}}>
-                        <Tabla titulos={this.titulos} titulosAnidados={this.titulosAnidados} valorAnidado={"reserva_inmuebles"} datos={this.state.actividades} accionesAnidadas={accionesAnidadas} />
-                    </div>
-                </div>
-                <Offcanvas className="offcanvas-green" show={this.state.muestra} onHide={()=>this.muestraOffcanvas(false)}>
-                    <Offcanvas.Body>
-                        <h3>Horario de {this.state.inmueble.nombre}</h3>
-                        <Tabla titulos={this.titulosInmueble} datos={this.state.inmueble.horario} style={{color:"#FFFFFF"}} />
-                        <h3>Reservas habilitadas el día {this.state.diaReservas}</h3>
-                        <Tabla titulos={this.titulosReservas} datos={this.state.reservas ? this.state.reservas : []} style={{color:"#FFFFFF"}} />
-                    </Offcanvas.Body>
-                </Offcanvas>
-            </>
+            <usuarioContexto.Consumer>
+                {({usuario, organizacion})=>{
+                    if(usuario.tipo === "Usuario"){
+                        return (
+                            <>
+                                <div className="d-flex align-items-center justify-content-between m-3">
+                                    <div>
+                                        <h1>Actividades</h1>
+                                        <h2 className="ms-3 fs-4">{organizacion.nombre}</h2>
+                                    </div>
+                                    <Link className="btn btn-primary" to={"/calendarioActividades/"+this.props.idOrganizacion}><i className="lni lni-plus"></i>  Agregar actividad</Link>
+                                </div>
+                                <div className="d-flex" style={{height:"inherit"}}>
+                                    <div className="w-100" style={{backgroundColor:"#137E31", color:"#FFFFFF"}}>
+                                        <Tabla titulos={this.titulos} titulosAnidados={this.titulosAnidados} valorAnidado={"reserva_inmuebles"} datos={this.state.actividades} accionesAnidadas={accionesAnidadas} acciones={acciones} />
+                                    </div>
+                                </div>
+                                <Offcanvas className="offcanvas-green" show={this.state.muestra} onHide={()=>this.muestraOffcanvas(false)}>
+                                    <Offcanvas.Body>
+                                        <h3>Horario de {this.state.inmueble.nombre}</h3>
+                                        <Tabla titulos={this.titulosInmueble} datos={this.state.inmueble.horario} style={{color:"#FFFFFF"}} />
+                                        <h3>Reservas habilitadas el día {this.state.diaReservas}</h3>
+                                        <Tabla titulos={this.titulosReservas} datos={this.state.reservas ? this.state.reservas : []} style={{color:"#FFFFFF"}} />
+                                    </Offcanvas.Body>
+                                </Offcanvas>
+                                <Modal show={this.state.muestraHabilitarActividad} onHide={()=>this.muestraModal("Actividad", "Habilitar",false)} className="modal-green">
+                                <Modal.Body>
+                                    {this.state.mensajeModal === "" ?
+                                    <ConfirmaAccion claseBtn={"btn-primary"} accionNombre="Habilitar" titulo={"¿Desea habilitar todas las reservas para "+this.state.Actividad.nombre+"?"} accion={this.habilitarReservas} cerrarModal={()=>this.muestraModal("Actividad", "Habilitar",false)} />
+                                    :
+                                    <>
+                                        <h3 className="text-center">{this.state.mensajeModal}</h3>
+                                        <div className="d-flex justify-content-end">
+                                            <div className="m-1">
+                                                <button type="button" className="btn btn-secondary" aria-label="Volver" onClick={()=>this.muestraModal("Actividad", "Habilitar",false)}>Volver</button>
+                                            </div>
+                                        </div>
+                                    </>}
+                                </Modal.Body>
+                                </Modal>
+                                <Modal show={this.state.muestraHabilitarReserva} onHide={()=>this.muestraModal("Reserva", "Habilitar",false)} className="modal-green">
+                                <Modal.Body>
+                                    {this.state.mensajeModal === "" ?
+                                    <ConfirmaAccion claseBtn={"btn-primary"} accionNombre="Habilitar" titulo={"¿Desea habilitar la reserva del "+this.state.Reserva.diaBonito+ " de " +this.state.Reserva.inicioBonito+"-"+this.state.Reserva.finalBonito+"?"} accion={this.habilitarReservas} cerrarModal={()=>this.muestraModal("Actividad", "Habilitar",false)} />
+                                    :
+                                    <>
+                                        <h3 className="text-center">{this.state.mensajeModal}</h3>
+                                        <div className="d-flex justify-content-end">
+                                            <div className="m-1">
+                                                <button type="button" className="btn btn-secondary" aria-label="Volver" onClick={()=>this.muestraModal("Reserva", "Habilitar",false)}>Volver</button>
+                                            </div>
+                                        </div>
+                                    </>}
+                                </Modal.Body>
+                                </Modal>
+                                <Modal show={this.state.muestraEliminarActividad} onHide={()=>this.muestraModal("Actividad", "Eliminar",false)} className="modal-green">
+                                <Modal.Body>
+                                    {this.state.mensajeModal === "" ?
+                                    <ConfirmaAccion claseBtn={"btn-danger"} accionNombre="Eliminar" titulo={"¿Desea eliminar las reservas para "+this.state.Actividad.nombre+" que no hayan sido habilitadas?"} accion={this.eliminarReservas} cerrarModal={()=>this.muestraModal("Actividad", "Eliminar",false)} />
+                                    :
+                                    <>
+                                        <h3 className="text-center">{this.state.mensajeModal}</h3>
+                                        <div className="d-flex justify-content-end">
+                                            <div className="m-1">
+                                                <button type="button" className="btn btn-secondary" aria-label="Volver" onClick={()=>this.muestraModal("Actividad", "Eliminar",false)}>Volver</button>
+                                            </div>
+                                        </div>
+                                    </>}
+                                </Modal.Body>
+                                </Modal>
+                                <Modal show={this.state.muestraEliminarReserva} onHide={()=>this.muestraModal("Reserva", "Eliminar",false)} className="modal-green">
+                                <Modal.Body>
+                                    {this.state.mensajeModal === "" ?
+                                    <ConfirmaAccion claseBtn={"btn-danger"} accionNombre="Eliminar" titulo={"¿Desea eliminar la reserva del "+this.state.Reserva.diaBonito+ " de " +this.state.Reserva.inicioBonito+"-"+this.state.Reserva.finalBonito+"?"} accion={this.eliminarReservas} cerrarModal={()=>this.muestraModal("Actividad", "Eliminar",false)} />
+                                    :
+                                    <>
+                                        <h3 className="text-center">{this.state.mensajeModal}</h3>
+                                        <div className="d-flex justify-content-end">
+                                            <div className="m-1">
+                                                <button type="button" className="btn btn-secondary" aria-label="Volver" onClick={()=>this.muestraModal("Reserva", "Eliminar",false)}>Volver</button>
+                                            </div>
+                                        </div>
+                                    </>}
+                                </Modal.Body>
+                                </Modal>
+                            </>
+                        );
+                    } else {
+                        return <Navigate to='/iniciarSesion' replace={true}/>;
+                    }
+                }}
+            </usuarioContexto.Consumer>
         );
     }
 }

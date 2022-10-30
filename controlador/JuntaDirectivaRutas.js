@@ -160,9 +160,12 @@ router.post('/agregarMiembro', jsonParser, async (req, res) => {
     }
 });
 
-router.delete('/eliminarMiembro', jsonParser, async (req, res) => {
+router.post('/eliminarMiembro', jsonParser, async (req, res) => {
     try{
         var habilitado = false;
+        console.log("---------------------------------------------------");
+        console.log(req.body);
+        console.log("---------------------------------------------------");
         if(req.session.idUsuario && req.session.idUsuario != -1){
             if(req.session.tipoUsuario === "Administrador"){
                 habilitado = true;
@@ -173,13 +176,16 @@ router.delete('/eliminarMiembro', jsonParser, async (req, res) => {
         }
         if(habilitado){
             var params = {};
-            if(req.query.id_puesto_jd){
-                params.id_puesto_jd = req.query.id_puesto_jd;
+            if(req.body.id_puesto_jd){
+                params.id_puesto_jd = req.body.id_puesto_jd;
             }
-            if(req.query.id_usuario){
-                params.id_usuario = req.query.id_usuario;
+            if(req.body.id_usuario){
+                params.id_usuario = req.body.id_usuario;
             }
-            if(params.length === 2){
+            console.log("---------------------------------------------------");
+            console.log(params);
+            console.log("---------------------------------------------------");
+            if(Object.keys(params).length === 2){
                 const resultado = await JuntaDirectivaCtlr.eliminar_miembro(params);
                 res.json(resultado);
             } else {

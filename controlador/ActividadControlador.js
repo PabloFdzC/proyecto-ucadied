@@ -93,10 +93,10 @@ async function buscar_disponibilidad_horario(inicio, final, horario){
     for(var i = 0; i < horario.length; i+=1){
         dia_horario = horario[i].dia;
         if(dia_horario === dia){
-            let [horaI, minI] = horario[i].inicio.split(":");
-            let [horaF, minF] = horario[i].final.split(":");
-            if(((inicio.getHours() >= horaI) || (inicio.getHours() === horaI && inicio.getMinutes() >= minI))
-             && ((final.getHours() <= horaF) || (final.getHours() === horaF && final.getMinutes() <= minF))){
+            let inicio_horario = new Date(horario[i].inicio);
+            let final_horario = new Date(horario[i].final);
+            if(((inicio.getUTCHours() > inicio_horario.getUTCHours()) ||(inicio.getUTCHours() === inicio_horario.getUTCHours() && inicio.getUTCMinutes() >= inicio_horario.getUTCMinutes()))
+             && ((final.getUTCHours() < final_horario.getUTCHours()) || (final.getUTCHours() === final_horario.getUTCHours() && final.getUTCMinutes() <= final_horario.getUTCMinutes()))){
                 return true;
             }
         }
@@ -111,8 +111,11 @@ async function buscar_disponibilidad_reservas(inicio, final, id_inmueble){
     for(var i = 0; i < reservas.length; i+=1){
         inicio_reservas = new Date(reservas[i].inicio);
         final_reservas = new Date(reservas[i].final);
-        if(((inicio.getHours() < final_reservas.getHours()) || (inicio.getHours() === final_reservas.getHours() && inicio.getMinutes() < final_reservas.getMinutes())) 
-        && ((final.getHours() >= inicio_reservas.getHours()) || (final.getHours() === inicio_reservas.getHours() && final.getMinutes() >= inicio_reservas.getMinutes()))){
+        if((inicio_reservas.getUTCHours() <= inicio.getUTCHours() && final_reservas.getUTCHours() >= final.getUTCHours()) ||
+        (final_reservas.getUTCHours() == inicio.getUTCHours() && final_reservas.getUTCMinutes() > inicio.getUTCMinutes()) ||
+        (inicio_reservas.getUTCHours() > inicio.getUTCHours() && inicio_reservas.getUTCHours() < final.getUTCHours()) ||
+        (final_reservas.getUTCHours() > inicio.getUTCHours() && final_reservas.getUTCHours() < final.getUTCHours()) ||
+        (inicio_reservas.getUTCHours() == final.getUTCHours() && inicio_reservas.getUTCMinutes() < final.getUTCMinutes())){
             return false;
         }
     }
@@ -128,46 +131,36 @@ async function buscar_disponibilidad_dias(dias, horario, id_inmueble){
         final = new Date(dias[i].final);
         if(await buscar_disponibilidad_horario(inicio, final, horario)){
             if(await !buscar_disponibilidad_reservas(inicio, final, id_inmueble)){
-                errores = errores.concat([{inicio, final}]);
+                errores = errores.concat([{
+                    inicio:inicio.toUTCString(),
+                    final:final.toUTCString()
+                }]);
             }
         }
         else{
-            errores = errores.concat([{inicio, final}]);
+            errores = errores.concat([{
+                inicio:inicio.toUTCString(),
+                final:final.toUTCString()
+            }]);
         }
     }
     return errores;
 }
 
-async function crear(info, id_usuario){
+async function crear_habilitar(info, id_usuario, habilitar){
     if(info.id_inmueble){
         const inmuebles =  await inmuebleCtlr.consultar({id: info.id_inmueble});
         if(inmuebles.length === 1){
             const inmueble = inmuebles[0];
             const horario = inmueble.horario;
             if(info.dias){
-                const dias = info.dias;
-                const errores = await buscar_disponibilidad_dias(dias, horario, info.id_inmueble);
+                const errores = await buscar_disponibilidad_dias(info.dias, horario, info.id_inmueble);
                 if(errores.length === 0){
-                    if(id_usuario && id_usuario != -1){
-                        info.habilitado = true;
-                    }
-                    const actividad_creada = await queries_generales.crear(actividad, info);
-                    for(var i = 0; i < dias.length; i+=1){
-                        let inicio = new Date(dias[i].inicio);
-                        let final = new Date(dias[i].final);
-                        let habilitado = 0;
-                        if(info.habilitado){
-                            habilitado = info.habilitado;
-                        }
-                        await inmuebleCtlr.crear_reserva({
-                            inicio,
-                            final,
-                            habilitado,
-                            id_actividad: actividad_creada.id,
-                            id_inmueble: info.id_inmueble
-                        });
-                    }
-                    return actividad_creada;
+                    info.habilitado = id_usuario && id_usuario != -1;
+                    if(habilitar)
+                        return cambiaHabilitado(info);
+                    else
+                        return crear(info);
                 }
                 else{
                     return {errores};
@@ -185,12 +178,60 @@ async function crear(info, id_usuario){
     }
 }
 
+async function cambiaHabilitado(info){
+    var listaHabilitar = [];
+    for(let dia of info.dias){
+        listaHabilitar.push({id: dia.id});
+    }
+    return await queries_generales.modificar(reserva_inmueble, {[Op.or]: listaHabilitar}, {habilitado:info.habilitado});
+}
+
+async function crear(info){
+    const actividad_creada = await queries_generales.crear(actividad, info);
+    var reservas = [];
+    for(var i = 0; i < info.dias.length; i+=1){
+        let inicio = new Date(info.dias[i].inicio);
+        let final = new Date(info.dias[i].final);
+        reservas.push({
+            inicio,
+            final,
+            habilitado: info.habilitado ? info.habilitado : false,
+            id_actividad: actividad_creada.id,
+            id_inmueble: info.id_inmueble
+        });
+    }
+    await inmuebleCtlr.crear_reservas(reservas);
+}
+
 async function modificar(id, info){
-    return await queries_generales.modificar(actividad, id, info)
+    return await queries_generales.modificar(actividad, {id}, info)
 }
 
 async function eliminar(id){
     return await queries_generales.eliminar(actividad, {id});
+}
+
+async function eliminarReservasInhabilitadas(id_actividad){
+    const resp = await queries_generales.eliminar(reserva_inmueble, {
+        id_actividad,
+        habilitado: false,
+    });
+    eliminarActividadSinReservas(id_actividad);
+    return resp;
+}
+
+async function eliminarReserva(id){
+    const resp = await queries_generales.consultar(reserva_inmueble, {id});
+    const elimina = await queries_generales.eliminar(reserva_inmueble, {id});
+    eliminarActividadSinReservas(resp[0].id_actividad);
+    return elimina;
+}
+
+async function eliminarActividadSinReservas(id_actividad){
+    const resp = await queries_generales.consultar(reserva_inmueble,{id_actividad:id_actividad});
+    if(resp.length === 0){
+        await eliminar(id_actividad);
+    }
 }
 
 module.exports = {
@@ -198,4 +239,8 @@ module.exports = {
     crear,
     modificar,
     eliminar,
+    crear_habilitar,
+    cambiaHabilitado,
+    eliminarReservasInhabilitadas,
+    eliminarReserva,
 }

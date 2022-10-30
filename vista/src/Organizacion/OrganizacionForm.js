@@ -44,7 +44,6 @@ class OrganizacionForm extends React.Component {
             telefonos:this.campos.telefonos ? this.campos.telefonos : [],
             email:this.campos.email ? this.campos.email : "",
             id_organizacion:this.campos.id_organizacion ? this.campos.id_organizacion : "",
-            forma_elegir_jd: this.campos.forma_elegir_jd ? this.campos.forma_elegir_jd : "",
             puestos: [],
         };
 
@@ -61,7 +60,6 @@ class OrganizacionForm extends React.Component {
                 telefonos:"",
                 email:"",
                 id_organizacion:"",
-                forma_elegir_jd:"",
                 puestos:[],
             },
             puestosError:false,
@@ -78,7 +76,6 @@ class OrganizacionForm extends React.Component {
             email: "requerido",
             puestos: props.ingresaJunta ? "tiene-valores" : "",
             id_organizacion: props.esUnionCantonal ? "" : "seleccionado",
-            forma_elegir_jd: props.ingresaJunta ? "requerido" : "",
         }, this);
         // Es necesario poner dos validaciones para el teléfono porque
         // una valida cuando se envía la información y otra cuando se
@@ -119,7 +116,6 @@ class OrganizacionForm extends React.Component {
                 cedula: "",
                 telefonos:[],
                 id_organizacion:"",
-                forma_elegir_jd:"",
                 puestos:[],
             })
         });
@@ -214,7 +210,7 @@ class OrganizacionForm extends React.Component {
                 this.setState({
                     key:"Organización"
                 });
-            } else if(this.state.errores.forma_elegir_jd.length !== 0 || this.state.errores.puestos.length !== 0){
+            } else if(this.state.errores.puestos.length !== 0){
                 this.setState({
                     key:"JuntaDirectiva",
                     puestosError: this.state.errores.puestos.length !== 0,
@@ -355,13 +351,6 @@ class OrganizacionForm extends React.Component {
                             <div className="container">
                                 <div className="row">
                                     <div className="col-12 col-md-6">
-                                        <div className="mb-3 position-relative">
-                                            <label htmlFor="forma_elegir_jd" className="form-label">Forma de elegir</label>
-                                            <textarea className={this.state.errores.forma_elegir_jd.length > 0 ? "form-control is-invalid":"form-control"} aria-label="formadeElegir" key="forma_elegir_jd" name="forma_elegir_jd" value={this.state.campos.forma_elegir_jd} onChange={this.manejaCambio} />
-                                            <div className="invalid-tooltip">
-                                                {this.state.errores.forma_elegir_jd}
-                                            </div>
-                                        </div>
                                         <h4>Agregar Puesto</h4>
                                         <PuestoForm soloCampos={true} agregaPuesto={this.agregaPuesto} />
                                     </div>

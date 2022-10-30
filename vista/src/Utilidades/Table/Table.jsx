@@ -4,21 +4,16 @@ import DataTable , { createTheme }from 'react-data-table-component';
 
 function agregaAcciones(acciones, columnas){
   if(acciones && Array.isArray(acciones)){
-    return columnas.concat([
-      {
-        name:'Acciones',
+    return columnas.concat(acciones.map((accion,i)=>{
+      return {
+        name:accion.nombre,
         button: true,
         cell: (valor,j) => (
-          <>
-            {acciones.map((accion,i)=>
-            <button key={i} type="button" className={"btn "+accion.className+" m-1"} onClick={()=>accion.onClick(valor,j)} >
-              {accion.icon ? <i className={"lni "+ accion.icon}></i>:<></>}
-              {accion.texto ? accion.texto : <></>}
-            </button>)}
-          </>
+          <button key={i} type="button" className={"btn "+accion.className+" m-1"} onClick={()=>accion.onClick(valor,j)} >
+            {accion.icon ? <i className={"lni "+ accion.icon}></i>:<></>}
+          </button>
         )
-      }
-    ]);
+      };}));
   }
   return columnas;
 }

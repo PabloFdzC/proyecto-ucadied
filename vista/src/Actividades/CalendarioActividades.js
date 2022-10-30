@@ -6,6 +6,13 @@ import Modal from 'react-bootstrap/Modal';
 import manejarCambio from '../Utilidades/manejarCambio';
 import Calendar from '../Utilidades/Calendario/Calendar.jsx';
 
+/*
+Recibe los props:
+cargarOrganizacion: Función de App.js para cargar la organización
+    en la que se encuentra actualmente el usuario,
+idOrganizacion: Número entero que es el id de la organización en la que se
+    encuentra actualmente (es el mismo que está en la url),
+ */
 class CalendarioActividades extends React.Component {
     constructor(props){
         super(props);

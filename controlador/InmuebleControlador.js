@@ -50,24 +50,21 @@ async function crear(info){
     return await queries_generales.crear(inmueble, info);
 }
 
-async function crear_reserva(info){
-    return await queries_generales.crear(reserva_inmueble, info);
+async function crear_reservas(info){
+    return await queries_generales.crear_varios(reserva_inmueble, info);
 }
 
 async function modificar(id, info){
-    return await queries_generales.modificar(inmueble, id, info)
+    return await queries_generales.modificar(inmueble, {id}, info)
 }
 
 async function eliminar(id){
     return await queries_generales.eliminar(inmueble, {id});
 }
 
-async function eliminar_reserva(id){
-    return await queries_generales.eliminar(reserva_inmueble, {id});
-}
 
 async function habilitar_reserva(id){
-    return await queries_generales.modificar(reserva_inmueble, id, {habilitado: '1'})
+    return await queries_generales.modificar(reserva_inmueble, {id}, {habilitado: '1'})
 }
 
 
@@ -77,9 +74,8 @@ module.exports = {
     consultar_reservas,
     consultar_reservas_mes_anio,
     crear,
-    crear_reserva,
+    crear_reservas,
     modificar,
     eliminar,
-    eliminar_reserva, 
     habilitar_reserva
 }

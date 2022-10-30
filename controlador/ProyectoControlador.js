@@ -33,7 +33,7 @@ async function agregar_encargados(id_proyecto, encargados){
 
 
 async function modificar(id, info){
-    return await queries_generales.modificar(proyecto, id, info)
+    return await queries_generales.modificar(proyecto, {id}, info)
 }
 
 async function eliminar(id){

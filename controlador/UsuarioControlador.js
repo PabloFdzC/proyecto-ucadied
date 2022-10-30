@@ -107,7 +107,7 @@ async function modificar(id, info){
     if(info.contrasenna){
         info.contrasenna = bcrypt.hashSync(info.contrasenna, 10);
     }
-    return await queries_generales.modificar(usuario, id, info);
+    return await queries_generales.modificar(usuario, {id}, info);
 }
 
 async function eliminar(id){

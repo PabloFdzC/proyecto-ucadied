@@ -33,7 +33,7 @@ class Usuarios extends React.Component {
     agregarUsuario(usuario,indice){
         if(!usuario) usuario={};
         this.setState({
-            indiceInmueble:indice,
+            indiceUsuario:indice,
             usuario:usuario,
             muestra:true,
         })
@@ -71,7 +71,7 @@ class Usuarios extends React.Component {
 
     async avisaCreado(usuario){
         var usuarios = this.state.usuarios;
-        if(!isNaN(this.state.indiceUsuario)){
+        if(!isNaN(this.state.indiceUsuario) && this.state.indiceUsuario){
             usuarios[this.state.indiceUsuario] = usuario;
             this.setState({
                 usuarios:usuarios,
@@ -87,6 +87,7 @@ class Usuarios extends React.Component {
         var accionesTabla = null;
         // const accionesTabla = [
         //     {
+        //         nombre:"Eliminar",
         //         className:"btn-primary",
         //         onClick:this.agregarUsuario,
         //         icon:"lni-pencil-alt",

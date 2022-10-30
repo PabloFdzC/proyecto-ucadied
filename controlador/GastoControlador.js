@@ -10,7 +10,7 @@ async function crear(info){
 }
 
 async function modificar(id, info){
-    return await queries_generales.modificar(gasto, id, info)
+    return await queries_generales.modificar(gasto, {id}, info)
 }
 
 async function eliminar(id){

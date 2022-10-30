@@ -25,7 +25,7 @@ async function crear_puestos(info){
 }
 
 async function modificar_puesto(id, info){
-    return await queries_generales.modificar(puesto_jd, id, info);
+    return await queries_generales.modificar(puesto_jd, {id}, info);
 }
 
 async function eliminar_puesto(id){
@@ -44,7 +44,6 @@ async function eliminar_miembro(info){
     return await queries_generales.eliminar(puesto_x_usuario, {
         id_usuario: info.id_usuario,
         id_puesto_jd: info.id_puesto_jd,
-        id_organizacion: info.id_organizacion,
     });
 }
 

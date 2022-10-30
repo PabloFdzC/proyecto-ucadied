@@ -8,7 +8,7 @@ import Row from 'react-bootstrap/Row';
 import Tab from 'react-bootstrap/Tab';
 import Toast from 'react-bootstrap/Toast';
 import Select from 'react-select';
-import { convertirHoraAMPM } from '../Utilidades/ManejoHoras';
+import { convertirHoraAMPM, horaAFecha } from '../Utilidades/ManejoHoras';
 
 /*
 Recibe los props:
@@ -162,8 +162,8 @@ class InmuebleForm extends React.Component {
             if(h.inicio.value !== "" && h.inicio.value && h.final.value !== "" && h.final.value){
               horario.push({
                 dia:h.dia,
-                inicio:h.inicio.value,
-                final:h.final.value,
+                inicio:horaAFecha(h.inicio.value).toUTCString(),
+                final:horaAFecha(h.final.value).toUTCString(),
               });
             }
           }

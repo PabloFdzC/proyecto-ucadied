@@ -14,9 +14,9 @@ async function crear_varios(modelo, info){
     return objeto_creado;
 }
 
-async function modificar(modelo, id, info){
+async function modificar(modelo, filtros, info){
     await modelo.update(info, {
-        where: {id: id}
+        where: filtros
     });
     return {success: "Objeto modificado"};
 }

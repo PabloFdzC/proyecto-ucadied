@@ -51,7 +51,7 @@ router.post('/crear', jsonParser, async (req, res) => {
         const resp = await verificarCaptcha(req.body.captcha);
         delete req.body.captcha;
         if(resp.exito){
-            const actividad_creada = await actividadCtlr.crear(req.body, req.session.idUsuario);
+            const actividad_creada = await actividadCtlr.crear_habilitar(req.body, req.session.idUsuario, false);
             if(actividad_creada.error || actividad_creada.errores){
                 console.log(actividad_creada);
                 res.status(400);
@@ -69,28 +69,53 @@ router.post('/crear', jsonParser, async (req, res) => {
     }
 });
 
+router.post('/habilitarReservas', jsonParser, async (req, res) => {
+    try{
+        const resp = await actividadCtlr.crear_habilitar(req.body, req.session.idUsuario, true);
+        if(resp.error || resp.errores){
+            console.log(resp);
+            res.status(400);
+        }
+        res.json(resp);
+        
+    }catch(err){
+        console.log(err);
+        res.status(400);
+        res.send("Algo salió mal");
+    }
+});
+
+router.delete('/eliminarReservasInhabilitadas/:id_actividad', async (req, res) => {
+    try{
+        const resp = await actividadCtlr.eliminarReservasInhabilitadas(req.params.id_actividad);
+        res.json(resp);
+        
+    }catch(err){
+        console.log(err);
+        res.status(400);
+        res.send("Algo salió mal");
+    }
+});
+
+router.delete('/eliminarReserva/:id', async (req, res) => {
+    try{
+        const resp = await actividadCtlr.eliminarReserva(req.params.id);
+        res.json(resp);
+        
+    }catch(err){
+        console.log(err);
+        res.status(400);
+        res.send("Algo salió mal");
+    }
+});
+
 router.put('/modificar/:id_actividad', jsonParser, async (req, res) => {
     try{
-        var habilitado = false;
-        if(req.session.idUsuario && req.session.idUsuario != -1){
-            if(req.session.tipoUsuario === "Administrador"){
-                habilitado = true;
-            }
-            else{
-                habilitado = await JuntaDirectivaCtlr.consultar_permisos(req.session.idUsuario, "edita_actividad");
-            }
-        }
-        if(habilitado){
-            const resultado = await actividadCtlr.modificar(req.params.id_actividad, req.body)
-            if(resultado.error || resultado.errores){
-                res.status(400);
-            }
-            res.json(resultado);
-        }
-        else{
+        const resultado = await actividadCtlr.modificar(req.params.id_actividad, req.body);
+        if(resultado.error || resultado.errores){
             res.status(400);
-            res.send("No se cuenta con los permisos necesarios");
         }
+        res.json(resultado);
     }catch(err){
         console.log(err);
         res.status(400);
