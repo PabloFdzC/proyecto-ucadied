@@ -27,5 +27,8 @@ module.exports = sequelize.define('gasto', {
             }
         },
         numero_acta: type.INTEGER,
-        numero_acuerdo: type.INTEGER
+        numero_acuerdo: type.INTEGER,
+        proveedor: type.STRING,
+        numero_factura: type.INTEGER,
+        numero_comprobante_pago: type.INTEGER
     });

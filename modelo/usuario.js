@@ -33,8 +33,7 @@ module.exports = sequelize.define('usuario', {
         },
         profesion: type.STRING,
         nombre: type.STRING,
-        sexo: type.ENUM('Masculino', 'Femenino', 'No Especificado'),
-        nacionalidad: type.STRING,
+        identificacion: type.STRING,
         telefonos: type.JSON,
     },
-    {indexes:[{unique:true, fields: ['email']}]});
+    {indexes:[{unique:true, fields: ['email', 'identificacion']}]});

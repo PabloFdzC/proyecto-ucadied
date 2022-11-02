@@ -2,14 +2,10 @@ const pagina = require('../modelo/pagina');
 const queries_generales = require('./QueriesGenerales');
 
 async function consultar(params){
-    if(params.id_pagina){
-        return await queries_generales.consultar(pagina, {where: {
-            id: params.id_pagina
-        }});
-    }
-    else{
-        return await queries_generales.consultar(pagina, {});
-    }
+    return await queries_generales.consultar(pagina,
+        {
+            where: params
+        });
 }
 
 async function crear(info){

@@ -3,129 +3,36 @@ const bodyParser = require('body-parser');
 const jsonParser  = bodyParser.json({ extended: false });
 const JuntaDirectivaCtlr = require('./JuntaDirectivaControlador');
 
-
-router.get('/consultarPuestos/:id_organizacion', async (req, res) => {
+router.put('/modificarMiembro/:id', jsonParser, async (req, res) => {
     try{
         var habilitado = false;
+        var error_encontrado = false;
         if(req.session.idUsuario && req.session.idUsuario != -1){
             if(req.session.tipoUsuario === "Administrador"){
                 habilitado = true;
             }
             else{
-                habilitado = JuntaDirectivaCtlr.consultar_permisos(req.session.idUsuario, "edita_junta");
+                const puestos = await JuntaDirectivaCtlr.consultar_miembro(req.params.id);
+                if(puestos.length === 1){
+                    const puesto = puestos[0];
+                    habilitado = await JuntaDirectivaCtlr.consultar_permisos(req.session.idUsuario, puesto.id_organizacion, "edita_junta");
+                }
+                else{
+                    error_encontrado = true;
+                    res.status(400);
+                    res.send("Puesto no encontrado");
+                }
             }
         }
         if(habilitado){
-            const puestos = await JuntaDirectivaCtlr.consultar_puestos(req.params.id_organizacion);
-            res.json(puestos);
-        }
-        else{
-            res.status(400);
-            res.send("No se cuenta con los permisos necesarios");
-        }
-    }catch(err){
-        console.log(err);
-        res.status(400);
-        res.send("Algo salió mal");
-    }
-});
-
-router.get('/consultarPuesto/:id_puesto', async (req, res) => {
-    try{
-        var habilitado = false;
-        if(req.session.idUsuario && req.session.idUsuario != -1){
-            if(req.session.tipoUsuario === "Administrador"){
-                habilitado = true;
-            }
-            else{
-                habilitado = await JuntaDirectivaCtlr.consultar_permisos(req.session.idUsuario, "edita_junta");
-            }
-        }
-        if(habilitado){
-            const puesto = await JuntaDirectivaCtlr.consultar_puesto(req.params.id_puesto);
-            res.json(puesto);
-        }
-        else{
-            res.status(400);
-            res.send("No se cuenta con los permisos necesarios");
-        }
-    }catch(err){
-        console.log(err);
-        res.status(400);
-        res.send("Algo salió mal");
-    }
-});
-
-router.post('/crearPuesto', jsonParser, async (req, res) => {
-    try{
-        var habilitado = false;
-        if(req.session.idUsuario && req.session.idUsuario != -1){
-            if(req.session.tipoUsuario === "Administrador"){
-                habilitado = true;
-            }
-            else{
-                habilitado = await JuntaDirectivaCtlr.consultar_permisos(req.session.idUsuario, "edita_junta");
-            }
-        }
-        if(habilitado){
-            const puesto_creado = await JuntaDirectivaCtlr.crear_puesto(req.body);
-            res.json(puesto_creado);
-        }
-        else{
-            res.status(400);
-            res.send("No se cuenta con los permisos necesarios");
-        }
-    }catch(err){
-        console.log(err);
-        res.status(400);
-        res.send("Algo salió mal");
-    }
-});
-
-router.delete('/eliminarPuesto/:id_puesto', async (req, res) => {
-    try{
-        var habilitado = false;
-        if(req.session.idUsuario && req.session.idUsuario != -1){
-            if(req.session.tipoUsuario === "Administrador"){
-                habilitado = true;
-            }
-            else{
-                habilitado = await JuntaDirectivaCtlr.consultar_permisos(req.session.idUsuario, "edita_junta");
-            }
-        }
-        if(habilitado){
-            const resultado = await JuntaDirectivaCtlr.eliminar_puesto(req.params.id_puesto);
+            const resultado = await JuntaDirectivaCtlr.modificar_miembro(req.params.id, req.body)
             res.json(resultado);
         }
         else{
-            res.status(400);
-            res.send("No se cuenta con los permisos necesarios");
-        }
-    }catch(err){
-        console.log(err);
-        res.status(400);
-        res.send("Algo salió mal");
-    }
-});
-
-router.put('/modificarPuesto/:id_puesto', jsonParser, async (req, res) => {
-    try{
-        var habilitado = false;
-        if(req.session.idUsuario && req.session.idUsuario != -1){
-            if(req.session.tipoUsuario === "Administrador"){
-                habilitado = true;
+            if(!error_encontrado){
+                res.status(400);
+                res.send("No se cuenta con los permisos necesarios");
             }
-            else{
-                habilitado = await JuntaDirectivaCtlr.consultar_permisos(req.session.idUsuario, "edita_junta");
-            }
-        }
-        if(habilitado){
-            const resultado = await JuntaDirectivaCtlr.modificar_puesto(req.params.id_puesto, req.body)
-            res.json(resultado);
-        }
-        else{
-            res.status(400);
-            res.send("No se cuenta con los permisos necesarios");
         }
     }catch(err){
         console.log(err);
@@ -137,12 +44,20 @@ router.put('/modificarPuesto/:id_puesto', jsonParser, async (req, res) => {
 router.post('/agregarMiembro', jsonParser, async (req, res) => {
     try{
         var habilitado = false;
+        var error_encontrado = false;
         if(req.session.idUsuario && req.session.idUsuario != -1){
             if(req.session.tipoUsuario === "Administrador"){
                 habilitado = true;
             }
             else{
-                habilitado = await JuntaDirectivaCtlr.consultar_permisos(req.session.idUsuario, "edita_junta");
+                if(req.body.id_organizacion){
+                    habilitado = await JuntaDirectivaCtlr.consultar_permisos(req.session.idUsuario, req.body.id_organizacion, "edita_junta");
+                }
+                else{
+                    error_encontrado = true;
+                    res.status(400);
+                    res.send("Parametros incorrectos");
+                }
             }
         }
         if(habilitado){
@@ -150,8 +65,10 @@ router.post('/agregarMiembro', jsonParser, async (req, res) => {
             res.json(miembro_agregado);
         }
         else{
-            res.status(400);
-            res.send("No se cuenta con los permisos necesarios");
+            if(!error_encontrado){
+                res.status(400);
+                res.send("No se cuenta con los permisos necesarios");
+            }
         }
     }catch(err){
         console.log(err);
@@ -160,37 +77,85 @@ router.post('/agregarMiembro', jsonParser, async (req, res) => {
     }
 });
 
-router.post('/eliminarMiembro', jsonParser, async (req, res) => {
+router.delete('/eliminarMiembro/:id', jsonParser, async (req, res) => {
     try{
         var habilitado = false;
-        console.log("---------------------------------------------------");
-        console.log(req.body);
-        console.log("---------------------------------------------------");
+        var error_encontrado = false;
+        const puestos = await JuntaDirectivaCtlr.consultar_miembro(req.params.id);
+        var puesto;
+        if(puestos.length === 1){
+            puesto = puestos[0];
+        }
+        else{
+            error_encontrado = true;
+            res.status(400);
+            res.send("Puesto no encontrado");
+        }
+        if(req.session.tipoUsuario === "Administrador"){
+            if(!error_encontrado){
+                habilitado = true;
+            }
+        }
+        else{
+            if(!error_encontrado){
+                habilitado = await JuntaDirectivaCtlr.consultar_permisos(req.session.idUsuario, puesto.id_organizacion, "edita_junta");
+            }
+        }
+        if(habilitado){
+            const resultado = await JuntaDirectivaCtlr.eliminar_miembro(req.params);
+            res.json(resultado);
+        }
+        else{
+            if(!error_encontrado){
+                res.status(400);
+                res.send("No se cuenta con los permisos necesarios");
+            }
+        }
+    }catch(err){
+        console.log(err);
+        res.status(400);
+        res.send("Algo salió mal");
+    }
+});
+
+router.get('/consultarMiembros', async (req, res) => {
+    try{
+        var habilitado = false;
+        var miembro_encontrado = false;
+        var miembro;
+        var params = {};
+        if(req.query.id){
+            params.id = req.query.id;
+        }
+        if(req.query.id_organizacion){
+            params.id_organizacion = req.query.id_organizacion;
+        }
         if(req.session.idUsuario && req.session.idUsuario != -1){
             if(req.session.tipoUsuario === "Administrador"){
                 habilitado = true;
             }
             else{
-                habilitado = await JuntaDirectivaCtlr.consultar_permisos(req.session.idUsuario, "edita_junta");
+                if(params.id_organizacion){
+                    habilitado = await JuntaDirectivaCtlr.consultar_permisos(req.session.idUsuario, params.id_organizacion, "edita_junta");
+                }
+                if(params.id){
+                    miembro =  await JuntaDirectivaCtlr.consultar_miembro(params.id);
+                    miembro_encontrado = true;
+                    if(!habilitado){
+                        if(miembro.length === 1){
+                            habilitado = await JuntaDirectivaCtlr.consultar_permisos(req.session.idUsuario, miembro[0].id_organizacion, "edita_junta");
+                        }
+                    }
+                }
             }
         }
         if(habilitado){
-            var params = {};
-            if(req.body.id_puesto_jd){
-                params.id_puesto_jd = req.body.id_puesto_jd;
+            if(miembro_encontrado){
+                res.json(miembro);
             }
-            if(req.body.id_usuario){
-                params.id_usuario = req.body.id_usuario;
-            }
-            console.log("---------------------------------------------------");
-            console.log(params);
-            console.log("---------------------------------------------------");
-            if(Object.keys(params).length === 2){
-                const resultado = await JuntaDirectivaCtlr.eliminar_miembro(params);
-                res.json(resultado);
-            } else {
-                res.status(400);
-                res.send("Parametros incorrectos");    
+            else{
+                const miembros = await JuntaDirectivaCtlr.consultar_miembros(params);
+                res.json(miembros);
             }
         }
         else{
@@ -204,20 +169,45 @@ router.post('/eliminarMiembro', jsonParser, async (req, res) => {
     }
 });
 
-router.get('/consultarMiembros/:id_organizacion', async (req, res) => {
+router.get('/consultar', async (req, res) => {
     try{
         var habilitado = false;
+        var proyecto_encontrado = false;
+        var proyecto;
+        var params = {};
+        if(req.query.id){
+            params.id = req.query.id;
+        }
+        if(req.query.id_organizacion){
+            params.id_organizacion = req.query.id_organizacion;
+        }
         if(req.session.idUsuario && req.session.idUsuario != -1){
             if(req.session.tipoUsuario === "Administrador"){
                 habilitado = true;
             }
             else{
-                habilitado = await JuntaDirectivaCtlr.consultar_permisos(req.session.idUsuario, "edita_junta");
+                if(params.id_organizacion){
+                    habilitado = await JuntaDirectivaCtlr.consultar_permisos(req.session.idUsuario, params.id_organizacion, "edita_proyecto");
+                }
+                if(params.id){
+                    proyecto =  await proyectoCtlr.consultar(req.query);
+                    proyecto_encontrado = true;
+                    if(!habilitado){
+                        if(proyecto.length === 1){
+                            habilitado = await JuntaDirectivaCtlr.consultar_permisos(req.session.idUsuario, proyecto[0].id_organizacion, "edita_proyecto");
+                        }
+                    }
+                }
             }
         }
         if(habilitado){
-            const miembros = await JuntaDirectivaCtlr.consultar_miembros(req.params.id_organizacion);
-            res.json(miembros);
+            if(proyecto_encontrado){
+                res.json(proyecto);
+            }
+            else{
+                const proyectos = await proyectoCtlr.consultar(params);
+                res.json(proyectos);
+            }
         }
         else{
             res.status(400);

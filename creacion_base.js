@@ -6,12 +6,11 @@ const gasto = require("./modelo/gasto");
 const organizacion = require("./modelo/organizacion");
 const pagina = require("./modelo/pagina");
 const proyecto = require("./modelo/proyecto");
-const puesto_jd = require("./modelo/puesto_jd");
 const reserva_inmueble = require("./modelo/reserva_inmueble");
 const usuario = require("./modelo/usuario");
 const sequelize = require('./conexion_base');
 const proyecto_x_usuario = require('./modelo/proyecto_x_usuario');
-const puesto_x_usuario = require('./modelo/puesto_x_usuario');
+const puesto = require('./modelo/puesto');
 
 organizacion.hasMany(inmueble, {
   foreignKey: 'id_organizacion'
@@ -51,35 +50,19 @@ organizacion.belongsTo(organizacion, {
   }
 });
 
-puesto_jd.hasMany(puesto_x_usuario, {
-  foreignKey: 'id_puesto_jd'
-});
-
-puesto_x_usuario.belongsTo(puesto_jd, {
-  foreignKey: 'id_puesto_jd'
-});
-
-usuario.hasMany(puesto_x_usuario, {
+usuario.hasMany(puesto, {
   foreignKey: 'id_usuario'
 });
 
-puesto_x_usuario.belongsTo(usuario, {
+puesto.belongsTo(usuario, {
   foreignKey: 'id_usuario'
 });
 
-organizacion.hasMany(puesto_x_usuario, {
+organizacion.hasMany(puesto, {
   foreignKey: 'id_organizacion'
 });
 
-puesto_x_usuario.belongsTo(organizacion, {
-  foreignKey: 'id_organizacion'
-});
-
-organizacion.hasMany(puesto_jd, {
-  foreignKey: 'id_organizacion'
-});
-
-puesto_jd.belongsTo(organizacion, {
+puesto.belongsTo(organizacion, {
   foreignKey: 'id_organizacion'
 });
 

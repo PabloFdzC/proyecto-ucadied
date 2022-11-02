@@ -2,6 +2,7 @@ const router = require('express').Router();
 const bodyParser = require('body-parser');
 const jsonParser  = bodyParser.json({ extended: false });
 const organizacionCtrl = require('./OrganizacionControlador');
+const nodemailer = require('nodemailer');
 
 
 router.get('/consultar/:id_organizacion', async (req, res) => {
@@ -131,6 +132,106 @@ router.get('/consultarMiembros/:id_organizacion', jsonParser, async (req, res) =
         else{
             res.status(400);
             res.send("Sesión no iniciada");
+        }
+    }catch(err){
+        console.log(err);
+        res.status(400);
+        res.send("Algo salió mal");
+    }
+});
+
+router.post('/formContactenos', jsonParser, async (req, res) => {
+    try{
+        if(req.body.id_organizacion){
+            const organizaciones = await organizacionCtrl.consultar({id_organizacion: req.body.id_organizacion});
+            if(organizaciones.length === 1){
+                const organizacion = organizaciones[0];
+                if(req.body.nombre && req.body.email && req.body.telefono && req.body.mensaje){
+                    var error_encontrado = false;
+                    var transporter = nodemailer.createTransport({
+                        service: 'gmail',
+                        auth: {
+                        user: 'pruebaucadied@gmail.com',
+                        pass: 'ggpagiaxezsddzcd'
+                        }
+                    });
+                    var mailOptions = {
+                        from: 'pruebaucadied@gmail.com',
+                        to: organizacion.email,
+                        subject: 'Formulario Contáctenos',
+                        html: `
+                        <div>
+                        <span>Acaba de recibir un mensaje en el formulario de contáctenos de su organización con la siguiente información:</span>
+                        </div>
+                        <div>
+                            <h1>Nombre:</h1>
+                            <p>${req.body.nombre}<p>
+                            <h1>Email:</h1>
+                            <p>${req.body.email}<p>
+                            <h1>Teléfono:</h1>
+                            <p>${req.body.telefono}<p>
+                            <h1>Mensaje:</h1>
+                            <p>${req.body.mensaje}<p>
+                        </div>
+                        `
+                    };
+                    transporter.sendMail(mailOptions, function(error, info){
+                        if (error) {
+                            console.log(error);
+                            error_encontrado = true;
+                        }
+                    });
+                    if(!error_encontrado){
+                        mailOptions = {
+                            from: 'pruebaucadied@gmail.com',
+                            to: req.body.email,
+                            subject: 'Formulario contáctenos enviado correctamente',
+                            html: `
+                            <div>
+                            <span>Su formulario de contáctenos fue enviado correctamente con la siguiente información:</span>
+                            </div>
+                            <div>
+                                <h1>Nombre:</h1>
+                                <p>${req.body.nombre}<p>
+                                <h1>Email:</h1>
+                                <p>${req.body.email}<p>
+                                <h1>Teléfono:</h1>
+                                <p>${req.body.telefono}<p>
+                                <h1>Mensaje:</h1>
+                                <p>${req.body.mensaje}<p>
+                            </div>
+                            `
+                        };
+                        transporter.sendMail(mailOptions, function(error, info){
+                            if (error) {
+                                console.log(error);
+                                error_encontrado = true;
+                                res.status(400);
+                                res.send("Algo salió mal");
+                            } else {
+                                console.log('Email sent: ' + info.response);
+                                res.send({success: "Email enviado"});
+                            }
+                        });
+                    }
+                    else {
+                        res.status(400);
+                        res.send("Algo salió mal");
+                    }
+                }
+                else{
+                    res.status(400);
+                    res.send("Parámetros incorrectos");
+                }
+            }
+            else{
+                res.status(400);
+                res.send("Organización no encontrada");
+            }
+        }
+        else{
+            res.status(400);
+            res.send("Parámetros incorrectos");
         }
     }catch(err){
         console.log(err);

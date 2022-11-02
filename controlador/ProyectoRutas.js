@@ -6,19 +6,21 @@ const gastoCtlr = require('./GastoControlador');
 const JuntaDirectivaCtlr = require('./JuntaDirectivaControlador');
 
 
-router.get('/consultar/:id_proyecto', async (req, res) => {
+router.get('/consultar/:id', async (req, res) => {
     try{
         var habilitado = false;
+        var proyectos = []
         if(req.session.idUsuario && req.session.idUsuario != -1){
+            proyectos = await proyectoCtlr.consultar(req.params);
             if(req.session.tipoUsuario === "Administrador"){
                 habilitado = true;
             }
-            else{
-                habilitado = await JuntaDirectivaCtlr.consultar_permisos(req.session.idUsuario, "edita_proyecto");
+            else if(proyectos.length === 1){
+                const proyecto = proyectos[0];
+                habilitado = await JuntaDirectivaCtlr.consultar_permisos(req.session.idUsuario, proyecto.id_organizacion, "edita_proyecto");
             }
         }
         if(habilitado){
-            const proyectos = await proyectoCtlr.consultar(req.params);
             res.json(proyectos);
         }
         else{
@@ -35,24 +37,42 @@ router.get('/consultar/:id_proyecto', async (req, res) => {
 router.get('/consultar', async (req, res) => {
     try{
         var habilitado = false;
+        var proyecto_encontrado = false;
+        var proyecto;
+        var params = {};
+        if(req.query.id){
+            params.id = req.query.id;
+        }
+        if(req.query.id_organizacion){
+            params.id_organizacion = req.query.id_organizacion;
+        }
         if(req.session.idUsuario && req.session.idUsuario != -1){
             if(req.session.tipoUsuario === "Administrador"){
                 habilitado = true;
             }
             else{
-                habilitado = await JuntaDirectivaCtlr.consultar_permisos(req.session.idUsuario, "edita_proyecto");
+                if(params.id_organizacion){
+                    habilitado = await JuntaDirectivaCtlr.consultar_permisos(req.session.idUsuario, params.id_organizacion, "edita_proyecto");
+                }
+                if(params.id){
+                    proyecto =  await proyectoCtlr.consultar(req.query);
+                    proyecto_encontrado = true;
+                    if(!habilitado){
+                        if(proyecto.length === 1){
+                            habilitado = await JuntaDirectivaCtlr.consultar_permisos(req.session.idUsuario, proyecto[0].id_organizacion, "edita_proyecto");
+                        }
+                    }
+                }
             }
         }
         if(habilitado){
-            var params = {};
-            if(req.query.id){
-                params.id = req.query.id;
+            if(proyecto_encontrado){
+                res.json(proyecto);
             }
-            if(req.query.id_organizacion){
-                params.id_organizacion = req.query.id_organizacion;
+            else{
+                const proyectos = await proyectoCtlr.consultar(params);
+                res.json(proyectos);
             }
-            const proyectos = await proyectoCtlr.consultar(params);
-            res.json(proyectos);
         }
         else{
             res.status(400);
@@ -68,12 +88,18 @@ router.get('/consultar', async (req, res) => {
 router.post('/crear', jsonParser, async (req, res) => {
     try{
         var habilitado = false;
+        var error_encontrado = false;
         if(req.session.idUsuario && req.session.idUsuario != -1){
             if(req.session.tipoUsuario === "Administrador"){
                 habilitado = true;
             }
+            if(req.body.id_organizacion){
+                habilitado = await JuntaDirectivaCtlr.consultar_permisos(req.session.idUsuario, req.body.id_organizacion, "edita_proyecto");
+            }
             else{
-                habilitado = await JuntaDirectivaCtlr.consultar_permisos(req.session.idUsuario, "edita_proyecto");
+                error_encontrado = true;
+                res.status(400);
+                res.send("Parametros incorrectos");
             }
         }
         if(habilitado){
@@ -81,8 +107,10 @@ router.post('/crear', jsonParser, async (req, res) => {
             res.json(proyecto_creado);
         }
         else{
-            res.status(400);
-            res.send("No se cuenta con los permisos necesarios");
+            if(!error_encontrado){
+                res.status(400);
+                res.send("No se cuenta con los permisos necesarios");
+            }
         }
     }catch(err){
         console.log(err);
@@ -94,12 +122,22 @@ router.post('/crear', jsonParser, async (req, res) => {
 router.put('/modificar/:id_proyecto', jsonParser, async (req, res) => {
     try{
         var habilitado = false;
+        var error_encontrado = false;
         if(req.session.idUsuario && req.session.idUsuario != -1){
             if(req.session.tipoUsuario === "Administrador"){
                 habilitado = true;
             }
             else{
-                habilitado = await JuntaDirectivaCtlr.consultar_permisos(req.session.idUsuario, "edita_proyecto");
+                const proyectos = await proyectoCtlr.consultar({id: req.params.id_proyecto});
+                if(proyectos.length === 1){
+                    const proyecto = proyectos[0];
+                    habilitado = await JuntaDirectivaCtlr.consultar_permisos(req.session.idUsuario, proyecto.id_organizacion, "edita_proyecto");
+                }
+                else{
+                    res.status(400);
+                    res.send("No se encontró el proyecto");
+                    error_encontrado = true;
+                }
             }
         }
         if(habilitado){
@@ -107,8 +145,10 @@ router.put('/modificar/:id_proyecto', jsonParser, async (req, res) => {
             res.json(resultado);
         }
         else{
-            res.status(400);
-            res.send("No se cuenta con los permisos necesarios");
+            if(!error_encontrado){
+                res.status(400);
+                res.send("No se cuenta con los permisos necesarios");
+            }
         }
     }catch(err){
         console.log(err);
@@ -117,24 +157,36 @@ router.put('/modificar/:id_proyecto', jsonParser, async (req, res) => {
     }
 });
 
-router.delete('/eliminar/:id_proyecto', async (req, res) => {
+router.delete('/eliminar/:id', async (req, res) => {
     try{
         var habilitado = false;
+        var error_encontrado = false;
         if(req.session.idUsuario && req.session.idUsuario != -1){
             if(req.session.tipoUsuario === "Administrador"){
                 habilitado = true;
             }
             else{
-                habilitado = await JuntaDirectivaCtlr.consultar_permisos(req.session.idUsuario, "edita_proyecto");
+                const proyectos = await proyectoCtlr.consultar(req.params);
+                if(proyectos.length === 1){
+                    const proyecto = proyectos[0];
+                    habilitado = await JuntaDirectivaCtlr.consultar_permisos(req.session.idUsuario, proyecto.id_organizacion, "edita_proyecto");
+                }
+                else{
+                    error_encontrado = true;
+                    res.status(400);
+                    res.send("No se encontró el proyecto");
+                }
             }
         }
         if(habilitado){
-            const resultado = await proyectoCtlr.eliminar(req.params.id_proyecto);
+            const resultado = await proyectoCtlr.eliminar(req.params.id);
             res.json(resultado);
         }
         else{
-            res.status(400);
-            res.send("No se cuenta con los permisos necesarios");
+            if(!error_encontrado){
+                res.status(400);
+                res.send("No se cuenta con los permisos necesarios");
+            }
         }
     }catch(err){
         console.log(err);
@@ -143,15 +195,25 @@ router.delete('/eliminar/:id_proyecto', async (req, res) => {
     }
 });
 
-router.get('/consultarGastos/:id_proyecto', async (req, res) => {
+router.get('/consultarGastos/:id', async (req, res) => {
     try{
         var habilitado = false;
+        var error_encontrado = false;
         if(req.session.idUsuario && req.session.idUsuario != -1){
             if(req.session.tipoUsuario === "Administrador"){
                 habilitado = true;
             }
             else{
-                habilitado = await JuntaDirectivaCtlr.consultar_permisos(req.session.idUsuario, "edita_proyecto");
+                const proyectos = await proyectoCtlr.consultar(req.params);
+                if(proyectos.length === 1){
+                    const proyecto = proyectos[0];
+                    habilitado = await JuntaDirectivaCtlr.consultar_permisos(req.session.idUsuario, proyecto.id_organizacion, "edita_proyecto");
+                }
+                else{
+                    error_encontrado = true;
+                    res.status(400);
+                    res.send("No se encontró el proyecto");
+                }
             }
         }
         if(habilitado){
@@ -159,8 +221,10 @@ router.get('/consultarGastos/:id_proyecto', async (req, res) => {
             res.json(gastos);
         }
         else{
-            res.status(400);
-            res.send("No se cuenta con los permisos necesarios");
+            if(!error_encontrado){
+                res.status(400);
+                res.send("No se cuenta con los permisos necesarios");
+            }
         }
     }catch(err){
         console.log(err);

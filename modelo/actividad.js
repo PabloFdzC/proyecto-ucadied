@@ -9,7 +9,8 @@ module.exports = sequelize.define('actividad', {
     },
     nombre: type.STRING,
     tipo: type.ENUM('Privada', 'Pública'),
-    coordinador: type.STRING,
+    persona_contacto: type.STRING,
     email: type.STRING,
+    identificacion: type.STRING,
     telefonos: type.JSON
 });
