@@ -23,6 +23,7 @@ import Gastos from './Proyecto/Gastos';
 import Inmuebles from './Inmueble/Inmuebles';
 import CalendarioActividades from './Actividades/CalendarioActividades';
 import Actividades from './Actividades/Actividades';
+import EditarSitio from './Organizacion/Editor';
 
 import Table from './Utilidades/Table/Table.jsx';
 //import Calendar from './Utilidades/Calendario/Calendar.jsx';
@@ -236,7 +237,8 @@ class App extends React.Component {
               <Route path="/inmuebles/:idOrganizacion" element={<ConParams app={this}  componente={<Inmuebles cargarOrganizacion={this.cargarOrganizacion} />}/>} />
               <Route path="/calendarioActividades/:idOrganizacion" element={<ConParams app={this}  componente={<CalendarioActividades cargarOrganizacion={this.cargarOrganizacion} />}/>} />
               <Route path="/actividades/:idOrganizacion" element={<ConParams app={this}  componente={<Actividades cargarOrganizacion={this.cargarOrganizacion} />}/>} />
-              
+              <Route path="/editarSitio/:idOrganizacion" element={<ConParams app={this}  componente={<EditarSitio cargarOrganizacion={this.cargarOrganizacion} />}/>} />
+
               <Route path="/administradores" element={<Administradores />} />
               <Route path="/unionCantonal" element={<UnionCantonal />} />
               <Route path="/asociaciones" element={<Asociaciones soloVer={ this.state.usuario.tipo !== "Administrador" } />} />
