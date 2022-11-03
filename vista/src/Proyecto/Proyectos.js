@@ -128,7 +128,7 @@ class Proyectos extends React.Component {
                         <div className="row m-0">
                             {proyectos}
                         </div>
-                        <Modal size="lg" show={this.state.muestraPF} onHide={()=>this.muestraModal(false)} className="modal-green">
+                        <Modal size="lg" show={this.state.muestraPF} onHide={()=>this.muestraModal(false)} className="modal-green" centered>
                         <Modal.Body>
                             <ProyectoForm idOrganizacion={organizacion.id} esUnion={false} avisaCreado={this.avisaCreado} cerrarModal={()=>this.muestraModal(false)} />
                         </Modal.Body>

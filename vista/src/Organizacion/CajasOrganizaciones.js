@@ -10,11 +10,12 @@ class CajasOrganizaciones extends React.Component{
               <div className="row">
                   <div className="col">
                       <div className="container p-3" key={"aCont"+i}>
-                          <h3 key={"t"+i}>{a.nombre}</h3>
-                          <p key={"c"+i}>Cédula jurídica: {a.cedula}</p>
-                          <p key={"d"+i}>Domicilio: {a.domicilio}</p>
-                          <p key={"te"+i}>Territorio: {a.territorio}</p>
-                          <p key={"tels"+i}>Telefonos:</p>
+                          <h3>{a.nombre}</h3>
+                          <p>Cédula jurídica: {a.cedula}</p>
+                          <p>Domicilio: {a.domicilio}</p>
+                          <p>Territorio: {a.territorio}</p>
+                          <p>Email: {a.email}</p>
+                          <p>Telefonos:</p>
                           {a.telefonos.map((t, j) => 
                               <div className="m-2 p-2" key={"encC"+i+"-"+j} style={{backgroundColor:"#160C28",borderRadius:"0.2em",color:"#fff"}}>
                                   <p key={"tels"+i+"-"+j}>{t}</p>

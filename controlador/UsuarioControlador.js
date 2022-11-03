@@ -3,7 +3,7 @@ const { Op } = require("sequelize");
 const usuario = require('../modelo/usuario');
 const queries_generales = require('./QueriesGenerales');
 const organizacionCtrl = require('./OrganizacionControlador');
-const JuntaDirectivaCtlr = require('./JuntaDirectivaControlador');
+const puestoCtlr = require('./PuestoControlador');
 
 
 function creadorContrasenna(){
@@ -21,16 +21,22 @@ function creadorContrasenna(){
 async function crear(info){
     const contrasenna = creadorContrasenna();
     info.contrasenna = bcrypt.hashSync(contrasenna, 10);
-    var usuario_creado = await queries_generales.crear(usuario, info);
+    const usuario_creado = await queries_generales.crear(usuario, info);
+    var puesto_creado = null;
     if(info.puesto && info.puesto != ""){
-        JuntaDirectivaCtlr.agregar_miembro({
+        puesto_creado = await puestoCtlr.crear({
+            nombre:info.puesto,
             id_usuario: usuario_creado.id,
-            id_puesto_jd: info.puesto,
             id_organizacion: info.id_organizacion,
+            edita_pagina: info.edita_pagina,
+            edita_junta: info.edita_junta,
+            edita_proyecto: info.edita_proyecto,
+            edita_actividad: info.edita_actividad,
         })
     }
     return {
         usuario_creado,
+        puesto_creado,
         contrasenna
     };
 }
@@ -83,7 +89,7 @@ async function iniciarSesion(info){
                 organizacion = organizacion[0];
             }
             if(usuario_info.tipo === "Usuario"){
-                puestos = await JuntaDirectivaCtlr.consultar_puestos_usuario(usuario_info.id);
+                puestos = await puestoCtlr.consultar_puestos_usuario(usuario_info.id);
             }
             return {
                 id_usuario: usuario_info.id,
@@ -111,7 +117,7 @@ async function modificar(id, info){
 }
 
 async function eliminar(id){
-    const info_usuario = await consultar({id_usuario: id});
+    const info_usuario = await consultar({id});
     if(info_usuario.length === 1){
         return await queries_generales.eliminar(usuario, {id});
     }

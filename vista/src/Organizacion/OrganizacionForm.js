@@ -32,7 +32,6 @@ class OrganizacionForm extends React.Component {
     constructor(props){
         super(props);
         this.queriesGenerales = new QueriesGenerales();
-        this.esUnionCantonal = props.esUnionCantonal;
         this.campos = props.campos ? props.campos : {};
         this.unionesCargadas = false;
         this.accion = Object.entries(this.campos).length > 0 ? "Modificar" : "Agregar";
@@ -179,7 +178,16 @@ class OrganizacionForm extends React.Component {
         this.validacion.validarCampos(this.state.campos);
         if(!this.state.errores.hayError){
             try{
-                let campos = this.state.campos;
+                let campos = {
+                    nombre: this.state.campos.nombre,
+                    territorio: this.state.campos.territorio,
+                    domicilio: this.state.campos.domicilio,
+                    cedula: this.state.campos.cedula,
+                    telefonos:this.state.campos.telefonos,
+                    email:this.state.campos.email,
+                    id_organizacion:this.state.campos.id_organizacion,
+                    puestos: this.state.puestos,
+                };
                 campos.email = campos.email + "@ucadied.org";
                 var mensajeExito = "¡Agregado con éxito!";
                 var resp;
@@ -391,9 +399,11 @@ class OrganizacionForm extends React.Component {
             </form>
             :<>
                 <div className="d-flex justify-content-end">
+                    {this.props.esUnionCantonal ?
+                    <></>:
                     <div className="m-1">
-                    <button type="button" className="btn btn-primary" aria-label="Agregar otra" onClick={this.reiniciarCampos}>Agregar otra</button>
-                    </div>
+                        <button type="button" className="btn btn-primary" aria-label="Agregar otra" onClick={this.reiniciarCampos}>Agregar otra</button>
+                    </div>}
                     {this.props.cerrarModal ?
                     <div className="m-1">
                         <button type="button" className="btn btn-secondary" aria-label="Volver" onClick={()=>{this.props.cerrarModal();this.reiniciarCampos()}}>Volver</button>

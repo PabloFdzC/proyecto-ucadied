@@ -40,21 +40,15 @@ class JuntaDirectiva extends React.Component {
         this.titulos = [
             {name:'Nombre',selector:row=>row.nombre,sortable:true},
             {name:'Puesto',selector:row=>row.puesto,sortable:true},
-            ];
-        this.titulosPuestos = [
-            {name:'Nombre',selector:row=>row.nombre,sortable:true},
             {name:'Edita página',selector:row=>row.edita_pagina ? "Sí":"No"},
             {name:'Edita Junta Directiva',selector:row=>row.edita_junta ? "Sí":"No"},
             {name:'Edita proyectos',selector:row=>row.edita_proyecto ? "Sí":"No"},
             {name:'Edita actividades',selector:row=>row.edita_actividad ? "Sí":"No"},
             ];
         this.organizacionPedida = false;
-        this.puestosPedidos = true;
-        this.avisaAgregadoMiembro = this.avisaAgregadoMiembro.bind(this);
-        this.metePuestosEnTabla = this.metePuestosEnTabla.bind(this);
+        this.actualizaTablaMiembro = this.actualizaTablaMiembro.bind(this);
         this.muestraModal = this.muestraModal.bind(this);
         this.avisaCreadoMiembro = this.avisaCreadoMiembro.bind(this);
-        this.eliminarPuesto = this.eliminarPuesto.bind(this);
         this.eliminarMiembro = this.eliminarMiembro.bind(this);
     }
 
@@ -117,7 +111,6 @@ class JuntaDirectiva extends React.Component {
             this.organizacionPedida = true;
             try{
                 await this.props.cargarOrganizacion(this.props.idOrganizacion);
-                this.cargarPuestos(this.props.idOrganizacion);
                 this.cargarMiembros(this.props.idOrganizacion);
             }catch(err){
                 console.log(err);
@@ -126,22 +119,7 @@ class JuntaDirectiva extends React.Component {
     }
 
     /*
-    cargarPuestos llama al server para cargar los puestos
-    existentes en una organización
-    - idOrganizacion: número entero que representa el id de
-        la organización
-    */
-    async cargarPuestos(idOrganizacion){
-        try{
-            const resp = await this.queriesGenerales.obtener("/juntaDirectiva/consultarPuestos/"+idOrganizacion, {});
-            this.metePuestosEnTabla(resp.data);
-        } catch(err){
-            console.log(err);
-        }
-    }
-
-    /*
-    cargarPuestos llama al server para cargar los miembros
+    cargarMiembros llama al server para cargar los miembros
     existentes en una organización
     - idOrganizacion: número entero que representa el id de
         la organización
@@ -149,14 +127,21 @@ class JuntaDirectiva extends React.Component {
     async cargarMiembros(idOrganizacion){
         try{
             var miembros = this.state.miembros;
-            const resp = await this.queriesGenerales.obtener("/juntaDirectiva/consultarMiembros/"+idOrganizacion, {});
+            const resp = await this.queriesGenerales.obtener("/puesto/consultar", {
+                id_organizacion: idOrganizacion,
+            });
             var miembrosLista = [];
+            console.log(resp);
             for(let m of resp.data){
                 var miembro = {
                     id_usuario: m.id_usuario.toString(),
-                    id_puesto_jd:m.id_puesto_jd.toString(),
+                    id:m.id,
                     nombre:m.usuario.nombre,
-                    puesto: m.puesto_jd.nombre,
+                    puesto: m.nombre,
+                    edita_pagina: m.edita_pagina,
+                    edita_junta: m.edita_junta,
+                    edita_proyecto: m.edita_proyecto,
+                    edita_actividad: m.edita_actividad,
                 };
                 miembrosLista.push(miembro);
             }
@@ -179,22 +164,26 @@ class JuntaDirectiva extends React.Component {
             puesto: número entero con id del puesto del usuario,
         }
     */
-    avisaCreadoMiembro(miembroNuevo){
-        var miembro = {
-            id_usuario:miembroNuevo.id.toString(),
-            nombre: miembroNuevo.nombre,
-        };
-        for(let p of this.state.puestos){
-            if(p.id == miembroNuevo.puesto){
-                miembro.id_puesto_jd = p.id.toString();
-                miembro.puesto = p.nombre;
-            }
+    async avisaCreadoMiembro(miembroNuevo){
+        try{
+            const usuario = {
+                id_usuario: miembroNuevo.id.toString(),
+                id:miembroNuevo.id_puesto,
+                nombre:miembroNuevo.nombre,
+                puesto: miembroNuevo.puesto,
+                edita_pagina: miembroNuevo.edita_pagina,
+                edita_junta: miembroNuevo.edita_junta,
+                edita_proyecto: miembroNuevo.edita_proyecto,
+                edita_actividad: miembroNuevo.edita_actividad,
+            };
+            this.actualizaTablaMiembro(usuario);
+        }catch(err){
+            console.log(err);
         }
-        this.avisaAgregadoMiembro(miembro);
     }
     
     /*
-    avisaAgregadoMiembro acomoda los datos necesarios y mete un
+    actualizaTablaMiembro acomoda los datos necesarios y mete un
     nuevo miembro en la tabla o actualiza la información de uno
     existente
     - miembroNuevo: objeto que debe por lo menos tener los campos
@@ -202,64 +191,22 @@ class JuntaDirectiva extends React.Component {
             id_usuario: número entero,
             nombre: string,
             puesto: string con nombre del puesto,
-            id_puesto_jd: número entero,
+            id: número entero que es el id del puesto,
         }
     */
-    async avisaAgregadoMiembro(miembroNuevo){
-        var miembro = {
-            id_usuario:miembroNuevo.id_usuario.toString(),
-            nombre: miembroNuevo.nombre,
-            puesto: miembroNuevo.puesto,
-            id_puesto_jd: miembroNuevo.id_puesto_jd.toString(),
-        };
+    async actualizaTablaMiembro(miembroNuevo){
         var miembros = this.state.miembros;
         // this.state.indiceMiembro nos indica si lo que se hace es
         // una modificación al dato en la tabla
         if(!isNaN(this.state.indiceMiembro) && this.state.indiceMiembro){
-            miembros[this.state.indiceMiembro] = miembro;
+            miembros[this.state.indiceMiembro] = miembroNuevo;
             this.setState({
                 miembros:miembros,
             });
         } else {
             this.setState({
-                miembros:miembros.concat(miembro),
+                miembros:miembros.concat(miembroNuevo),
             });
-        }
-    }
-
-    /*
-    metePuestosEnTabla hace lo que dice
-    - puestosNuevos: objeto o lista de objetos con la forma
-        {
-            id: número entero,
-            nombre: string,
-            edita_pagina: booleano,
-            edita_junta: booleano,
-            edita_proyecto: booleano,
-            edita_actividad: booleano,
-        }
-    */
-    metePuestosEnTabla(puestosNuevos){
-        var puestos = this.state.puestos;
-        this.setState({
-            puestos:puestos.concat(puestosNuevos),
-        });
-    }
-
-    /*
-    eliminarPuesto hace lo que dice
-    */
-    async eliminarPuesto(){
-        try{
-            await this.queriesGenerales.eliminar("/juntaDirectiva/eliminarPuesto/"+this.state.Puesto.id, {});
-            this.state.puestos.splice(this.state.indicePuesto, 1);
-            this.setState({
-                indicePuesto:null,
-                Puesto:{},
-                muestraEliminarPuesto: false,
-            });
-        } catch(err){
-            console.log(err);
         }
     }
 
@@ -269,7 +216,7 @@ class JuntaDirectiva extends React.Component {
     */
     async eliminarMiembro(){
         try{
-            await this.queriesGenerales.postear("/juntaDirectiva/eliminarMiembro/", this.state.Miembro);
+            await this.queriesGenerales.postear("/puesto/eliminar/", this.state.Miembro);
             this.state.miembros.splice(this.state.indiceMiembro, 1);
             this.setState({
                 indiceMiembro:null,
@@ -297,20 +244,6 @@ class JuntaDirectiva extends React.Component {
             },
         ];
 
-        const accionesPuestos = [
-            {
-                nombre:"Modificar",
-                className:"btn-primary",
-                onClick:(valor, indice)=>this.muestraModal("Puesto",true, valor, indice),
-                icon:"lni-pencil-alt",
-            },
-            {
-                nombre:"Eliminar",
-                className:"btn-danger",
-                onClick:(valor, indice)=>this.muestraModalEliminar("Puesto",true, valor, indice),
-                icon:"lni-trash-can",
-            },
-        ];
         return (
             <usuarioContexto.Consumer >
                 {({usuario, organizacion})=>{
@@ -323,48 +256,28 @@ class JuntaDirectiva extends React.Component {
                                 </div>
                                 <div className="d-flex justify-content-end">
                                     <div className="m-1">
-                                        <button className="btn btn-dark" onClick={()=>this.muestraModal("Puesto",true)} ><i className="lni lni-plus"></i>  Agregar puesto</button>
-                                    </div>
-                                    <div className="m-1">
                                         <button className="btn btn-primary" onClick={()=>this.muestraModal(organizacion.id === organizacion.id_organizacion ?"Miembro":"Usuario",true)}><i className="lni lni-plus"></i>  Agregar miembro</button>
                                     </div>
                                 </div>
                             </div>
-                            <div className="d-flex" style={{height:"inherit"}}>
+                            <div className="d-flex" style={{height:"100%"}}>
                                 <div className="w-100" style={{backgroundColor:"#137E31", color:"#FFFFFF"}}>
-                                <Tabs id="controlled-tab-example" activeKey={this.state.key} onSelect={(key) => this.setState({key})} className="mb-3">
-                                    <Tab eventKey="miembros" title="Miembros">
-                                        <Tabla titulos={this.titulos} datos={this.state.miembros} acciones={accionesMiembros} />
-                                    </Tab>
-                                    <Tab eventKey="puestos" title="Puestos">
-                                        <Tabla titulos={this.titulosPuestos} datos={this.state.puestos} acciones={accionesPuestos} />
-                                    </Tab>
-                                </Tabs>
+                                <Tabla titulos={this.titulos} datos={this.state.miembros} acciones={accionesMiembros} />
                                 </div>
                             </div>
-                            <Modal show={this.state.muestraMiembroF} onHide={()=>this.muestraModal("Miembro",false)} className="modal-green">
+                            <Modal show={this.state.muestraMiembroF} onHide={()=>this.muestraModal("Miembro",false)} className="modal-green" centered>
                             <Modal.Body>
-                                <MiembroJuntaDirectivaForm esUnion={organizacion.id === organizacion.id_organizacion} puestos={this.state.puestos} idOrganizacion={organizacion.id} avisaAgregado={this.avisaAgregadoMiembro} cerrarModal={()=>this.muestraModal("Miembro",false)} campos={this.state.Miembro} />
+                                <MiembroJuntaDirectivaForm esUnion={organizacion.id === organizacion.id_organizacion} puestos={this.state.puestos} idOrganizacion={organizacion.id} avisaEnviado={this.actualizaTablaMiembro} cerrarModal={()=>this.muestraModal("Miembro",false)} campos={this.state.Miembro} />
                             </Modal.Body>
                             </Modal>
-                            <Modal size='lg' show={this.state.muestraUsuarioF} onHide={()=>this.muestraModal("Usuario",false)} className="modal-green">
+                            <Modal size='lg' show={this.state.muestraUsuarioF} onHide={()=>this.muestraModal("Usuario",false)} className="modal-green" centered>
                             <Modal.Body>
-                                <UsuarioForm titulo="Usuario" idOrganizacion={this.props.idOrganizacion} cerrarModal={()=>this.muestraModal("Usuario",false)} avisaCreado={this.avisaCreadoMiembro} />
+                                <UsuarioForm titulo="Usuario" idOrganizacion={this.props.idOrganizacion} cerrarModal={()=>this.muestraModal("Usuario",false)} avisaCreado={this.avisaCreadoMiembro} ocupaPuesto />
                             </Modal.Body>
                             </Modal>
-                            <Modal show={this.state.muestraPuestoF} onHide={()=>this.muestraModal("Puesto",false)} className="modal-green">
+                            <Modal show={this.state.muestraEliminarMiembro} onHide={()=>this.muestraModalEliminar("Miembro",false)} className="modal-green" centered>
                             <Modal.Body>
-                                <PuestoForm idOrganizacion={organizacion.id} avisaEnviado={this.metePuestosEnTabla} cerrarModal={()=>this.muestraModal("Puesto",false)} campos={this.state.Puesto} />
-                            </Modal.Body>
-                            </Modal>
-                            <Modal show={this.state.muestraEliminarMiembro} onHide={()=>this.muestraModalEliminar("Miembro",false)} className="modal-green">
-                            <Modal.Body>
-                                <ConfirmaAccion claseBtn={"btn-danger"} titulo={"¿Desea eliminar a "+this.state.Miembro.nombre+" de la Junta Directiva?"} accion={this.eliminarMiembro} cerrarModal={()=>this.muestraModalEliminar("Puesto",false)} />
-                            </Modal.Body>
-                            </Modal>
-                            <Modal show={this.state.muestraEliminarPuesto} onHide={()=>this.muestraModalEliminar("Puesto",false)} className="modal-green">
-                            <Modal.Body>
-                                <ConfirmaAccion claseBtn={"btn-danger"} titulo={"¿Desea eliminar el puesto de "+this.state.Puesto.nombre+"?"} accion={this.eliminarPuesto} cerrarModal={()=>this.muestraModalEliminar("Miembro",false)} />
+                                <ConfirmaAccion claseBtn={"btn-danger"} titulo={"¿Desea eliminar a "+this.state.Miembro.nombre+" de la Junta Directiva?"} accion={this.eliminarMiembro} cerrarModal={()=>this.muestraModalEliminar("Miembro",false)} accionNombre="Eliminar" />
                             </Modal.Body>
                             </Modal>
                             </>);

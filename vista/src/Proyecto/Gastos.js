@@ -31,6 +31,9 @@ class Gastos extends React.Component {
             {name:'Fecha',selector:row=>row.fecha,sortable:true},
             {name:'Número de acta',selector:row=>row.numero_acta,sortable:true},
             {name:'Número de acuerdo',selector:row=>row.numero_acuerdo,sortable:true},
+            {name:'Proveedor',selector:row=>row.proveedor,sortable:true},
+            {name:'Número de factura',selector:row=>row.numero_factura,sortable:true},
+            {name:'Comprobante de pago',selector:row=>row.numero_comprobante_pago,sortable:true},
             ];
 
         this.avisaCreado = this.avisaCreado.bind(this);
@@ -110,7 +113,7 @@ class Gastos extends React.Component {
                                     <Tabla titulos={this.titulos} datos={this.state.gastos} style={{color:"#FFFFFF"}} />
                                     </div>
                                 </div>
-                                <Modal show={this.state.muestraGF} onHide={()=>this.muestraModal(false)} className="modal-green">
+                                <Modal show={this.state.muestraGF} onHide={()=>this.muestraModal(false)} className="modal-green" centered>
                                 <Modal.Body>
                                     <GastoForm idProyecto={this.props.idProyecto} avisaCreado={this.avisaCreado} cerrarModal={()=>this.muestraModal(false)} />
                                 </Modal.Body>

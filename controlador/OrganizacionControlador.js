@@ -3,7 +3,7 @@ const usuario = require('../modelo/usuario');
 const queries_generales = require('./QueriesGenerales');
 const { Op } = require("sequelize");
 const sequelize = require("sequelize");
-const juntaDirectivaCtrl = require("./JuntaDirectivaControlador");
+const juntaDirectivaCtrl = require("./PuestoControlador");
 
 async function consultar(params){
     if(params.id_organizacion){

@@ -54,7 +54,8 @@ class ActividadForm extends React.Component {
             nombre: "",
             tipo: this.tipoInicial,
             id_inmueble:props.idInmueble,
-            coordinador: "",
+            persona_contacto: "",
+            identificacion:"",
             email: "",
             telefonos: [],
             repeticion: this.diasLetra.map(()=>false),
@@ -74,7 +75,8 @@ class ActividadForm extends React.Component {
                 nombre: "",
                 tipo: "",
                 id_inmueble:"",
-                coordinador: "",
+                persona_contacto: "",
+                identificacion:"",
                 email: "",
                 telefonos: "",
                 fechaInicio:"",
@@ -92,7 +94,8 @@ class ActividadForm extends React.Component {
             nombre: "requerido",
             tipo: "seleccionado",
             id_inmueble:"seleccionado",
-            coordinador: "requerido",
+            persona_contacto: "requerido",
+            identificacion:"requerido|numeros",
             email: "requerido|email",
             telefonos: "tiene-valores",
             fechaInicio:"requerido|fecha",
@@ -173,7 +176,7 @@ class ActividadForm extends React.Component {
                 nombre: "",
                 tipo: this.tipoInicial,
                 id_inmueble:this.props.idInmueble,
-                coordinador: "",
+                persona_contacto: "",
                 email: "",
                 telefonos: [],
                 repeticion: this.diasLetra.map(()=>false),
@@ -298,13 +301,15 @@ class ActividadForm extends React.Component {
         // Si no hay errores entonces se manda la información al
         // server
         // RECORDARSE DE ACTIVAR EL CAPTCHA AQUÏ TAMBIÉN
-        if(!this.state.errores.hayError && this.captcha.current.getValue()){
+        //const captcha = this.captcha.current.getValue();
+        const captcha = true;
+        if(!this.state.errores.hayError && captcha){
             var datos = {
-                captcha:this.captcha.current.getValue(),
+                captcha:captcha,
                 id_organizacion: this.props.idOrganizacion,
                 nombre: this.state.campos.nombre,
                 tipo: this.state.campos.tipo,
-                coordinador: this.state.campos.coordinador,
+                persona_contacto: this.state.campos.persona_contacto,
                 email: this.state.campos.email,
                 telefonos: this.state.campos.telefonos,
                 id_inmueble:this.state.campos.id_inmueble,
@@ -329,13 +334,13 @@ class ActividadForm extends React.Component {
             }
         } else {
             if(this.state.errores.nombre.length !== 0 || this.state.errores.tipo.length !== 0 ||
-                this.state.errores.id_inmueble.length !== 0 || this.state.errores.coordinador.length !== 0 ||
+                this.state.errores.id_inmueble.length !== 0 || this.state.errores.persona_contacto.length !== 0 ||
                 this.state.errores.telefonos.length !== 0 || this.state.errores.email.length !== 0){
                 this.setState({
                     key:"Actividad"
                 });
             } else if(this.state.errores.fechaInicio.length !== 0 || this.state.errores.fechaFinal.length !== 0 ||
-                this.state.errores.horaInicio.length !== 0 || this.state.errores.horaInicio.length !== 0 /*|| !this.captcha.current.getValue() */){
+                this.state.errores.horaInicio.length !== 0 || this.state.errores.horaInicio.length !== 0 || !captcha){
                 this.setState({
                     key:"Fechas"
                 });
@@ -460,14 +465,21 @@ class ActividadForm extends React.Component {
                                     </div>
                                 </div>
                                 <div className="mb-3 position-relative">
-                                    <label htmlFor="coordinador" className="form-label">Coordinador</label>
-                                    <input type="text" className={this.state.errores.coordinador.length > 0 ? "form-control is-invalid":"form-control"} key="coordinador" name="coordinador" value={this.state.campos.coordinador} onChange={this.manejaCambio} />
+                                    <label htmlFor="persona_contacto" className="form-label">Persona de contacto</label>
+                                    <input type="text" className={this.state.errores.persona_contacto.length > 0 ? "form-control is-invalid":"form-control"} key="persona_contacto" name="persona_contacto" value={this.state.campos.persona_contacto} onChange={this.manejaCambio} />
                                     <div className="invalid-tooltip">
-                                        {this.state.errores.coordinador}
+                                        {this.state.errores.persona_contacto}
                                     </div>
                                 </div>
                             </div>
                             <div className="col-12 col-md-6">
+                                <div className="mb-3 position-relative">
+                                    <label htmlFor="identificacion" className="form-label">Identificación o DIMEX</label>
+                                    <input type="text" className={this.state.errores.identificacion.length > 0 ? "form-control is-invalid":"form-control"} key="identificacion" name="identificacion" value={this.state.campos.identificacion} onChange={this.manejaCambio} />
+                                    <div className="invalid-tooltip">
+                                        {this.state.errores.identificacion}
+                                    </div>
+                                </div>
                                 <div className="mb-3 position-relative">
                                     <label htmlFor="email" className="form-label">Email</label>
                                     <input type="email" className={this.state.errores.email.length > 0 ? "form-control is-invalid":"form-control"} key="email" name="email" value={this.state.campos.email} onChange={this.manejaCambio} />

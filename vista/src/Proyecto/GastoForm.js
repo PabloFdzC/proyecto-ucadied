@@ -16,6 +16,9 @@ class GastoForm extends React.Component {
             fecha: "",
             numero_acta:"",
             numero_acuerdo:"",
+            proveedor: "",
+            numero_factura: "",
+            numero_comprobante_pago: "",
         };
         this.state = {
             titulo: this.titulo,
@@ -26,6 +29,9 @@ class GastoForm extends React.Component {
                 fecha: "",
                 numero_acta:"",
                 numero_acuerdo:"",
+                proveedor: "",
+                numero_factura: "",
+                numero_comprobante_pago: "",
                 hayError: false,
             },
             creado:false,
@@ -36,6 +42,9 @@ class GastoForm extends React.Component {
             fecha: "requerido",
             numero_acta:"requerido|numeros",
             numero_acuerdo:"requerido|numeros",
+            proveedor: "requerido",
+            numero_factura: "requerido|numeros",
+            numero_comprobante_pago: "requerido|numeros",
         }, this);
 
         this.manejaCambio = this.manejaCambio.bind(this);
@@ -54,6 +63,9 @@ class GastoForm extends React.Component {
                 fecha: "",
                 numero_acta:"",
                 numero_acuerdo:"",
+                proveedor: "",
+                numero_factura: "",
+                numero_comprobante_pago: "",
             })
         });
     }
@@ -107,22 +119,43 @@ class GastoForm extends React.Component {
                     {this.state.errores.monto}
                 </div>
               </div>
+              <div className="mb-3 position-relative">
+                <label htmlFor="proveedor" className="form-label">Proveedor</label>
+                <input type="text" className={this.state.errores.proveedor.length > 0 ? "form-control is-invalid":"form-control"} key="proveedor" name="proveedor" required value={this.state.campos.proveedor} onChange={this.manejaCambio} />
+                <div className="invalid-tooltip">
+                    {this.state.errores.proveedor}
+                </div>
+              </div>
             </div>
             <div className="col-12 col-md-6">
-              <div className="mb-3 position-relative">
-                <label htmlFor="numero_acta" className="form-label">Número de acta</label>
-                <input type="text" className={this.state.errores.numero_acta.length > 0 ? "form-control is-invalid":"form-control"} key="numero_acta" name="numero_acta" required value={this.state.campos.numero_acta} onChange={this.manejaCambio} />
-                <div className="invalid-tooltip">
-                    {this.state.errores.numero_acta}
+                <div className="mb-3 position-relative">
+                    <label htmlFor="numero_factura" className="form-label">Número de factura</label>
+                    <input type="text" className={this.state.errores.numero_factura.length > 0 ? "form-control is-invalid":"form-control"} key="numero_factura" name="numero_factura" required value={this.state.campos.numero_factura} onChange={this.manejaCambio} />
+                    <div className="invalid-tooltip">
+                        {this.state.errores.numero_factura}
+                    </div>
                 </div>
-              </div>
-              <div className="mb-3 position-relative">
-                <label htmlFor="numero_acuerdo" className="form-label">Número de acuerdo</label>
-                <input type="text" className={this.state.errores.numero_acuerdo.length > 0 ? "form-control is-invalid":"form-control"} key="numero_acuerdo" name="numero_acuerdo" required value={this.state.campos.numero_acuerdo} onChange={this.manejaCambio} />
-                <div className="invalid-tooltip">
-                    {this.state.errores.numero_acuerdo}
+                <div className="mb-3 position-relative">
+                    <label htmlFor="numero_comprobante_pago" className="form-label">Número comprobante de pago</label>
+                    <input type="text" className={this.state.errores.numero_comprobante_pago.length > 0 ? "form-control is-invalid":"form-control"} key="numero_comprobante_pago" name="numero_comprobante_pago" required value={this.state.campos.numero_comprobante_pago} onChange={this.manejaCambio} />
+                    <div className="invalid-tooltip">
+                        {this.state.errores.numero_comprobante_pago}
+                    </div>
                 </div>
-              </div>
+                <div className="mb-3 position-relative">
+                    <label htmlFor="numero_acta" className="form-label">Número de acta</label>
+                    <input type="text" className={this.state.errores.numero_acta.length > 0 ? "form-control is-invalid":"form-control"} key="numero_acta" name="numero_acta" required value={this.state.campos.numero_acta} onChange={this.manejaCambio} />
+                    <div className="invalid-tooltip">
+                        {this.state.errores.numero_acta}
+                    </div>
+                </div>
+                <div className="mb-3 position-relative">
+                    <label htmlFor="numero_acuerdo" className="form-label">Número de acuerdo</label>
+                    <input type="text" className={this.state.errores.numero_acuerdo.length > 0 ? "form-control is-invalid":"form-control"} key="numero_acuerdo" name="numero_acuerdo" required value={this.state.campos.numero_acuerdo} onChange={this.manejaCambio} />
+                    <div className="invalid-tooltip">
+                        {this.state.errores.numero_acuerdo}
+                    </div>
+                </div>
             </div>
           </div>
             <div className="d-flex justify-content-end">

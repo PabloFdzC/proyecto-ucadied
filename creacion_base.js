@@ -51,7 +51,8 @@ organizacion.belongsTo(organizacion, {
 });
 
 usuario.hasMany(puesto, {
-  foreignKey: 'id_usuario'
+  foreignKey: 'id_usuario',
+  onDelete: 'cascade',
 });
 
 puesto.belongsTo(usuario, {
@@ -155,7 +156,8 @@ proyecto_x_usuario.belongsTo(proyecto, {
 });
 
 usuario.hasMany(proyecto_x_usuario, {
-  foreignKey: 'id_usuario'
+  foreignKey: 'id_usuario',
+  onDelete: 'cascade',
 });
 
 proyecto_x_usuario.belongsTo(usuario, {

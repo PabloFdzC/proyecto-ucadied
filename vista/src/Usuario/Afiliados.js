@@ -25,11 +25,10 @@ class Afiliados extends React.Component {
         }
         this.titulos = [
             {name:'Nombre',selector:row=>row.nombre,sortable:true},
-            {name:'Sexo',selector:row=>row.sexo,sortable:true},
+            {name:'Identificación',selector:row=>row.identificacion,sortable:true},
             {name:'Email',selector:row=>row.email,sortable:true},
             {name:'Fecha de nacimiento',selector:row=>row.fecha_nacimiento,sortable:true},
             {name:'Profesión',selector:row=>row.profesion,sortable:true},
-            {name:'Nacionalidad',selector:row=>row.nacionalidad,sortable:true},
             {name:'Teléfonos',selector:row=>row.telefonos,sortable:true},
             ];
         this.avisaCreado = this.avisaCreado.bind(this);
@@ -123,7 +122,7 @@ class Afiliados extends React.Component {
                                         <Tabla titulos={this.titulos} datos={this.state.usuarios} acciones={accionesTabla} />
                                     </div>
                                 </div>
-                                <Modal size="lg" show={this.state.muestra} onHide={()=>this.muestraModal(false)} className="modal-green">
+                                <Modal size="lg" show={this.state.muestra} onHide={()=>this.muestraModal(false)} className="modal-green" centered>
                                 <Modal.Body>
                                 <UsuarioForm titulo="Usuario" idOrganizacion={this.props.idOrganizacion} cerrarModal={()=>this.muestraModal(false)} />
                                 </Modal.Body>

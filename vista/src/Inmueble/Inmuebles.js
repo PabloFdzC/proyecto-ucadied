@@ -22,7 +22,6 @@ class Inmuebles extends React.Component {
         this.state = {
             inmuebles: [],
             inmueble:{},
-            indiceInmueble:null,
         }
         this.inmueblesPedidos = false;
         this.titulos = [
@@ -49,10 +48,9 @@ class Inmuebles extends React.Component {
         this.agregarInmueble = this.agregarInmueble.bind(this);
     }
 
-    agregarInmueble(inmueble, indice){
+    agregarInmueble(inmueble){
         if(!inmueble) inmueble={};
         this.setState({
-            indiceInmueble:indice,
             inmueble:inmueble,
             muestra:true,
         })
@@ -94,8 +92,9 @@ class Inmuebles extends React.Component {
 
     async avisaCreado(inmueble){
         var inmuebles = this.state.inmuebles;
-        if(!isNaN(this.state.indiceInmueble) && this.state.indiceInmueble){
-            inmuebles[this.state.indiceInmueble] = inmueble;
+        const indice = this.state.usuarios.indexOf(this.state.Usuario);
+        if(indice !== -1){
+            inmuebles[indice] = inmueble;
             this.setState({
                 inmuebles:inmuebles,
             });
@@ -135,7 +134,7 @@ class Inmuebles extends React.Component {
                                        <Tabla titulos={this.titulos} titulosAnidados={this.titulosAnidados} valorAnidado={"horario"} datos={this.state.inmuebles} acciones={accionesTabla} />
                                     </div>
                                 </div>
-                                <Modal show={this.state.muestra} onHide={()=>this.muestraModal(false)} className="modal-green">
+                                <Modal show={this.state.muestra} onHide={()=>this.muestraModal(false)} className="modal-green" centered>
                                 <Modal.Body>
                                     <InmuebleForm idOrganizacion={this.props.idOrganizacion} avisaCreado={this.avisaCreado} campos={this.state.inmueble} cerrarModal={()=>this.muestraModal(false)} />
                                 </Modal.Body>

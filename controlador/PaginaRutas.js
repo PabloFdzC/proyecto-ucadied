@@ -2,7 +2,7 @@ const router = require('express').Router();
 const bodyParser = require('body-parser');
 const jsonParser  = bodyParser.json({ extended: false });
 const paginaCtlr = require('./PaginaControlador');
-const JuntaDirectivaCtlr = require('./JuntaDirectivaControlador');
+const puestoCtlr = require('./PuestoControlador');
 
 router.get('/consultar/:id_pagina', async (req, res) => {
     try{
@@ -15,7 +15,7 @@ router.get('/consultar/:id_pagina', async (req, res) => {
             }
             else if(paginas.length === 1){
                 const pagina = paginas[0];
-                habilitado = await JuntaDirectivaCtlr.consultar_permisos(req.session.idUsuario, pagina.id_organizacion, "edita_pagina");
+                habilitado = await puestoCtlr.consultar_permisos(req.session.idUsuario, pagina.id_organizacion, "edita_pagina");
             }
         }
         if(habilitado){
@@ -50,14 +50,14 @@ router.get('/consultar', async (req, res) => {
             }
             else{
                 if(params.id_organizacion){
-                    habilitado = await JuntaDirectivaCtlr.consultar_permisos(req.session.idUsuario, params.id_organizacion, "edita_pagina");
+                    habilitado = await puestoCtlr.consultar_permisos(req.session.idUsuario, params.id_organizacion, "edita_pagina");
                 }
                 if(params.id){
                     pagina =  await paginaCtlr.consultar(req.query);
                     pagina_encontrada = true;
                     if(!habilitado){
                         if(pagina.length === 1){
-                            habilitado = await JuntaDirectivaCtlr.consultar_permisos(req.session.idUsuario, pagina[0].id_organizacion, "edita_pagina");
+                            habilitado = await puestoCtlr.consultar_permisos(req.session.idUsuario, pagina[0].id_organizacion, "edita_pagina");
                         }
                     }
                 }
@@ -92,7 +92,7 @@ router.post('/crear', jsonParser, async (req, res) => {
                 habilitado = true;
             }
             else{
-                habilitado = JuntaDirectivaCtlr.consultar_permisos(req.session.idUsuario, "edita_pagina");
+                habilitado = puestoCtlr.consultar_permisos(req.session.idUsuario, "edita_pagina");
             }
         }
         var habilitado = false;
@@ -101,7 +101,7 @@ router.post('/crear', jsonParser, async (req, res) => {
                 habilitado = true;
             }
             if(req.body.id_organizacion){
-                habilitado = await JuntaDirectivaCtlr.consultar_permisos(req.session.idUsuario, req.body.id_organizacion, "edita_pagina");
+                habilitado = await puestoCtlr.consultar_permisos(req.session.idUsuario, req.body.id_organizacion, "edita_pagina");
             }
             else{
                 error_encontrado = true;
@@ -138,7 +138,7 @@ router.put('/modificar/:id_pagina', jsonParser, async (req, res) => {
                 const paginas = await paginaCtlr.consultar({id: req.params.id_pagina});
                 if(paginas.length === 1){
                     const pagina = paginas[0];
-                    habilitado = await JuntaDirectivaCtlr.consultar_permisos(req.session.idUsuario, pagina.id_organizacion, "edita_pagina");
+                    habilitado = await puestoCtlr.consultar_permisos(req.session.idUsuario, pagina.id_organizacion, "edita_pagina");
                 }
                 else{
                     res.status(400);
@@ -176,7 +176,7 @@ router.delete('/eliminar/:id_pagina', async (req, res) => {
                 const paginas = await paginaCtlr.consultar({id: req.params.id_pagina});
                 if(paginas.length === 1){
                     const pagina = paginas[0];
-                    habilitado = await JuntaDirectivaCtlr.consultar_permisos(req.session.idUsuario, pagina.id_organizacion, "edita_pagina");
+                    habilitado = await puestoCtlr.consultar_permisos(req.session.idUsuario, pagina.id_organizacion, "edita_pagina");
                 }
                 else{
                     res.status(400);

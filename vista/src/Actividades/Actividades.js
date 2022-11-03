@@ -24,11 +24,9 @@ class Actividades extends React.Component {
         this.queriesGenerales = new QueriesGenerales();
         this.state = {
             muestra:false,
-            indiceActividad:null,
             Actividad:{},
             muestraHabilitarActividad:false,
             muestraEliminarActividad:false,
-            indiceReserva:null,
             Reserva:{},
             muestraHabilitarReserva:false,
             muestraEliminarReserva:false,
@@ -45,7 +43,7 @@ class Actividades extends React.Component {
         this.titulos = [
             {name:'Nombre',selector:row=>row.nombre,sortable:true},
             {name:'Inmueble',selector:row=>row.inmuebles[0].nombre,sortable:true},
-            {name:'Coordinador',selector:row=>row.coordinador,sortable:true},
+            {name:'Persona de contacto',selector:row=>row.persona_contacto,sortable:true},
             {name:'Email',selector:row=>row.email,sortable:true},
             {name:'Teléfonos',selector:row=>row.telefonos},
             ];
@@ -92,7 +90,7 @@ class Actividades extends React.Component {
             id: número entero
             nombre: string,
             tipo: string,
-            coordinador: string,
+            persona_contacto: string,
             email: string,
             telefonos: lista con números,
             inmuebles: lista con objetos de la forma
@@ -122,7 +120,7 @@ class Actividades extends React.Component {
             id: número entero
             nombre: string,
             tipo: string,
-            coordinador: string,
+            persona_contacto: string,
             email: string,
             telefonos: lista con números,
             inmuebles: este tiene la misma forma que el de
@@ -267,10 +265,9 @@ class Actividades extends React.Component {
         });
     }
 
-    muestraModal(nombre, accion, muestra, valor, indice){
+    muestraModal(nombre, accion, muestra, valor){
         if(!valor) valor={};
         this.setState({
-            ["indice"+nombre]:indice,
             [nombre]:valor,
             ["muestra"+accion+nombre]:muestra,
             mensajeModal: muestra ? "" :  this.state.mensajeModal,
@@ -378,13 +375,13 @@ class Actividades extends React.Component {
             {
                 nombre: "Habilitar",
                 className:"btn-primary",
-                onClick:(valor, indice)=>this.muestraModal("Actividad", "Habilitar",true, valor, indice),
+                onClick:(valor)=>this.muestraModal("Actividad", "Habilitar",true, valor),
                 icon:"lni-checkmark-circle",
             },
             {
                 nombre: "Eliminar",
                 className:"btn-danger",
-                onClick:(valor, indice)=>this.muestraModal("Actividad", "Eliminar",true, valor, indice),
+                onClick:(valor)=>this.muestraModal("Actividad", "Eliminar",true, valor),
                 icon:"lni-trash-can",
             },
         ];
@@ -392,7 +389,7 @@ class Actividades extends React.Component {
             {
                 nombre:"Habilitar",
                 className:"btn-primary",
-                onClick:(valor, indice)=>this.muestraModal("Reserva", "Habilitar",true, valor, indice),
+                onClick:(valor)=>this.muestraModal("Reserva", "Habilitar",true, valor),
                 icon:"lni-checkmark-circle",
             },
             {
@@ -404,7 +401,7 @@ class Actividades extends React.Component {
             {
                 nombre:"Eliminar",
                 className:"btn-danger",
-                onClick:(valor, indice)=>this.muestraModal("Reserva", "Eliminar",true, valor, indice),
+                onClick:(valor)=>this.muestraModal("Reserva", "Eliminar",true, valor),
                 icon:"lni-trash-can",
             },
         ];
@@ -434,7 +431,7 @@ class Actividades extends React.Component {
                                         <Tabla titulos={this.titulosReservas} datos={this.state.reservas ? this.state.reservas : []} style={{color:"#FFFFFF"}} />
                                     </Offcanvas.Body>
                                 </Offcanvas>
-                                <Modal show={this.state.muestraHabilitarActividad} onHide={()=>this.muestraModal("Actividad", "Habilitar",false)} className="modal-green">
+                                <Modal show={this.state.muestraHabilitarActividad} onHide={()=>this.muestraModal("Actividad", "Habilitar",false)} className="modal-green" centered>
                                 <Modal.Body>
                                     {this.state.mensajeModal === "" ?
                                     <ConfirmaAccion claseBtn={"btn-primary"} accionNombre="Habilitar" titulo={"¿Desea habilitar todas las reservas para "+this.state.Actividad.nombre+"?"} accion={this.habilitarReservas} cerrarModal={()=>this.muestraModal("Actividad", "Habilitar",false)} />
@@ -449,7 +446,7 @@ class Actividades extends React.Component {
                                     </>}
                                 </Modal.Body>
                                 </Modal>
-                                <Modal show={this.state.muestraHabilitarReserva} onHide={()=>this.muestraModal("Reserva", "Habilitar",false)} className="modal-green">
+                                <Modal show={this.state.muestraHabilitarReserva} onHide={()=>this.muestraModal("Reserva", "Habilitar",false)} className="modal-green" centered>
                                 <Modal.Body>
                                     {this.state.mensajeModal === "" ?
                                     <ConfirmaAccion claseBtn={"btn-primary"} accionNombre="Habilitar" titulo={"¿Desea habilitar la reserva del "+this.state.Reserva.diaBonito+ " de " +this.state.Reserva.inicioBonito+"-"+this.state.Reserva.finalBonito+"?"} accion={this.habilitarReservas} cerrarModal={()=>this.muestraModal("Actividad", "Habilitar",false)} />
@@ -464,7 +461,7 @@ class Actividades extends React.Component {
                                     </>}
                                 </Modal.Body>
                                 </Modal>
-                                <Modal show={this.state.muestraEliminarActividad} onHide={()=>this.muestraModal("Actividad", "Eliminar",false)} className="modal-green">
+                                <Modal show={this.state.muestraEliminarActividad} onHide={()=>this.muestraModal("Actividad", "Eliminar",false)} className="modal-green" centered>
                                 <Modal.Body>
                                     {this.state.mensajeModal === "" ?
                                     <ConfirmaAccion claseBtn={"btn-danger"} accionNombre="Eliminar" titulo={"¿Desea eliminar las reservas para "+this.state.Actividad.nombre+" que no hayan sido habilitadas?"} accion={this.eliminarReservas} cerrarModal={()=>this.muestraModal("Actividad", "Eliminar",false)} />
@@ -479,7 +476,7 @@ class Actividades extends React.Component {
                                     </>}
                                 </Modal.Body>
                                 </Modal>
-                                <Modal show={this.state.muestraEliminarReserva} onHide={()=>this.muestraModal("Reserva", "Eliminar",false)} className="modal-green">
+                                <Modal show={this.state.muestraEliminarReserva} onHide={()=>this.muestraModal("Reserva", "Eliminar",false)} className="modal-green" centered>
                                 <Modal.Body>
                                     {this.state.mensajeModal === "" ?
                                     <ConfirmaAccion claseBtn={"btn-danger"} accionNombre="Eliminar" titulo={"¿Desea eliminar la reserva del "+this.state.Reserva.diaBonito+ " de " +this.state.Reserva.inicioBonito+"-"+this.state.Reserva.finalBonito+"?"} accion={this.eliminarReservas} cerrarModal={()=>this.muestraModal("Actividad", "Eliminar",false)} />

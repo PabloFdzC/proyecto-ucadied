@@ -18,11 +18,9 @@ class Administradores extends React.Component {
         this.administradoresPedidos = false;
         this.titulos = [
             {name:'Nombre',selector:row=>row.nombre,sortable:true},
-            {name:'Sexo',selector:row=>row.sexo,sortable:true},
+            {name:'Identificación',selector:row=>row.identificacion,sortable:true},
             {name:'Email',selector:row=>row.email,sortable:true},
             {name:'Fecha de nacimiento',selector:row=>row.fecha_nacimiento,sortable:true},
-            {name:'Profesión',selector:row=>row.profesion,sortable:true},
-            {name:'Nacionalidad',selector:row=>row.nacionalidad,sortable:true},
             {name:'Teléfonos',selector:row=>row.telefonos,sortable:true},
             ];
         this.avisaCreado = this.avisaCreado.bind(this);
@@ -87,7 +85,7 @@ class Administradores extends React.Component {
                         <Tabla titulos={this.titulos} datos={this.state.administradores} />
                     </div>
                 </div>
-                <Modal size="lg" show={this.state.muestra} onHide={()=>this.muestraModal(false)} className="modal-green">
+                <Modal size="lg" show={this.state.muestra} onHide={()=>this.muestraModal(false)} className="modal-green" centered>
                 <Modal.Body>
                     <UsuarioForm administrador={true} titulo={"Administrador"} avisaCreado={this.avisaCreado} campos={this.state.administrador} cerrarModal={()=>this.muestraModal(false)} />
                 </Modal.Body>

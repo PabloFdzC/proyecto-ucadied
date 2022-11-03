@@ -41,7 +41,7 @@ async function consultar(paramsActividad, paramsReserva, paramsInmueble, id_usua
                         where: paramsReserva,
                     }
                 ],
-                attributes:{exclude:["coordinador","telefonos","email"]},
+                attributes:{exclude:["coordinador","telefonos","email","nombre"]},
                 where: paramsActividad
             });
         } else if(!paramsActividad.tipo || paramsActividad.tipo == ""){
@@ -60,7 +60,7 @@ async function consultar(paramsActividad, paramsReserva, paramsInmueble, id_usua
                         where: paramsReserva,
                     }
                 ],
-                attributes:{exclude:["coordinador","telefonos","email"]},
+                attributes:{exclude:["coordinador","telefonos","email","nombre"]},
                 where: paramsActividad
             });
             paramsActividad.tipo = "Pública";
@@ -157,23 +157,31 @@ async function crear_habilitar(info, id_usuario, habilitar){
                 const errores = await buscar_disponibilidad_dias(info.dias, horario, info.id_inmueble);
                 if(errores.length === 0){
                     info.habilitado = id_usuario && id_usuario != -1;
-                    if(habilitar)
-                        return cambiaHabilitado(info);
-                    else
-                        return crear(info);
+                    if(habilitar){
+                        console.log("cambiaHabilitado");
+                        return await cambiaHabilitado(info);
+                    }
+                    else{
+                        console.log("crear");
+                        return await crear(info);
+                    }
                 }
                 else{
+                    console.log("errores");
                     return {errores};
                 }
             }
             else{
+                console.log("error1");
                 return{error: "Información de días no enviada"}
             }
         }
         else{
+            console.log("error2");
             return {error: "inmueble no encontrado"};
         }
     }else{
+        console.log("error3");
         return {error: "inmueble no encontrado"};
     }
 }
@@ -201,6 +209,7 @@ async function crear(info){
         });
     }
     await inmuebleCtlr.crear_reservas(reservas);
+    return actividad_creada;
 }
 
 async function modificar(id, info){

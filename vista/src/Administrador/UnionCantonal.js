@@ -18,7 +18,6 @@ class UnionCantonal extends React.Component {
         this.state = {
             uniones: [],
             muestra:false,
-            ingresaJunta:true,
             union:{},
             indiceUnion: null,
         }
@@ -80,7 +79,6 @@ class UnionCantonal extends React.Component {
         this.setState({
             union:union,
             muestra:true,
-            ingresaJunta: !indice,
             indiceUnion: indice
         })
     }
@@ -117,14 +115,16 @@ class UnionCantonal extends React.Component {
                             <>
                                 <div className="d-flex align-items-center justify-content-between m-3">
                                     <h1>Unión Cantonal</h1>
-                                    <button className="btn btn-primary" onClick={()=>this.agregarUnion()}><i className="lni lni-plus"></i>  Agregar unión</button>
+                                    {this.state.uniones.length === 0 ?
+                                        <button className="btn btn-primary" onClick={()=>this.agregarUnion()}><i className="lni lni-plus"></i>  Agregar unión</button>
+                                    : <></>}
                                 </div>
                                 <div className="row m-0">
                                     <CajasOrganizaciones organizaciones={this.state.uniones} modificar={this.agregarUnion} eliminar={this.eliminarUnion} />
                                 </div>
-                                <Modal size="lg" show={this.state.muestra} onHide={()=>this.muestraModal(false)} className="modal-green" >
+                                <Modal size="lg" show={this.state.muestra} onHide={()=>this.muestraModal(false)} className="modal-green" centered>
                                 <Modal.Body>
-                                    <OrganizacionForm ingresaJunta={this.state.ingresaJunta} esUnionCantonal={true} titulo={"Unión Cantonal"} avisaCreado={this.avisaCreado} campos={this.state.union} cerrarModal={()=>this.muestraModal(false)} />
+                                    <OrganizacionForm esUnionCantonal={true} titulo={"Unión Cantonal"} avisaCreado={this.avisaCreado} campos={this.state.union} cerrarModal={()=>this.muestraModal(false)} />
                                 </Modal.Body>
                                 </Modal>
                             </>

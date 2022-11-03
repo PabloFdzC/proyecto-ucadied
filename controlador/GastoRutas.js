@@ -2,7 +2,7 @@ const router = require('express').Router();
 const bodyParser = require('body-parser');
 const jsonParser  = bodyParser.json({ extended: false });
 const gastoCtlr = require('./GastoControlador');
-const JuntaDirectivaCtlr = require('./JuntaDirectivaControlador');
+const puestoCtlr = require('./PuestoControlador');
 const proyectoCtlr = require('./ProyectoControlador');
 
 router.get('/consultar', async (req, res) => {
@@ -38,7 +38,7 @@ router.get('/consultar', async (req, res) => {
                     const proyectos = await proyectoCtlr.consultar({id: id_proyecto});
                     if(proyectos.length === 1){
                         const proyecto = proyectos[0];
-                        habilitado = await JuntaDirectivaCtlr.consultar_permisos(req.session.idUsuario, proyecto.id_organizacion, "edita_proyecto");
+                        habilitado = await puestoCtlr.consultar_permisos(req.session.idUsuario, proyecto.id_organizacion, "edita_proyecto");
                     }
                 }
             }
@@ -76,7 +76,7 @@ router.post('/crear', jsonParser, async (req, res) => {
                     const proyectos = await proyectoCtlr.consultar({id: req.body.id_proyecto});
                     if(proyectos.length === 1){
                         const proyecto = proyectos[0];
-                        habilitado = await JuntaDirectivaCtlr.consultar_permisos(req.session.idUsuario, proyecto.id_organizacion, "edita_proyecto");
+                        habilitado = await puestoCtlr.consultar_permisos(req.session.idUsuario, proyecto.id_organizacion, "edita_proyecto");
                     }
                     else{
                         error_encontrado = true;
@@ -123,7 +123,7 @@ router.put('/modificar/:id_gasto', jsonParser, async (req, res) => {
                     const proyectos = await proyectoCtlr.consultar({id: gasto.id_proyecto});
                     if(proyectos.length === 1){
                         const proyecto = proyectos[0];
-                        habilitado = await JuntaDirectivaCtlr.consultar_permisos(req.session.idUsuario, proyecto.id_organizacion, "edita_proyecto");
+                        habilitado = await puestoCtlr.consultar_permisos(req.session.idUsuario, proyecto.id_organizacion, "edita_proyecto");
                     }
                     else{
                         error_encontrado = true;
@@ -170,7 +170,7 @@ router.delete('/eliminar/:id_gasto', async (req, res) => {
                     const proyectos = await proyectoCtlr.consultar({id: gasto.id_proyecto});
                     if(proyectos.length === 1){
                         const proyecto = proyectos[0];
-                        habilitado = await JuntaDirectivaCtlr.consultar_permisos(req.session.idUsuario, proyecto.id_organizacion, "edita_proyecto");
+                        habilitado = await puestoCtlr.consultar_permisos(req.session.idUsuario, proyecto.id_organizacion, "edita_proyecto");
                     }
                     else{
                         error_encontrado = true;

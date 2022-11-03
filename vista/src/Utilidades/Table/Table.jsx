@@ -8,11 +8,12 @@ function agregaAcciones(acciones, columnas){
       return {
         name:accion.nombre,
         button: true,
-        cell: (valor,j) => (
-          <button key={i} type="button" className={"btn "+accion.className+" m-1"} onClick={()=>accion.onClick(valor,j)} >
+        cell: (valor) => {
+          return(
+          <button key={i} type="button" className={"btn "+accion.className+" m-1"} onClick={()=>accion.onClick(valor)} >
             {accion.icon ? <i className={"lni "+ accion.icon}></i>:<></>}
           </button>
-        )
+        )}
       };}));
   }
   return columnas;

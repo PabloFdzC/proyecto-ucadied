@@ -13,7 +13,6 @@ class Asociaciones extends React.Component {
         this.state = {
             asociaciones: [],
             asociacion:{},
-            ingresaJunta:true,
             muestra:false,
             indiceAsociacion:null,
         };
@@ -25,9 +24,6 @@ class Asociaciones extends React.Component {
     }
 
     agregarAsociacion(asociacion,indice){
-        console.log("agregarAsociacion");
-        console.log(asociacion);
-        console.log(indice);
         if(asociacion){
             if(asociacion.puestos){
                 asociacion.puestos = [];
@@ -38,7 +34,6 @@ class Asociaciones extends React.Component {
         this.setState({
             asociacion:asociacion,
             muestra:true,
-            ingresaJunta: isNaN(indice),
             indiceAsociacion: indice
         })
     }
@@ -109,9 +104,9 @@ class Asociaciones extends React.Component {
                     <CajasOrganizaciones organizaciones={this.state.asociaciones} modificar={this.agregarAsociacion} eliminar={this.eliminarAsociacion} soloVer={this.props.soloVer} />
                 </div>
                 {this.props.soloVer ? <></>:
-                    <Modal size="lg" show={this.state.muestra} onHide={()=>this.muestraModal(false)} className="modal-green">
+                    <Modal size="lg" show={this.state.muestra} onHide={()=>this.muestraModal(false)} className="modal-green" centered>
                     <Modal.Body>
-                        <OrganizacionForm ingresaJunta={this.state.ingresaJunta} titulo={"Asociación"} avisaCreado={this.avisaCreado} campos={this.state.asociacion} cerrarModal={()=>this.muestraModal(false)} />
+                        <OrganizacionForm titulo={"Asociación"} avisaCreado={this.avisaCreado} campos={this.state.asociacion} cerrarModal={()=>this.muestraModal(false)} />
                     </Modal.Body>
                     </Modal>
                     }

@@ -10,7 +10,7 @@ async function crear(info){
 }
 
 async function modificar(id, info){
-    return await queries_generales.modificar(componente, id, info)
+    return await queries_generales.modificar(componente, {id}, info)
 }
 
 async function eliminar(id){

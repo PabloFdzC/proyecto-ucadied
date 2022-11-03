@@ -3,7 +3,7 @@ const bodyParser = require('body-parser');
 const jsonParser  = bodyParser.json({ extended: false });
 const proyectoCtlr = require('./ProyectoControlador');
 const gastoCtlr = require('./GastoControlador');
-const JuntaDirectivaCtlr = require('./JuntaDirectivaControlador');
+const puestoCtlr = require('./PuestoControlador');
 
 
 router.get('/consultar/:id', async (req, res) => {
@@ -17,7 +17,7 @@ router.get('/consultar/:id', async (req, res) => {
             }
             else if(proyectos.length === 1){
                 const proyecto = proyectos[0];
-                habilitado = await JuntaDirectivaCtlr.consultar_permisos(req.session.idUsuario, proyecto.id_organizacion, "edita_proyecto");
+                habilitado = await puestoCtlr.consultar_permisos(req.session.idUsuario, proyecto.id_organizacion, "edita_proyecto");
             }
         }
         if(habilitado){
@@ -52,14 +52,14 @@ router.get('/consultar', async (req, res) => {
             }
             else{
                 if(params.id_organizacion){
-                    habilitado = await JuntaDirectivaCtlr.consultar_permisos(req.session.idUsuario, params.id_organizacion, "edita_proyecto");
+                    habilitado = await puestoCtlr.consultar_permisos(req.session.idUsuario, params.id_organizacion, "edita_proyecto");
                 }
                 if(params.id){
                     proyecto =  await proyectoCtlr.consultar(req.query);
                     proyecto_encontrado = true;
                     if(!habilitado){
                         if(proyecto.length === 1){
-                            habilitado = await JuntaDirectivaCtlr.consultar_permisos(req.session.idUsuario, proyecto[0].id_organizacion, "edita_proyecto");
+                            habilitado = await puestoCtlr.consultar_permisos(req.session.idUsuario, proyecto[0].id_organizacion, "edita_proyecto");
                         }
                     }
                 }
@@ -94,7 +94,7 @@ router.post('/crear', jsonParser, async (req, res) => {
                 habilitado = true;
             }
             if(req.body.id_organizacion){
-                habilitado = await JuntaDirectivaCtlr.consultar_permisos(req.session.idUsuario, req.body.id_organizacion, "edita_proyecto");
+                habilitado = await puestoCtlr.consultar_permisos(req.session.idUsuario, req.body.id_organizacion, "edita_proyecto");
             }
             else{
                 error_encontrado = true;
@@ -131,7 +131,7 @@ router.put('/modificar/:id_proyecto', jsonParser, async (req, res) => {
                 const proyectos = await proyectoCtlr.consultar({id: req.params.id_proyecto});
                 if(proyectos.length === 1){
                     const proyecto = proyectos[0];
-                    habilitado = await JuntaDirectivaCtlr.consultar_permisos(req.session.idUsuario, proyecto.id_organizacion, "edita_proyecto");
+                    habilitado = await puestoCtlr.consultar_permisos(req.session.idUsuario, proyecto.id_organizacion, "edita_proyecto");
                 }
                 else{
                     res.status(400);
@@ -169,7 +169,7 @@ router.delete('/eliminar/:id', async (req, res) => {
                 const proyectos = await proyectoCtlr.consultar(req.params);
                 if(proyectos.length === 1){
                     const proyecto = proyectos[0];
-                    habilitado = await JuntaDirectivaCtlr.consultar_permisos(req.session.idUsuario, proyecto.id_organizacion, "edita_proyecto");
+                    habilitado = await puestoCtlr.consultar_permisos(req.session.idUsuario, proyecto.id_organizacion, "edita_proyecto");
                 }
                 else{
                     error_encontrado = true;
@@ -207,7 +207,7 @@ router.get('/consultarGastos/:id', async (req, res) => {
                 const proyectos = await proyectoCtlr.consultar(req.params);
                 if(proyectos.length === 1){
                     const proyecto = proyectos[0];
-                    habilitado = await JuntaDirectivaCtlr.consultar_permisos(req.session.idUsuario, proyecto.id_organizacion, "edita_proyecto");
+                    habilitado = await puestoCtlr.consultar_permisos(req.session.idUsuario, proyecto.id_organizacion, "edita_proyecto");
                 }
                 else{
                     error_encontrado = true;

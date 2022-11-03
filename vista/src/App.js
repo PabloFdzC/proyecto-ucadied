@@ -23,7 +23,7 @@ import Gastos from './Proyecto/Gastos';
 import Inmuebles from './Inmueble/Inmuebles';
 import CalendarioActividades from './Actividades/CalendarioActividades';
 import Actividades from './Actividades/Actividades';
-import EditarSitio from './Organizacion/Editor';
+//import EditarSitio from './Organizacion/Editor';
 
 import Table from './Utilidades/Table/Table.jsx';
 //import Calendar from './Utilidades/Calendario/Calendar.jsx';
@@ -74,8 +74,6 @@ class App extends React.Component {
         territorio: "",
         telefonos: "",
         email: "",
-        n_miembros_jd: "",
-        forma_elegir_jd: "",
       },
     }
     this.unionPedida = false;
@@ -188,10 +186,22 @@ class App extends React.Component {
     const resp = await this.queriesGenerales.obtener("/usuario/sesionActiva", {});
     if(!resp.data){
       localStorage.clear();
-      this.setState({usuario: {
-        tipo:"",
-        id_usuario: -1
-      }});
+      this.setState({
+        usuario: {
+          tipo:"",
+          id_usuario: -1
+        },
+        organizacion: {
+          id: -1,
+          id_organizacion: -1,
+          cedula: "",
+          nombre: "",
+          domicilio: "",
+          territorio: "",
+          telefonos: "",
+          email: "",
+        }
+      });
     }
   }
 
@@ -237,7 +247,7 @@ class App extends React.Component {
               <Route path="/inmuebles/:idOrganizacion" element={<ConParams app={this}  componente={<Inmuebles cargarOrganizacion={this.cargarOrganizacion} />}/>} />
               <Route path="/calendarioActividades/:idOrganizacion" element={<ConParams app={this}  componente={<CalendarioActividades cargarOrganizacion={this.cargarOrganizacion} />}/>} />
               <Route path="/actividades/:idOrganizacion" element={<ConParams app={this}  componente={<Actividades cargarOrganizacion={this.cargarOrganizacion} />}/>} />
-              <Route path="/editarSitio/:idOrganizacion" element={<ConParams app={this}  componente={<EditarSitio cargarOrganizacion={this.cargarOrganizacion} />}/>} />
+              {/* <Route path="/editarSitio/:idOrganizacion" element={<ConParams app={this}  componente={<EditarSitio cargarOrganizacion={this.cargarOrganizacion} />}/>} /> */}
 
               <Route path="/administradores" element={<Administradores />} />
               <Route path="/unionCantonal" element={<UnionCantonal />} />

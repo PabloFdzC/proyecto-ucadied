@@ -3,7 +3,7 @@ const bodyParser = require('body-parser');
 const jsonParser  = bodyParser.json({ extended: false });
 const actividadCtlr = require('./ActividadControlador');
 const inmuebleCtlr = require('./InmuebleControlador');
-const JuntaDirectivaCtlr = require('./JuntaDirectivaControlador');
+const puestoCtlr = require('./PuestoControlador');
 const { verificarCaptcha } = require('./captcha');
 router.get('/consultar', async (req, res) => {
     try{
@@ -49,12 +49,12 @@ router.get('/consultar', async (req, res) => {
 
 router.post('/crear', jsonParser, async (req, res) => {
     try{
-        const resp = await verificarCaptcha(req.body.captcha);
+        const resp = {exito:true};
+        //const resp = await verificarCaptcha(req.body.captcha);
         delete req.body.captcha;
         if(resp.exito){
             const actividad_creada = await actividadCtlr.crear_habilitar(req.body, req.session.idUsuario, false);
             if(actividad_creada.error || actividad_creada.errores){
-                console.log(actividad_creada);
                 res.status(400);
             }
             res.json(actividad_creada);
@@ -72,43 +72,12 @@ router.post('/crear', jsonParser, async (req, res) => {
 
 router.put('/modificar/:id_actividad', jsonParser, async (req, res) => {
     try{
-        var habilitado = false;
-        var error_encontrado = false;
+        let habilitado = false;
         if(req.session.idUsuario && req.session.idUsuario != -1){
-            if(req.session.tipoUsuario === "Administrador"){
+            if(req.session.tipoUsuario === "Administrador")
                 habilitado = true;
-            }
-            else{
-                const actividades = await actividadCtlr.consultar({id: req.params.id_actividad}, {}, {});
-                if(actividades.length === 1){
-                    const actividad = actividades[0];
-                    const reservas = actividad.reserva_inmuebles;
-                    console.log(reservas);
-                    if(reservas.length >= 1){
-                        const reserva = reservas[0];
-                        const inmuebles = await inmuebleCtlr.consultar({id: reserva.id_inmueble});
-                        if(inmuebles.length === 1){
-                            const inmueble = inmuebles[0];
-                            habilitado = await JuntaDirectivaCtlr.consultar_permisos(req.session.idUsuario, inmueble.id_organizacion, "edita_actividad");
-                        }
-                        else{
-                            error_encontrado = true;
-                            res.status(400);
-                            res.send("No se encontró el inmueble");    
-                        }
-                    }
-                    else{
-                        error_encontrado = true;
-                        res.status(400);
-                        res.send("No se encontraron las reservas");    
-                    }
-                }
-                else{
-                    error_encontrado = true;
-                    res.status(400);
-                    res.send("No se encontró la actividad");    
-                }
-            }
+            else
+                habilitado = verificaPermisos(req.params.id_actividad, req.session.idUsuario);
         }
         if(habilitado){
             const resultado = await actividadCtlr.modificar(req.params.id_actividad, req.body);
@@ -118,56 +87,46 @@ router.put('/modificar/:id_actividad', jsonParser, async (req, res) => {
             res.json(resultado);
         }
         else{
-            if(!error_encontrado){
-                res.status(400);
-                res.send("No se cuenta con los permisos necesarios");
+            res.status(400);
+            res.send("No se cuenta con los permisos necesarios");
+        }
+    }catch(err){
+        console.log(err);
+        devuelveError(err, res);
+    }
+});
+
+router.post('/habilitarReservas', jsonParser, async (req, res) => {
+    try{
+        var habilitado = false;
+        if(req.session.idUsuario && req.session.idUsuario != -1){
+            if(req.session.tipoUsuario === "Administrador"){
+                habilitado = true;
+            }
+            if(habilitado){
+                const resp = await actividadCtlr.crear_habilitar(req.body, req.session.idUsuario, true);
+                if(resp.error || resp.errores){
+                    console.log(resp);
+                    res.status(400);
+                }
+                res.json(resp);
             }
         }
     }catch(err){
         console.log(err);
-        res.status(400);
-        res.send("Algo salió mal");
+        devuelveError(err, res);
     }
 });
 
 router.delete('/eliminarReservasInhabilitadas/:id_actividad', async (req, res) => {
     try{
-        var habilitado = false;
-        var error_encontrado = false;
+        let habilitado = false;
         if(req.session.idUsuario && req.session.idUsuario != -1){
             if(req.session.tipoUsuario === "Administrador"){
                 habilitado = true;
             }
             else{
-                const actividades = await actividadCtlr.consultar({id: req.params.id_actividad}, {}, {});
-                if(actividades.length === 1){
-                    const actividad = actividades[0];
-                    const reservas = actividad.reserva_inmuebles;
-                    console.log(reservas);
-                    if(reservas.length >= 1){
-                        const reserva = reservas[0];
-                        const inmuebles = await inmuebleCtlr.consultar({id: reserva.id_inmueble});
-                        if(inmuebles.length === 1){
-                            const inmueble = inmuebles[0];
-                            habilitado = await JuntaDirectivaCtlr.consultar_permisos(req.session.idUsuario, inmueble.id_organizacion, "edita_actividad");
-                        }
-                        else{
-                            error_encontrado = true;
-                            res.status(400);
-                            res.send("No se encontró el inmueble");    
-                        }
-                    }
-                    else{
-                        error_encontrado = true;
-                        res.status(400);
-                        res.send("No se encontraron las reservas");    
-                    }
-                }
-                else{
-                    error_encontrado = true;
-                    res.status(400);
-                    res.send("No se encontró la actividad");    
-                }
+                habilitado = verificaPermisos(req.params.id_actividad, req.session.idUsuario);
             }
         }
         if(habilitado){
@@ -175,15 +134,12 @@ router.delete('/eliminarReservasInhabilitadas/:id_actividad', async (req, res) =
             res.json(resp);
         }
         else{
-            if(!error_encontrado){
-                res.status(400);
-                res.send("No se cuenta con los permisos necesarios");
-            }
+            res.status(400);
+            res.send("No se cuenta con los permisos necesarios");
         }
     }catch(err){
         console.log(err);
-        res.status(400);
-        res.send("Algo salió mal");
+        devuelveError(err, res);
     }
 });
 
@@ -200,7 +156,7 @@ router.post('/habilitarReservas', jsonParser, async (req, res) => {
                     const inmuebles = await inmuebleCtlr.consultar({id: req.body.id_inmueble});
                     if(inmuebles.length === 1){
                         const inmueble = inmuebles[0];
-                        habilitado = await JuntaDirectivaCtlr.consultar_permisos(req.session.idUsuario, inmueble.id_organizacion, "edita_actividad");
+                        habilitado = await puestoCtlr.consultar_permisos(req.session.idUsuario, inmueble.id_organizacion, "edita_actividad");
                     }
                     else{
                         error_encontrado = true;
@@ -231,49 +187,19 @@ router.post('/habilitarReservas', jsonParser, async (req, res) => {
         }
     }catch(err){
         console.log(err);
-        res.status(400);
-        res.send("Algo salió mal");
+        devuelveError(err, res);
     }
 });
 
 router.delete('/eliminar/:id_actividad', async (req, res) => {
     try{
-        var habilitado = false;
-        var error_encontrado = false;
+        let habilitado = false;
         if(req.session.idUsuario && req.session.idUsuario != -1){
             if(req.session.tipoUsuario === "Administrador"){
                 habilitado = true;
             }
             else{
-                const actividades = await actividadCtlr.consultar({id: req.params.id_actividad}, {}, {});
-                if(actividades.length === 1){
-                    const actividad = actividades[0];
-                    const reservas = actividad.reserva_inmuebles;
-
-                    if(reservas.length >= 1){
-                        const reserva = reservas[0];
-                        const inmuebles = await inmuebleCtlr.consultar({id: reserva.id_inmueble});
-                        if(inmuebles.length === 1){
-                            const inmueble = inmuebles[0];
-                            habilitado = await JuntaDirectivaCtlr.consultar_permisos(req.session.idUsuario, inmueble.id_organizacion, "edita_actividad");
-                        }
-                        else{
-                            error_encontrado = true;
-                            res.status(400);
-                            res.send("No se encontró el inmueble");    
-                        }
-                    }
-                    else{
-                        error_encontrado = true;
-                        res.status(400);
-                        res.send("No se encontraron las reservas");    
-                    }
-                }
-                else{
-                    error_encontrado = true;
-                    res.status(400);
-                    res.send("No se encontró la actividad");    
-                }
+                habilitado = verificaPermisos(req.params.id_actividad, req.session.idUsuario);
             }
         }
         if(habilitado){
@@ -281,16 +207,58 @@ router.delete('/eliminar/:id_actividad', async (req, res) => {
             res.json(resultado);
         }
         else{
-            if(!error_encontrado){
-                res.status(400);
-                res.send("No se cuenta con los permisos necesarios");
-            }
+            res.status(400);
+            res.send("No se cuenta con los permisos necesarios");
         }
     }catch(err){
         console.log(err);
-        res.status(400);
-        res.send("Algo salió mal");
+        devuelveError(err, res);
     }
 });
+
+async function verificaPermisos(id_actividad, id_usuario){
+    const actividades = await actividadCtlr.consultar({id: req.params.id_actividad}, {}, {});
+    if(actividades.length === 1){
+        const actividad = actividades[0];
+        const reservas = actividad.reserva_inmuebles;
+
+        if(reservas.length >= 1){
+            const reserva = reservas[0];
+            const inmuebles = await inmuebleCtlr.consultar({id: reserva.id_inmueble});
+            if(inmuebles.length === 1){
+                const inmueble = inmuebles[0];
+                return await puestoCtlr.consultar_permisos(id_usuario, inmueble.id_organizacion, "edita_actividad");
+            }
+            else{
+                throw {
+                    status: 400,
+                    error: "No se encontró el inmueble",
+                };   
+            }
+        }
+        else{
+            throw {
+                status: 400,
+                error: "No se encontraron las reservas",
+            };
+        }
+    }
+    else{
+        throw {
+            status: 400,
+            error: "No se encontró la actividad",
+        };
+    }
+}
+
+function devuelveError(err, res){
+    if(typeof err === "object" && err.error && err.status){
+        res.status(err.status);
+        res.send(err.error);
+    }else{
+        res.send("Algo salió mal");
+        res.status(400);
+    }
+}
 
 module.exports = router;

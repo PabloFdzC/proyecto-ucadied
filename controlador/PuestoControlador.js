@@ -2,23 +2,23 @@ const puesto = require('../modelo/puesto');
 const usuario = require('../modelo/usuario');
 const queries_generales = require('./QueriesGenerales');
 
-async function modificar_miembro(id_puesto, info){
-    return await queries_generales.modificar(puesto, id_puesto, info);
+async function modificar(id, info){
+    return await queries_generales.modificar(puesto, {id}, info);
 }
 
-async function agregar_miembro(info){
+async function crear(info){
     return await queries_generales.crear(puesto, info);
 }
 
-async function agregar_miembros(info){
+async function crear_varios(info){
     return await queries_generales.crear_varios(puesto, info);
 }
 
-async function eliminar_miembro(info){
+async function eliminar(info){
     return await queries_generales.eliminar(puesto, info);
 }
 
-async function consultar_miembros(params){
+async function consultar(params){
     return await queries_generales.consultar(puesto, {
         include: [
             {
@@ -27,19 +27,6 @@ async function consultar_miembros(params){
             }
         ],
         where: params});
-}
-
-async function consultar_miembro(id){
-    return await queries_generales.consultar(puesto, {
-        include: [
-            {
-                model: usuario,
-                attributes: ["nombre"]
-            }
-        ],
-        where: {
-            id
-        }});
 }
 
 async function consultar_puestos_usuario(id_usuario){
@@ -64,11 +51,10 @@ async function consultar_permisos(id_usuario, id_organizacion, permiso){
 
 module.exports = {
     consultar_puestos_usuario,
-    agregar_miembro,
-    agregar_miembros,
-    modificar_miembro,
-    eliminar_miembro,
-    consultar_miembros,
-    consultar_miembro,
+    crear,
+    crear_varios,
+    modificar,
+    eliminar,
+    consultar,
     consultar_permisos
 }

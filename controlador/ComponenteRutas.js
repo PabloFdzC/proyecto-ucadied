@@ -2,7 +2,7 @@ const router = require('express').Router();
 const bodyParser = require('body-parser');
 const jsonParser  = bodyParser.json({ extended: false });
 const componenteCtlr = require('./ComponenteControlador');
-const JuntaDirectivaCtlr = require('./JuntaDirectivaControlador');
+const puestoCtlr = require('./PuestoControlador');
 const paginaCtlr = require('./PaginaControlador');
 
 router.get('/consultar', async (req, res) => {
@@ -38,7 +38,7 @@ router.get('/consultar', async (req, res) => {
                     const paginas = await paginaCtlr.consultar({id: id_pagina});
                     if(paginas.length === 1){
                         const pagina = paginas[0];
-                        habilitado = await JuntaDirectivaCtlr.consultar_permisos(req.session.idUsuario, pagina.id_organizacion, "edita_pagina");
+                        habilitado = await puestoCtlr.consultar_permisos(req.session.idUsuario, pagina.id_organizacion, "edita_pagina");
                     }
                 }
             }
@@ -76,7 +76,7 @@ router.post('/crear', jsonParser, async (req, res) => {
                     const paginas = await paginaCtlr.consultar({id: req.body.id_pagina});
                     if(paginas.length === 1){
                         const pagina = paginas[0];
-                        habilitado = await JuntaDirectivaCtlr.consultar_permisos(req.session.idUsuario, pagina.id_organizacion, "edita_pagina");
+                        habilitado = await puestoCtlr.consultar_permisos(req.session.idUsuario, pagina.id_organizacion, "edita_pagina");
                     }
                     else{
                         error_encontrado = true;
@@ -123,7 +123,7 @@ router.put('/modificar/:id_componente', jsonParser, async (req, res) => {
                     const paginas = await paginaCtlr.consultar({id: componente.id_pagina});
                     if(paginas.length === 1){
                         const pagina = paginas[0];
-                        habilitado = await JuntaDirectivaCtlr.consultar_permisos(req.session.idUsuario, pagina.id_organizacion, "edita_pagina");
+                        habilitado = await puestoCtlr.consultar_permisos(req.session.idUsuario, pagina.id_organizacion, "edita_pagina");
                     }
                     else{
                         error_encontrado = true;
@@ -170,7 +170,7 @@ router.delete('/eliminar/:id_componente', async (req, res) => {
                     const paginas = await paginaCtlr.consultar({id: componente.id_pagina});
                     if(paginas.length === 1){
                         const pagina = paginas[0];
-                        habilitado = await JuntaDirectivaCtlr.consultar_permisos(req.session.idUsuario, pagina.id_organizacion, "edita_pagina");
+                        habilitado = await puestoCtlr.consultar_permisos(req.session.idUsuario, pagina.id_organizacion, "edita_pagina");
                     }
                     else{
                         error_encontrado = true;

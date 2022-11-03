@@ -4,7 +4,10 @@ import manejarCambio from '../Utilidades/manejarCambio';
 import AgregaElemento from '../Utilidades/AgregaElemento';
 import Elementos from '../Utilidades/Elementos';
 import Validacion from '../Utilidades/Validacion';
-import listaPaises from '../Utilidades/listaPaises';
+import listaPuestos from '../Utilidades/listaPuestos';
+import Nav from 'react-bootstrap/Nav';
+import Row from 'react-bootstrap/Row';
+import Tab from 'react-bootstrap/Tab';
 
 class UsuarioForm extends React.Component {
     constructor(props){
@@ -13,36 +16,38 @@ class UsuarioForm extends React.Component {
         this.queriesGenerales = new QueriesGenerales();
         
         this.campos = props.campos ? props.campos : {};
-        this.titulo = Object.entries(this.campos).length > 0 ? "Modificar" : "Agregar";
+        this.accion = Object.entries(this.campos).length > 0 ? "Modificar" : "Agregar";
         
         var campos = {
             nombre: this.campos.nombre ? this.campos.nombre : "",
             fecha_nacimiento: this.campos.fecha_nacimiento ? this.campos.fecha_nacimiento : "",
-            nacionalidad: this.campos.nacionalidad ? this.campos.nacionalidad : "",
-            sexo:this.campos.sexo ? this.campos.sexo : "",
+            identificacion: this.campos.identificacion ? this.campos.identificacion : "",
             profesion: this.campos.profesion ? this.campos.profesion : "",
             email: this.campos.email ? this.campos.email : "",
             telefonos:this.campos.telefonos ? this.campos.telefonos : [],
             id_organizacion: this.campos.id_organizacion ? this.campos.id_organizacion : "",
-            puesto: this.campos.puesto ? this.campos.puesto : ""
+            puesto: this.campos.puesto ? this.campos.puesto : "",
+            edita_pagina: this.campos.edita_pagina ? this.campos.edita_pagina : false,
+            edita_junta: this.campos.edita_junta ? this.campos.edita_junta : false,
+            edita_proyecto: this.campos.edita_proyecto ? this.campos.edita_proyecto : false,
+            edita_actividad: this.campos.edita_actividad ? this.campos.edita_actividad : false,
         };
         
         this.state = {
-            titulo: this.titulo+ " " +this.props.titulo,
+            tabKey:"Usuario",
+            titulo: this.accion+ " " +this.props.titulo,
             campos:campos,
             errores: {
                 hayError:false,
                 nombre: "",
                 fecha_nacimiento: "",
-                nacionalidad: "",
-                sexo:"",
+                identificacion: "",
                 profesion: "",
                 email: "",
                 telefonos:"",
                 id_organizacion:"",
                 puesto:"",
             },
-            puestos:[],
             asociaciones:[],
             contrasenna: ""
         };
@@ -50,13 +55,12 @@ class UsuarioForm extends React.Component {
         this.validacion = new Validacion({
             nombre: "requerido",
             fecha_nacimiento: "requerido|fecha",
-            nacionalidad: "seleccionado",
-            sexo: "seleccionado",
+            identificacion:"requerido|numeros",
             profesion: "requerido",
             telefonos: "tiene-valores",
             email: "requerido|email",
-            puesto: props.ocupaAsociacion || props.idOrganizacion ? "seleccionado" : "",
             id_organizacion: props.ocupaAsociacion ? "requerido" : "",
+            puesto: props.ocupaPuesto ? "requerido":"",
         }, this);
         
         this.validacionTelefono = new Validacion({
@@ -64,7 +68,6 @@ class UsuarioForm extends React.Component {
         }, this);
 
         this.asociacionesPedidas = false;
-        this.puestosPedidos = false;
 
         this.agregarTelefono = this.agregarTelefono.bind(this);
         this.eliminarTelefono = this.eliminarTelefono.bind(this);
@@ -83,12 +86,15 @@ class UsuarioForm extends React.Component {
             campos: Object.assign({},this.state.campos, {
                 nombre:"",
                 fecha_nacimiento: "",
-                nacionalidad: "",
-                sexo:"",
+                identificacion: "",
                 profesion: "",
                 email: "",
                 telefonos:[],
                 id_organizacion:"",
+                edita_pagina: false,
+                edita_junta: false,
+                edita_proyecto: false,
+                edita_actividad: false,
             })
         });
     }
@@ -123,7 +129,6 @@ class UsuarioForm extends React.Component {
 
     manejaCambioOrganizacion(evento){
         manejarCambio(evento, this);
-        this.cargarPuestos(parseInt(evento.target.value));
     }
 
     async crearUsuario(evento){
@@ -135,31 +140,53 @@ class UsuarioForm extends React.Component {
                 url = "administrador";
             }
             try{
-                var campos = {
+                let campos = {
                     nombre: this.state.campos.nombre,
                     fecha_nacimiento: this.state.campos.fecha_nacimiento,
-                    nacionalidad: this.state.campos.nacionalidad,
-                    sexo:this.state.campos.sexo,
+                    identificacion: this.state.campos.identificacion,
                     profesion: this.state.campos.profesion,
                     email: this.state.campos.email,
                     telefonos:this.state.campos.telefonos,
                     id_organizacion: this.state.campos.id_organizacion,
-                    puesto: this.state.campos.puesto,
                 };
                 if(campos.id_organizacion === "" && this.props.idOrganizacion && !isNaN(this.props.idOrganizacion)){
                     campos.id_organizacion = this.props.idOrganizacion;
                 }
-                const resp = await this.queriesGenerales.postear(url+"/crear", campos);
-                this.setState({
-                    titulo:"¡Agregado con Éxito!",
-                    contrasenna:resp.data.contrasenna,
-                });
-                var usuario = resp.data.usuario_creado;
-                usuario.persona = resp.data.persona_creada;
-                usuario.puesto = this.state.campos.puesto;
-                this.avisaCreado(usuario);
+                if(this.state.campos.puesto !== ""){
+                    campos.puesto = this.state.campos.puesto;
+                    campos.edita_pagina = this.state.campos.edita_pagina;
+                    campos.edita_junta = this.state.campos.edita_junta;
+                    campos.edita_proyecto = this.state.campos.edita_proyecto;
+                    campos.edita_actividad = this.state.campos.edita_actividad;
+                }
+                let nuevoEstado = {};
+                if(this.accion === "Modificar"){
+                    const resp = await this.queriesGenerales.put(url+"/modificar/"+this.props.id, campos); 
+                    nuevoEstado.titulo = "¡Modificado con Éxito!";
+                } else {
+                    const resp = await this.queriesGenerales.postear(url+"/crear", campos); 
+                    campos.id = resp.data.usuario_creado.id;
+                    campos.id_puesto = resp.data.puesto_creado.id;
+                    nuevoEstado.titulo = "¡Agregado con Éxito!";
+                    nuevoEstado.contrasenna = resp.data.contrasenna;
+                }
+                this.setState(nuevoEstado);
+                this.avisaCreado(campos);
             }catch(error){
                 console.log(error);
+            }
+        } else {
+            if(this.state.errores.nombre.length !== 0 || this.state.errores.fecha_nacimiento.length !== 0 ||
+                this.state.errores.identificacion.length !== 0 || this.state.errores.profesion.length !== 0 ||
+                this.state.errores.telefonos.length !== 0 || this.state.errores.email.length !== 0){
+                this.setState({
+                    tabKey:"Usuario"
+                });
+            } else if(this.state.errores.id_organizacion.length !== 0 || this.state.errores.puesto.length !== 0){
+                this.setState({
+                    tabKey:"Asociación",
+                });
+
             }
         }
     }
@@ -170,18 +197,6 @@ class UsuarioForm extends React.Component {
             const resp = await this.queriesGenerales.obtener("/organizacion/consultarTipo/0", {});
             this.setState({
                 asociaciones:asociaciones.concat(resp.data),
-            });
-        } catch(err){
-            console.log(err);
-        }
-    }
-
-    async cargarPuestos(idOrganizacion){
-        try{
-            var puestos = this.state.puestos;
-            const resp = await this.queriesGenerales.obtener("/juntaDirectiva/consultarPuestos/"+idOrganizacion, {});
-            this.setState({
-                puestos:puestos.concat(resp.data),
             });
         } catch(err){
             console.log(err);
@@ -199,10 +214,6 @@ class UsuarioForm extends React.Component {
                 this.cargarAsociaciones();
             }
         }
-        if(!isNaN(this.props.idOrganizacion) && !this.puestosPedidos){
-            this.puestosPedidos = true;
-            this.cargarPuestos(parseInt(this.props.idOrganizacion));
-        }
     }
 
     render(){
@@ -211,91 +222,133 @@ class UsuarioForm extends React.Component {
             <h2 className="modal-title text-center">{this.state.titulo}</h2>
             {this.state.contrasenna === "" ?
                 <form onSubmit={this.crearUsuario} noValidate>
-                    <div className="row">
-                        <div className="col-12 col-md-6">
-                            <div className="mb-3 position-relative">
-                                <label htmlFor="nombre" className="form-label">Nombre</label>
-                                <input type="text" className={this.state.errores.nombre.length > 0 ? "form-control is-invalid":"form-control"} key="nombre" name="nombre" required value={this.state.campos.nombre} onChange={this.manejaCambio} />
-                                <div className="invalid-tooltip">
-                                    {this.state.errores.nombre}
-                                </div>
-                            </div>
-                            <div className="mb-3 position-relative">
-                                <label htmlFor="fecha_nacimiento" className="form-label">Fecha de nacimiento</label>
-                                <input type="date" className={this.state.errores.fecha_nacimiento.length > 0 ? "form-control is-invalid":"form-control"} key="fecha_nacimiento" name="fecha_nacimiento" required value={this.state.campos.fecha_nacimiento} onChange={this.manejaCambio} />
-                                <div className="invalid-tooltip">
-                                    {this.state.errores.fecha_nacimiento}
-                                </div>
-                            </div>
-                            <div className="mb-3 position-relative">
-                                <label htmlFor="nacionalidad" className="form-label">Nacionalidad</label>
-                                <select className={this.state.errores.nacionalidad.length > 0 ? "form-select is-invalid":"form-select"} aria-label="nacionalidad" key="nacionalidad" name="nacionalidad" value={this.state.campos.nacionalidad} onChange={this.manejaCambio} >
-                                    <option defaultValue hidden>Nacionalidad</option>
-                                    {listaPaises.map((pais, i)=><option key={i} value={pais}>{pais}</option>)}
-                                </select>
-                                <div className="invalid-tooltip">
-                                    {this.state.errores.nacionalidad}
-                                </div>
-                            </div>
-                            <div className="mb-3 position-relative">
-                                <label htmlFor="sexo" className="form-label">Sexo</label>
-                                <select className={this.state.errores.sexo.length > 0 ? "form-select is-invalid":"form-select"} aria-label="sexo" key="sexo" name="sexo" value={this.state.campos.sexo} onChange={this.manejaCambio} >
-                                    <option defaultValue hidden>Sexo</option>
-                                    <option value={"Masculino"}>Masculino</option>
-                                    <option value={"Femenino"}>Femenino</option>
-                                    <option value={"No Especificado"}>No Especificado</option>
-                                </select>
-                                <div className="invalid-tooltip">
-                                    {this.state.errores.sexo}
-                                </div>
-                            </div>
-                            <div className="mb-3 position-relative">
-                                <label htmlFor="profesion" className="form-label">Profesión</label>
-                                <input type="text" className={this.state.errores.profesion.length > 0 ? "form-control is-invalid":"form-control"} key="profesion" name="profesion" value={this.state.campos.profesion} onChange={this.manejaCambio} required />
-                                <div className="invalid-tooltip">
-                                    {this.state.errores.profesion}
-                                </div>
-                            </div>
-
-                        </div>
-                        <div className="col-12 col-md-6">
-                            {this.props.ocupaAsociacion ?
-                                <div className="mb-3 position-relative">
-                                    <label htmlFor="asociacion" className="form-label">Asociación</label>
-                                    <select className={this.state.errores.nacionalidad.length > 0 ? "form-select is-invalid":"form-select"} aria-label="asociacion" key="asociacion" name="id_organizacion" value={this.state.campos.id_organizacion} onChange={this.manejaCambioOrganizacion} >
-                                        <option defaultValue hidden>Asociación</option>
-                                        {this.state.asociaciones.map((u,i) => <option key={i} value={u.id}>{u.nombre}</option>)}
-                                    </select>
-                                    <div className="invalid-tooltip">
-                                        {this.state.errores.nacionalidad}
+                    <Tab.Container id="left-tabs-example" activeKey={this.state.tabKey} onSelect={(tabKey) => this.setState({tabKey})}>
+                        {this.props.ocupaAsociacion || this.props.ocupaPuesto ? 
+                            <Row>
+                                <Nav variant="pills" className="justify-content-center">
+                                <Nav.Item>
+                                    <Nav.Link eventKey="Usuario">Usuario</Nav.Link>
+                                </Nav.Item>
+                                <Nav.Item>
+                                    <Nav.Link eventKey="Asociación">Asociación</Nav.Link>
+                                </Nav.Item>
+                                </Nav>
+                            </Row> : <></>
+                        }
+                        <Row>
+                            <Tab.Content>
+                            <Tab.Pane eventKey="Usuario">
+                            <div className="row">
+                                <div className="col-12 col-md-6">
+                                    <div className="mb-3 position-relative">
+                                        <label htmlFor="nombre" className="form-label">Nombre</label>
+                                        <input type="text" className={this.state.errores.nombre.length > 0 ? "form-control is-invalid":"form-control"} key="nombre" name="nombre" required value={this.state.campos.nombre} onChange={this.manejaCambio} />
+                                        <div className="invalid-tooltip">
+                                            {this.state.errores.nombre}
+                                        </div>
                                     </div>
+                                    <div className="mb-3 position-relative">
+                                        <label htmlFor="fecha_nacimiento" className="form-label">Fecha de nacimiento</label>
+                                        <input type="date" className={this.state.errores.fecha_nacimiento.length > 0 ? "form-control is-invalid":"form-control"} key="fecha_nacimiento" name="fecha_nacimiento" required value={this.state.campos.fecha_nacimiento} onChange={this.manejaCambio} />
+                                        <div className="invalid-tooltip">
+                                            {this.state.errores.fecha_nacimiento}
+                                        </div>
+                                    </div>
+                                    <div className="mb-3 position-relative">
+                                        <label htmlFor="identificacion" className="form-label">Identificación o DIMEX</label>
+                                        <input type="text" className={this.state.errores.identificacion.length > 0 ? "form-control is-invalid":"form-control"} key="identificacion" name="identificacion" required value={this.state.campos.identificacion} onChange={this.manejaCambio} />
+                                        <div className="invalid-tooltip">
+                                            {this.state.errores.identificacion}
+                                        </div>
+                                    </div>
+                                    <div className="mb-3 position-relative">
+                                        <label htmlFor="profesion" className="form-label">Profesión</label>
+                                        <input type="text" className={this.state.errores.profesion.length > 0 ? "form-control is-invalid":"form-control"} key="profesion" name="profesion" value={this.state.campos.profesion} onChange={this.manejaCambio} required />
+                                        <div className="invalid-tooltip">
+                                            {this.state.errores.profesion}
+                                        </div>
+                                    </div>
+
                                 </div>
-                                :
-                                <></>}
-                            {this.props.ocupaAsociacion || this.props.idOrganizacion ?
-                                <div className="mb-3 position-relative">
-                                    <label htmlFor="puesto" className="form-label">Puesto en Junta Directiva</label>
-                                    <select className={this.state.errores.puesto.length > 0 ? "form-select is-invalid":"form-select"} aria-label="puesto" key="puesto" name="puesto" value={this.state.campos.puesto} onChange={this.manejaCambio}>
-                                        <option defaultValue hidden>Puesto en Junta Directiva</option>
-                                        {this.state.puestos.map((p,i) => <option key={i} value={p.id}>{p.nombre}</option>)}
-                                    </select>
-                                    
-                                    <div className="invalid-tooltip">
-                                        {this.state.errores.puesto}
+                                <div className="col-12 col-md-6">
+                                    <div className="mb-3 position-relative">
+                                        <label htmlFor="email" className="form-label">Email</label>
+                                        <input type="email" className={this.state.errores.email.length > 0 ? "form-control is-invalid":"form-control"} key="email" name="email" value={this.state.campos.email} onChange={this.manejaCambio} />
+                                        <div className="invalid-tooltip">
+                                            {this.state.errores.email}
+                                        </div>
+                                    </div>
+                                    <AgregaElemento titulo={"Teléfonos"} agregarElemento={this.agregarTelefono} error={this.state.errores.telefonos} />
+                                    <Elementos elementos={this.state.campos.telefonos} eliminarTelefono={this.eliminarTelefono} />
+                                </div>
+                            </div>
+                            </Tab.Pane>
+                            <Tab.Pane eventKey="Asociación">
+                            <div className="row">
+                                <div className="col-12 col-md-6">
+                                {this.props.ocupaAsociacion ? 
+                                    <div className="mb-3 position-relative">
+                                        <label htmlFor="asociacion" className="form-label">Asociación</label>
+                                        <select className={this.state.errores.id_organizacion.length > 0 ? "form-select is-invalid":"form-select"} aria-label="asociacion" key="asociacion" name="id_organizacion" value={this.state.campos.id_organizacion} onChange={this.manejaCambioOrganizacion} >
+                                            <option defaultValue hidden>Asociación</option>
+                                            {this.state.asociaciones.map((u,i) => <option key={i} value={u.id}>{u.nombre}</option>)}
+                                        </select>
+                                        <div className="invalid-tooltip">
+                                            {this.state.errores.id_organizacion}
+                                        </div>
+                                    </div>
+                                :<></>}
+                                {this.props.ocupaPuesto ? 
+                                    <div className="mb-3 position-relative">
+                                        <label htmlFor="puesto" className="form-label">Puesto en Junta Directiva</label>
+                                        <select className={this.state.errores.puesto.length > 0 ? "form-select is-invalid":"form-select"} aria-label="puesto" key="puesto" name="puesto" value={this.state.campos.puesto} onChange={this.manejaCambio}>
+                                            <option defaultValue hidden>Puesto en Junta Directiva</option>
+                                            {listaPuestos.map((puesto,i) => <option key={i} value={puesto}>{puesto}</option>)}
+                                        </select>
+                                        
+                                        <div className="invalid-tooltip">
+                                            {this.state.errores.puesto}
+                                        </div>
+                                    </div>
+                                :<></>}
+                                </div>
+                                {this.props.ocupaPuesto ? 
+                                <div className="col-12 col-md-6">
+                                    <label className="form-label">Permisos</label>
+                                    <div className="mb-3">
+                                        <div className="form-check">
+                                            <input className="form-check-input" type="checkbox" id="edita_pagina" name="edita_pagina" checked={this.state.campos.edita_pagina} onChange={this.manejaCambio} />
+                                            <label className="form-check-label" htmlFor="edita_pagina" >
+                                                ¿Puede editar páginas?
+                                            </label>
+                                        </div>
+                                        <div className="form-check">
+                                            <input className="form-check-input" type="checkbox" id="edita_junta" name="edita_junta" checked={this.state.campos.edita_junta} onChange={this.manejaCambio} />
+                                            <label className="form-check-label" htmlFor="edita_junta" >
+                                                ¿Puede editar Junta Directiva?
+                                            </label>
+                                        </div>
+                                        <div className="form-check">
+                                            <input className="form-check-input" type="checkbox" id="edita_proyecto" name="edita_proyecto" checked={this.state.campos.edita_proyecto} onChange={this.manejaCambio} />
+                                            <label className="form-check-label" htmlFor="edita_proyecto" >
+                                                ¿Puede editar proyectos?
+                                            </label>
+                                        </div>
+                                        <div className="form-check">
+                                            <input className="form-check-input" type="checkbox" id="edita_actividad" name="edita_actividad" checked={this.state.campos.edita_actividad} onChange={this.manejaCambio} />
+                                            <label className="form-check-label" htmlFor="edita_actividad" >
+                                                ¿Puede editar actividades?
+                                            </label>
+                                        </div>
                                     </div>
                                 </div>
                                 :<></>}
-                            <div className="mb-3 position-relative">
-                                <label htmlFor="email" className="form-label">Email</label>
-                                <input type="email" className={this.state.errores.email.length > 0 ? "form-control is-invalid":"form-control"} key="email" name="email" value={this.state.campos.email} onChange={this.manejaCambio} />
-                                <div className="invalid-tooltip">
-                                    {this.state.errores.email}
-                                </div>
                             </div>
-                            <AgregaElemento titulo={"Teléfonos"} agregarElemento={this.agregarTelefono} error={this.state.errores.telefonos} />
-                            <Elementos elementos={this.state.campos.telefonos} eliminarTelefono={this.eliminarTelefono} />
-                        </div>
-                    </div>
+                            </Tab.Pane>
+                            </Tab.Content>
+                        </Row>
+                    </Tab.Container>
+                    
                     <div className="d-flex justify-content-end">
                         {this.props.cerrarModal ?
                         <div className="m-1">
@@ -304,7 +357,7 @@ class UsuarioForm extends React.Component {
                         <></>
                         }
                         <div className="m-1">
-                            <button type="submit" className="btn btn-primary">{this.titulo}</button>
+                            <button type="submit" className="btn btn-primary">{this.accion}</button>
                         </div>
                     </div>
                 </form>:
