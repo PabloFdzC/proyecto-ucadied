@@ -12,7 +12,7 @@ router.put('/modificar/:id', jsonParser, async (req, res) => {
                 habilitado = true;
             }
             else{
-                const puestos = await puestoCtlr.consultar(req.params.id);
+                const puestos = await puestoCtlr.consultar({id:req.params.id});
                 if(puestos.length === 1){
                     const puesto = puestos[0];
                     habilitado = await puestoCtlr.consultar_permisos(req.session.idUsuario, puesto.id_organizacion, "edita_junta");
@@ -136,8 +136,9 @@ router.get('/consultar', async (req, res) => {
         if(req.session.idUsuario && req.session.idUsuario != -1){
             if(req.session.tipoUsuario === "Administrador"){
                 habilitado = true;
-            }
-            else{
+            }else if(req.session.idUsuario === req.query.id_usuario){
+                habilitado = true;
+            }else{
                 habilitado = await puestoCtlr.consultar_permisos(req.session.idUsuario, params.id_organizacion, "edita_junta");
             }
         }

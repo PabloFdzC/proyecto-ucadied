@@ -26,6 +26,9 @@ import Actividades from './Actividades/Actividades';
 //import EditarSitio from './Organizacion/Editor';
 
 import Table from './Utilidades/Table/Table.jsx';
+import { guardarLocalStorage, obtenerLocalStorage } from './Utilidades/ManejaLocalStorage';
+import TienePermiso from './Utilidades/TienePermiso';
+import { buscarEnListaPorId } from './Utilidades/ManejoLista';
 //import Calendar from './Utilidades/Calendario/Calendar.jsx';
 
 /*
@@ -50,24 +53,32 @@ class App extends React.Component {
   constructor(props){
     super(props);
     this.queriesGenerales = new QueriesGenerales();
-    const orgActual = localStorage.getItem("organizacionActual");
-    const orgPertenece = localStorage.getItem("organizacionPertenece");
-    const usuario = {
-      id_usuario: localStorage.getItem("id_usuario"),
-      tipo: localStorage.getItem("tipo"),
-      id_organizacion: localStorage.getItem("id_organizacion"),
-    };
+    let organizacion = obtenerLocalStorage("organizacion");
+    let usuario = obtenerLocalStorage("usuario");
+    this.usuarioDeLocalStorage = false;
+    if(typeof organizacion !== "object" || !organizacion){
+      organizacion = {
+        id: -1,
+        id_organizacion: -1,
+      };
+    }
+    if(typeof usuario !== "object" || !usuario){
+      usuario = {
+        tipo:"",
+        id:-1,
+        puestos:[],
+      };
+    } else {
+      this.usuarioDeLocalStorage = true
+    }
     // En el estado se mantiene la información del usuario
     // que esté usando el sistema actualmente, la organización
     // de la que se debe mostrar la información
     this.state = {
-      usuario:{
-        tipo:usuario.tipo ? usuario.tipo : "",
-        id_usuario: usuario.id_usuario ? usuario.id_usuario : -1,
-      },
+      usuario,
       organizacion:{
-        id:orgActual ? orgActual : -1,
-        id_organizacion: orgPertenece ? orgPertenece : -1,
+        id:organizacion.id,
+        id_organizacion: organizacion.id_organizacion,
         cedula: "",
         nombre: "",
         domicilio: "",
@@ -82,6 +93,7 @@ class App extends React.Component {
     this.iniciarSesion = this.iniciarSesion.bind(this);
     this.cerrarSesion = this.cerrarSesion.bind(this);
     this.cargarOrganizacion = this.cargarOrganizacion.bind(this);
+    this.actualizaPuestoUsuarioActual = this.actualizaPuestoUsuarioActual.bind(this);
   }
   
   /*
@@ -90,16 +102,17 @@ class App extends React.Component {
   como contexto a los demás componentes
   */
   async iniciarSesion(usuario) {
-    localStorage.setItem("id_usuario", usuario.id_usuario);
-    localStorage.setItem("tipo", usuario.tipo);
-    localStorage.setItem("organizacionActual", usuario.organizacion.id);
-    localStorage.setItem("organizacionPertenece", usuario.organizacion.id_organizacion);
+    localStorage.clear();
+    const camposUsuario = {
+      id:usuario.id_usuario,
+      tipo:usuario.tipo,
+      puestos: usuario.puestos,
+    };
+    guardarLocalStorage("usuario", camposUsuario);
+    guardarLocalStorage("organizacion", usuario.organizacion);
     
     this.setState({
-      usuario: {
-        id_usuario:usuario.id_usuario,
-        tipo:usuario.tipo,
-      },
+      usuario: camposUsuario,
       organizacion: usuario.organizacion ? usuario.organizacion : this.state.organizacion,
     });
   }
@@ -112,11 +125,11 @@ class App extends React.Component {
   async cerrarSesion() {
     try{
       const resp = await this.queriesGenerales.postear("/usuario/cerrarSesion", {});
-      localStorage.removeItem("id_usuario");
-      localStorage.removeItem("tipo");
+      localStorage.removeItem("usuario");
       this.setState({usuario: {
         tipo:"",
-        id_usuario: -1
+        id: -1,
+        puestos:[],
       }});
     }catch(error){
       console.log(error);
@@ -174,10 +187,37 @@ class App extends React.Component {
   */
   actualizaOrganizacionActual(organizacion){
     if(organizacion.id && organizacion.id !== -1 && organizacion.id !== this.state.organizacion.id){
-      localStorage.setItem("organizacionActual", organizacion.id);
-      localStorage.setItem("organizacionPertenece", organizacion.id_organizacion);
+      guardarLocalStorage("organizacion", organizacion);
       this.setState({
           organizacion:organizacion,
+      });
+    }
+  }
+
+  async cargarPuestos(){
+    const id_usuario = this.state.usuario.id;
+    if(!isNaN(id_usuario) && id_usuario !== -1){
+      const resp = await this.queriesGenerales.obtener("/puesto/consultar", {
+        id_usuario,
+      });
+      this.setState({
+        usuario: Object.assign({}, this.state.usuario, {
+          puestos: resp.data,
+        }),
+      });
+      guardarLocalStorage("usuario", this.state.usuario);
+    }
+  }
+
+  actualizaPuestoUsuarioActual(puestoNuevo){
+    if(this.state.usuario.id === puestoNuevo.id_usuario){
+      const indice = buscarEnListaPorId(this.state.usuario.puestos, puestoNuevo.id);
+      let puestos = this.state.usuario.puestos;
+      puestos[indice] = puestoNuevo;
+      this.setState({
+        usuario: Object.assign({}, this.state.usuario, {
+          puestos: puestos,
+        }),
       });
     }
   }
@@ -189,7 +229,8 @@ class App extends React.Component {
       this.setState({
         usuario: {
           tipo:"",
-          id_usuario: -1
+          id: -1,
+          puestos:[],
         },
         organizacion: {
           id: -1,
@@ -202,6 +243,11 @@ class App extends React.Component {
           email: "",
         }
       });
+    } else {
+      if(this.state.usuario.tipo === "Usuario"){
+        console.log("cargarPuestos");
+        await this.cargarPuestos();
+      }
     }
   }
 
@@ -218,7 +264,7 @@ class App extends React.Component {
       if(this.state.organizacion.id === -1){
         if(!this.unionPedida){
           this.unionPedida = true;
-          this.cargarUnion();
+          await this.cargarUnion();
         }
       }
     }
@@ -239,15 +285,60 @@ class App extends React.Component {
               <Route path="/" element={<ResuelvePrincipal ruta={this.state.organizacion.id !== -1 ? "/principal/"+this.state.organizacion.id : ""} replace />}></Route>
               <Route path="/principal/:idOrganizacion" element={<ConParams app={this} componente={<Principal cargarOrganizacion={this.cargarOrganizacion} />}/> } />
               <Route path="/iniciarSesion" element={<IniciarSesion />} />
-              <Route path="/presidencia/juntaDirectiva/:idOrganizacion" element={<ConParams app={this}  componente={<JuntaDirectiva cargarOrganizacion={this.cargarOrganizacion} />}/>} />
-              <Route path="/presidencia/afiliados/:idOrganizacion" element={<ConParams app={this} componente={<Afiliados cargarOrganizacion={this.cargarOrganizacion} />} />} />
+              <Route path="/presidencia/juntaDirectiva/:idOrganizacion" element={
+                  <ConParams app={this}  componente={
+                      <TienePermiso cargarOrganizacion={this.cargarOrganizacion} ruta="/presidencia/juntaDirectiva/" permiso="edita_junta" componente={
+                        <JuntaDirectiva actualizaPuestoUsuarioActual={this.actualizaPuestoUsuarioActual} />
+                      } />
+                  }/>
+              } />
+              <Route path="/presidencia/afiliados/:idOrganizacion" element={
+                  <ConParams app={this} componente={
+                    <Afiliados cargarOrganizacion={this.cargarOrganizacion} />  
+                  } />
+              } />
               <Route path="/presidencia/asociaciones/" element={<Asociaciones soloVer={this.state.usuario.tipo!=="Administrador"}/>} />
-              <Route path="/proyectos/:idOrganizacion" element={<ConParams app={this}  componente={<Proyectos cargarOrganizacion={this.cargarOrganizacion} />}/>} />
-              <Route index path="/proyectos/:idOrganizacion/gastos/:idProyecto" element={<ConParams app={this}  componente={<Gastos />}/>} />
-              <Route path="/inmuebles/:idOrganizacion" element={<ConParams app={this}  componente={<Inmuebles cargarOrganizacion={this.cargarOrganizacion} />}/>} />
-              <Route path="/calendarioActividades/:idOrganizacion" element={<ConParams app={this}  componente={<CalendarioActividades cargarOrganizacion={this.cargarOrganizacion} />}/>} />
-              <Route path="/actividades/:idOrganizacion" element={<ConParams app={this}  componente={<Actividades cargarOrganizacion={this.cargarOrganizacion} />}/>} />
-              {/* <Route path="/editarSitio/:idOrganizacion" element={<ConParams app={this}  componente={<EditarSitio cargarOrganizacion={this.cargarOrganizacion} />}/>} /> */}
+              <Route path="/proyectos/:idOrganizacion" element={
+                  <ConParams app={this}  componente={
+                      <TienePermiso cargarOrganizacion={this.cargarOrganizacion} ruta="/proyectos/" permiso="edita_proyecto" componente={
+                          <Proyectos />
+                      } />
+                  }/>
+              } />
+              <Route index path="/proyectos/:idOrganizacion/gastos/:idProyecto" element={
+                  <ConParams app={this}  componente={
+                      <TienePermiso cargarOrganizacion={this.cargarOrganizacion} ruta="/proyectos/" permiso="edita_proyecto" componente={
+                          <Gastos />
+                      } />
+                  }/>
+              } />
+              <Route path="/inmuebles/:idOrganizacion" element={
+                  <ConParams app={this}  componente={
+                      <TienePermiso cargarOrganizacion={this.cargarOrganizacion} ruta="/inmuebles/" permiso="edita_actividad" componente={
+                          <Inmuebles />
+                      } />
+                  }/>
+              } />
+              <Route path="/calendarioActividades/:idOrganizacion" element={
+                  <ConParams app={this}  componente={
+                      <CalendarioActividades cargarOrganizacion={this.cargarOrganizacion} />
+                  }/>
+              } />
+              <Route path="/actividades/:idOrganizacion" element={
+                  <ConParams app={this}  componente={
+                      <TienePermiso cargarOrganizacion={this.cargarOrganizacion} ruta="/actividades/" permiso="edita_actividad" componente={
+                          <Actividades />
+                      } />
+                      
+                  }/>
+              } />
+              {/* <Route path="/editarSitio/:idOrganizacion" element={
+                  <ConParams app={this}  componente={
+                      <TienePermiso ruta="/editarSitio/" componente={
+                          <EditarSitio cargarOrganizacion={this.cargarOrganizacion} />
+                      } />
+                  }/>
+              } /> */}
 
               <Route path="/administradores" element={<Administradores />} />
               <Route path="/unionCantonal" element={<UnionCantonal />} />

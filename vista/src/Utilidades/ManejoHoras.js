@@ -61,4 +61,4 @@ export {
   convertirHoraAMPM,
   horaAFecha,
   fechaAHoraAMPM,
-}
+};

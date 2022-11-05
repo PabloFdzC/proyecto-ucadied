@@ -21,6 +21,7 @@ class Asociaciones extends React.Component {
         this.eliminarAsociacion = this.eliminarAsociacion.bind(this);
         this.muestraModal = this.muestraModal.bind(this);
         this.agregarAsociacion = this.agregarAsociacion.bind(this);
+        console.log("ASOCIACIONES");
     }
 
     agregarAsociacion(asociacion,indice){

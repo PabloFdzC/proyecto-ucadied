@@ -78,7 +78,8 @@ class MiembroJuntaDirectivaForm extends React.Component {
                 let mensajeExito = "¡Agregado con éxito!";
                 let resp;
                 if(this.accion === "Modificar"){
-                    resp = await this.queriesGenerales.modificar("/puesto/modificar/"+this.props.idPuesto, campos);
+                    resp = await this.queriesGenerales.modificar("/puesto/modificar/"+this.campos.id, campos);
+                    campos.id = this.campos.id ? this.campos.id : resp.data.id;
                     mensajeExito = "¡Modificado con éxito!";
                 } else {
                     resp = await this.queriesGenerales.postear("/puesto/crear", campos);
@@ -87,9 +88,9 @@ class MiembroJuntaDirectivaForm extends React.Component {
                 this.setState({
                     enviado:true,
                     titulo:mensajeExito,
+
                 });
                 campos.nombre = this.state.campos.id_usuario.label;
-                campos.id = this.props.idPuesto ? this.props.idPuesto : resp.data.id;
                 
                 this.props.avisaEnviado(campos);
             }catch(error){
@@ -159,13 +160,13 @@ class MiembroJuntaDirectivaForm extends React.Component {
                     </div>
                 </div>
                 <div className="mb-3 position-relative">
-                    <label htmlFor="id_puesto_jd" className="form-label">Puesto</label>
-                    <select className={this.state.errores.id_puesto_jd.length > 0 ? "form-select is-invalid":"form-select"} aria-label="nacionalidad" key="id_puesto_jd" name="id_puesto_jd" value={this.state.campos.id_puesto_jd} onChange={this.manejaCambio} >
+                    <label htmlFor="puesto" className="form-label">Puesto</label>
+                    <select className={this.state.errores.puesto.length > 0 ? "form-select is-invalid":"form-select"} aria-label="nacionalidad" key="puesto" name="puesto" value={this.state.campos.puesto} onChange={this.manejaCambio} >
                         <option defaultValue hidden>Puesto</option>
                         {listaPuestos.map((puesto,i) => <option key={i} value={puesto}>{puesto}</option>)}
                     </select>
                     <div className="invalid-tooltip">
-                        {this.state.errores.id_puesto_jd}
+                        {this.state.errores.puesto}
                     </div>
                 </div>
                 <div className="mb-3">
