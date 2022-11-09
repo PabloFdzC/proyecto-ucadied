@@ -1,6 +1,8 @@
 import { Editor, Frame, Element } from '@craftjs/core';
-import { Typography, Paper, Grid, makeStyles } from '@material-ui/core';
 import React from 'react';
+import ContainerB from 'react-bootstrap/Container';
+import Row from 'react-bootstrap/Row';
+import Col from 'react-bootstrap/Col';
 
 import { SettingsPanel } from '../Componentes/SettingsPanel';
 import { Toolbox } from '../Componentes/Toolbox';
@@ -9,21 +11,12 @@ import { Button } from '../Componentes/user/Button';
 import { Card, CardBottom, CardTop } from '../Componentes/user/Card';
 import { Container } from '../Componentes/user/Container';
 import { Text } from '../Componentes/user/Text';
+import { Header } from '../Componentes/Header';
 
-const useStyles = makeStyles(() => ({
-  root: {
-    padding: 0,
-    background: 'rgb(252, 253, 253)',
-  },
-}));
 export default function App() {
-  const classes = useStyles();
 
   return (
-    <div style={{ margin: '0 auto', width: '800px' }}>
-      <Typography style={{ margin: '20px 0' }} variant="h5" align="center">
-        Basic Page Editor
-      </Typography>
+    <div style={{overflow:"none"}}>
       <Editor
         resolver={{
           Card,
@@ -34,9 +27,10 @@ export default function App() {
           CardBottom,
         }}
       >
-        <Topbar />
-        <Grid container spacing={5} style={{ paddingTop: '10px' }}>
-          <Grid item xs>
+        <Header />
+        <div className="row m-0" style={{height:"inherit"}}>
+          <div className="col-9" style={{overflowY:"scroll", maxHeight:"100%"}}>
+            <Topbar />
             <Frame>
               <Element
                 canvas
@@ -63,14 +57,14 @@ export default function App() {
                 </Element>
               </Element>
             </Frame>
-          </Grid>
-          <Grid item xs={4}>
-            <Paper className={classes.root}>
-              <Toolbox />
-              <SettingsPanel />
-            </Paper>
-          </Grid>
-        </Grid>
+          </div>
+          <div className="col-3 p-0" style={{backgroundColor:"#137E31", color:"#FFFFFF"}}>
+            <Toolbox />
+            <SettingsPanel />
+          </div>
+        </div>
+        
+        
       </Editor>
     </div>
   );

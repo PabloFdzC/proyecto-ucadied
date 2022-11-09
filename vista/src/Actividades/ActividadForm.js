@@ -273,7 +273,7 @@ class ActividadForm extends React.Component {
         // Si no se encuentra errores en las fechas se revisa que la inicial
         // sea mayor o igual que la final
         if(this.state.errores.fechaInicio === "" && this.state.errores.fechaFinal === ""){
-            var fechasErrores = this.validacion.fechaInicialFinalCorrectas(this.state.campos.fechaInicio,this.state.campos.fechaFinal, true);
+            let fechasErrores = this.validacion.fechaInicialFinalCorrectas(this.state.campos.fechaInicio,this.state.campos.fechaFinal, true);
             if(fechasErrores.inicio !== "" && fechasErrores.final !== ""){
                 this.setState({
                     errores: Object.assign({},this.state.errores, {

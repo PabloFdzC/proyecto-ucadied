@@ -197,7 +197,6 @@ class JuntaDirectiva extends React.Component {
             });
             puestoNuevo.id_usuario = parseInt(puestoNuevo.id_usuario);
             puestoNuevo.id = parseInt(puestoNuevo.id);
-            this.props.actualizaPuestoUsuarioActual(puestoNuevo);
         } else {
             this.setState({
                 puestos:puestos.concat(puestoNuevo),
@@ -264,7 +263,17 @@ class JuntaDirectiva extends React.Component {
                             </div>
                             <Modal show={this.state.muestraPuestoF} onHide={()=>this.muestraModal("Puesto",false)} className="modal-green" centered>
                             <Modal.Body>
+                                {usuario.id === this.state.Puesto.id_usuario ? 
+                                <>
+                                <h3 className="text-center">No puede modificar su propio puesto</h3>
+                                <div className="d-flex justify-content-end">
+                                    <button onClick={()=>this.muestraModal("Puesto",false)}>Volver</button>
+                                </div>
+                                
+                                </>
+                                :
                                 <MiembroJuntaDirectivaForm esUnion={organizacion.id === organizacion.id_organizacion}  idOrganizacion={organizacion.id} avisaEnviado={this.actualizaTablaPuesto} cerrarModal={()=>this.muestraModal("Puesto",false)} campos={this.state.Puesto} />
+                                }
                             </Modal.Body>
                             </Modal>
                             <Modal size='lg' show={this.state.muestraUsuarioF} onHide={()=>this.muestraModal("Usuario",false)} className="modal-green" centered>
@@ -274,7 +283,18 @@ class JuntaDirectiva extends React.Component {
                             </Modal>
                             <Modal show={this.state.muestraEliminarPuesto} onHide={()=>this.muestraModalEliminar("Puesto",false)} className="modal-green" centered>
                             <Modal.Body>
+                                {usuario.id === this.state.Puesto.id_usuario ? 
+                                <>
+                                <h3 className="text-center">No puede eliminar su propio puesto</h3>
+                                <div className="d-flex justify-content-end">
+                                    <button onClick={()=>this.muestraModal("Puesto",false)}>Volver</button>
+                                </div>
+                                
+                                </>
+                                :
                                 <ConfirmaAccion claseBtn={"btn-danger"} titulo={"¿Desea eliminar a "+this.state.Puesto.nombre+" de la Junta Directiva?"} accion={this.eliminarPuesto} cerrarModal={()=>this.muestraModalEliminar("Puesto",false)} accionNombre="Eliminar" />
+                                }
+                                
                             </Modal.Body>
                             </Modal>
                             </>);

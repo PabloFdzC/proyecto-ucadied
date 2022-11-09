@@ -23,13 +23,11 @@ import Gastos from './Proyecto/Gastos';
 import Inmuebles from './Inmueble/Inmuebles';
 import CalendarioActividades from './Actividades/CalendarioActividades';
 import Actividades from './Actividades/Actividades';
-//import EditarSitio from './Organizacion/Editor';
+import EditarSitio from './Organizacion/Editor';
 
-import Table from './Utilidades/Table/Table.jsx';
 import { guardarLocalStorage, obtenerLocalStorage } from './Utilidades/ManejaLocalStorage';
 import TienePermiso from './Utilidades/TienePermiso';
 import { buscarEnListaPorId } from './Utilidades/ManejoLista';
-//import Calendar from './Utilidades/Calendario/Calendar.jsx';
 
 /*
 La función ConParams es necesaria para pasarle
@@ -93,7 +91,6 @@ class App extends React.Component {
     this.iniciarSesion = this.iniciarSesion.bind(this);
     this.cerrarSesion = this.cerrarSesion.bind(this);
     this.cargarOrganizacion = this.cargarOrganizacion.bind(this);
-    this.actualizaPuestoUsuarioActual = this.actualizaPuestoUsuarioActual.bind(this);
   }
   
   /*
@@ -194,6 +191,9 @@ class App extends React.Component {
     }
   }
 
+  /*
+  cargarPuestos carga los puestos del usuario actual
+   */
   async cargarPuestos(){
     const id_usuario = this.state.usuario.id;
     if(!isNaN(id_usuario) && id_usuario !== -1){
@@ -209,18 +209,6 @@ class App extends React.Component {
     }
   }
 
-  actualizaPuestoUsuarioActual(puestoNuevo){
-    if(this.state.usuario.id === puestoNuevo.id_usuario){
-      const indice = buscarEnListaPorId(this.state.usuario.puestos, puestoNuevo.id);
-      let puestos = this.state.usuario.puestos;
-      puestos[indice] = puestoNuevo;
-      this.setState({
-        usuario: Object.assign({}, this.state.usuario, {
-          puestos: puestos,
-        }),
-      });
-    }
-  }
 
   async verificaSesionActiva(){
     const resp = await this.queriesGenerales.obtener("/usuario/sesionActiva", {});
@@ -288,7 +276,7 @@ class App extends React.Component {
               <Route path="/presidencia/juntaDirectiva/:idOrganizacion" element={
                   <ConParams app={this}  componente={
                       <TienePermiso cargarOrganizacion={this.cargarOrganizacion} ruta="/presidencia/juntaDirectiva/" permiso="edita_junta" componente={
-                        <JuntaDirectiva actualizaPuestoUsuarioActual={this.actualizaPuestoUsuarioActual} />
+                        <JuntaDirectiva  />
                       } />
                   }/>
               } />
@@ -332,13 +320,13 @@ class App extends React.Component {
                       
                   }/>
               } />
-              {/* <Route path="/editarSitio/:idOrganizacion" element={
+              <Route path="/editarSitio/:idOrganizacion" element={
                   <ConParams app={this}  componente={
-                      <TienePermiso ruta="/editarSitio/" componente={
+                      // <TienePermiso ruta="/editarSitio/" componente={
                           <EditarSitio cargarOrganizacion={this.cargarOrganizacion} />
-                      } />
+                      // } />
                   }/>
-              } /> */}
+              } />
 
               <Route path="/administradores" element={<Administradores />} />
               <Route path="/unionCantonal" element={<UnionCantonal />} />

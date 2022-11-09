@@ -23,9 +23,6 @@ class TienePermiso extends React.Component {
     async cambiarOrganizacion(id){
       await this.props.cargarOrganizacion(id);
       window.location = this.props.ruta+id;
-      // this.setState({
-      //   ruta:this.props.ruta+id_organizacion
-      // });
     }
 
     render(){

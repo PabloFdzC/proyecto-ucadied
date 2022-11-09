@@ -1,120 +1,187 @@
 import { useNode } from '@craftjs/core';
-import {
-  Button as MaterialButton,
-  FormControl,
-  FormLabel,
-  RadioGroup,
-  Radio,
-  FormControlLabel,
-} from '@material-ui/core';
-import React from 'react';
+import Form from 'react-bootstrap/Form';
 
-export const Button = ({ size, variant, color, text, ...props }) => {
+import React from 'react';
+import { GlobalTextSettings, GlobalBackgroundSettings, GlobalSpacingSettings } from '../GlobalSettings';
+import { unidades } from '../Utilidades';
+
+export const Button = ({
+  tamanno,
+  backgroundColor,
+  text,
+  color,
+  opacity,
+  marginTop,
+  marginRight,
+  marginBottom,
+  marginLeft,
+  paddingTop,
+  paddingRight,
+  paddingBottom,
+  paddingLeft,
+  marginUnit,
+  paddingUnit,
+  ...props
+  }) => {
   const {
     connectors: { connect, drag },
   } = useNode();
+  let className = "btn ";
+  if(tamanno && tamanno !== ""){
+    className += "btn-"+tamanno;
+  }
   return (
-    <MaterialButton
+    <button
       ref={(ref) => connect(drag(ref))}
-      style={{ margin: '5px' }}
-      size={size}
-      variant={variant}
-      color={color}
+      style={{
+        backgroundColor,
+        color,
+        opacity:opacity/100,
+        marginTop:marginTop+marginUnit,
+        marginRight:marginRight+marginUnit,
+        marginBottom:marginBottom+marginUnit,
+        marginLeft:marginLeft+marginUnit,
+        paddingTop:paddingTop+paddingUnit,
+        paddingRight:paddingRight+paddingUnit,
+        paddingBottom:paddingBottom+paddingUnit,
+        paddingLeft:paddingLeft+paddingUnit,
+      }}
+      className={className}
       {...props}
     >
       {text}
-    </MaterialButton>
+    </button>
   );
 };
 
 export const ButtonSettings = () => {
+  
   const {
+    tamanno,
+    backgroundColor,
+    text,
+    color,
+    opacity,
+    marginTop,
+    marginRight,
+    marginBottom,
+    marginLeft,
+    paddingTop,
+    paddingRight,
+    paddingBottom,
+    paddingLeft,
+    marginUnit,
+    paddingUnit,
     actions: { setProp },
-    props,
   } = useNode((node) => ({
-    props: node.data.props,
+    tamanno:node.data.props.tamanno,
+    backgroundColor:node.data.props.backgroundColor,
+    text:node.data.props.text,
+    color:node.data.props.color,
+    opacity:node.data.props.opacity,
+    marginTop:node.data.props.marginTop,
+    marginRight:node.data.props.marginRight,
+    marginBottom:node.data.props.marginBottom,
+    marginLeft:node.data.props.marginLeft,
+    paddingTop:node.data.props.paddingTop,
+    paddingRight:node.data.props.paddingRight,
+    paddingBottom:node.data.props.paddingBottom,
+    paddingLeft:node.data.props.paddingLeft,
+    marginUnit:node.data.props.marginUnit,
+    paddingUnit:node.data.props.paddingUnit,
   }));
 
   return (
     <div>
-      <FormControl size="small" component="fieldset">
-        <FormLabel component="legend">Size</FormLabel>
-        <RadioGroup
-          defaultValue={props.size}
-          onChange={(e) => setProp((props) => (props.size = e.target.value))}
-        >
-          <FormControlLabel
-            label="Small"
-            value="small"
-            control={<Radio size="small" color="primary" />}
-          />
-          <FormControlLabel
-            label="Medium"
-            value="medium"
-            control={<Radio size="small" color="primary" />}
-          />
-          <FormControlLabel
-            label="Large"
-            value="large"
-            control={<Radio size="small" color="primary" />}
-          />
-        </RadioGroup>
-      </FormControl>
-      <FormControl component="fieldset">
-        <FormLabel component="legend">Variant</FormLabel>
-        <RadioGroup
-          defaultValue={props.variant}
-          onChange={(e) => setProp((props) => (props.variant = e.target.value))}
-        >
-          <FormControlLabel
-            label="Text"
-            value="text"
-            control={<Radio size="small" color="primary" />}
-          />
-          <FormControlLabel
-            label="Outlined"
-            value="outlined"
-            control={<Radio size="small" color="primary" />}
-          />
-          <FormControlLabel
-            label="Contained"
-            value="contained"
-            control={<Radio size="small" color="primary" />}
-          />
-        </RadioGroup>
-      </FormControl>
-      <FormControl component="fieldset">
-        <FormLabel component="legend">Color</FormLabel>
-        <RadioGroup
-          defaultValue={props.color}
-          onChange={(e) => setProp((props) => (props.color = e.target.value))}
-        >
-          <FormControlLabel
-            label="Default"
-            value="default"
-            control={<Radio size="small" color="default" />}
-          />
-          <FormControlLabel
-            label="Primary"
-            value="primary"
-            control={<Radio size="small" color="primary" />}
-          />
-          <FormControlLabel
-            label="Secondary"
-            value="secondary"
-            control={<Radio size="small" color="primary" />}
-          />
-        </RadioGroup>
-      </FormControl>
+      <Form>
+        <div className="mb-3 position-relative">
+          <label htmlFor="text" className="form-label">Tamaño</label>
+          <div>
+            <Form.Check
+              label="Pequeño"
+              name="tamanno"
+              type="radio"
+              checked={tamanno === "sm"}
+              onChange={(e) =>{setProp((props) => (props.tamanno = "sm"))}}
+            />
+            <Form.Check
+              label="Mediano"
+              name="tamanno"
+              type="radio"
+              checked={tamanno === ""}
+              onChange={(e) => setProp((props) => (props.tamanno = ""))}
+            />
+            <Form.Check
+              label="Grande"
+              name="tamanno"
+              type="radio"
+              checked={tamanno === "lg"}
+              onChange={(e) => setProp((props) => (props.tamanno = "lg"))}
+            />
+          </div>
+        </div>
+        <Accordion>
+          <Accordion.Item eventKey="Texto">
+            <Accordion.Header>Texto</Accordion.Header>
+            <Accordion.Body>
+              <GlobalTextSettings
+                setProp={setProp}
+                text={text}
+                color={color} />
+            </Accordion.Body>
+          </Accordion.Item>
+          <Accordion.Item eventKey="Fondo">
+            <Accordion.Header>Fondo</Accordion.Header>
+            <Accordion.Body>
+              <GlobalBackgroundSettings
+                setProp={setProp}
+                backgroundColor={backgroundColor}
+                opacity={opacity} />
+            </Accordion.Body>
+          </Accordion.Item>
+          <Accordion.Item eventKey="Espaciado">
+            <Accordion.Header>Espaciado</Accordion.Header>
+            <Accordion.Body>
+              <GlobalSpacingSettings
+                setProp={setProp}
+                marginTop={marginTop}
+                marginRight={marginRight}
+                marginBottom={marginBottom}
+                marginLeft={marginLeft}
+                paddingTop={paddingTop}
+                paddingRight={paddingRight}
+                paddingBottom={paddingBottom}
+                paddingLeft={paddingLeft}
+                marginUnit={marginUnit}
+                paddingUnit={paddingUnit} />
+            </Accordion.Body>
+          </Accordion.Item>
+        </Accordion>
+        
+        
+      
+
+      </Form>
     </div>
   );
 };
 
 export const ButtonDefaultProps = {
-  size: 'small',
-  variant: 'contained',
-  color: 'primary',
-  text: 'Click me',
+  tamanno: '',
+  backgroundColor: '#F0F0F0',
+  text: 'Botón',
+  color: '#000000',
+  opacity:100,
+  marginTop:0,
+  marginRight:0,
+  marginBottom:0,
+  marginLeft:0,
+  paddingTop:0.375,
+  paddingRight:0.75,
+  paddingBottom:0.375,
+  paddingLeft:0.75,
+  marginUnit:unidades[9],
+  paddingUnit:unidades[9],
 };
 
 Button.craft = {
