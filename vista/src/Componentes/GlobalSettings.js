@@ -1,5 +1,5 @@
-import { manejaCambio, unidades } from "./Utilidades";
-import { SeleccionColor } from "./SeleccionColor";
+import { manejaCambio, unidades } from "./Utilidades/Utilidades";
+import { SeleccionColor } from "./Utilidades/SeleccionColor";
 
 export const GlobalTextSettings = (props) => {
 
@@ -21,6 +21,7 @@ export const GlobalTextSettings = (props) => {
               id="colorFondo"
               name="colorFondo"
               value={props.color}
+              onChange={(e) => manejaCambio(props, "color", e)}
               onChangeComplete={(e) => props.setProp((p) => (p.color = e.hex))} />
         </div>
     </>

@@ -7,5 +7,6 @@ module.exports = sequelize.define('pagina', {
             primaryKey: true,
             autoIncrement: true
         },
-        nombre: type.STRING
+        nombre: type.STRING,
+        componentes: type.TEXT,
     });

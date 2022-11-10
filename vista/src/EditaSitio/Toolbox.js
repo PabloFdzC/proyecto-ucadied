@@ -4,10 +4,10 @@ import React from 'react';
 import ButtonB from 'react-bootstrap/Button';
 import ContainerB from 'react-bootstrap/Container';
 
-import { Button } from './user/Button';
-import { Card } from './user/Card';
-import { Container } from './user/Container';
-import { Text } from './user/Text';
+import { Button } from '../Componentes/Button';
+import { Card } from '../Componentes/Card';
+import { Container } from '../Componentes/Container';
+import { Text } from '../Componentes/Text';
 
 export const Toolbox = () => {
   const { connectors } = useEditor();

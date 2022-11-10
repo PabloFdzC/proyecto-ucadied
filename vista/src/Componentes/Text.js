@@ -2,8 +2,8 @@ import { useNode } from '@craftjs/core';
 import React, { useState, useEffect } from 'react';
 import ContentEditable from 'react-contenteditable';
 import Form from 'react-bootstrap/Form';
-import { GlobalTextSettings, GlobalSpacingSettings } from '../GlobalSettings';
-import { unidades } from '../Utilidades';
+import { GlobalTextSettings, GlobalSpacingSettings } from './GlobalSettings';
+import { unidades } from './Utilidades/Utilidades';
 
 import Accordion from 'react-bootstrap/Accordion';
 

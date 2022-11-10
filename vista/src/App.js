@@ -11,7 +11,7 @@ import QueriesGenerales from "./QueriesGenerales";
 import UnionCantonal from './Administrador/UnionCantonal';
 
 import {usuarioContexto} from './usuarioContexto';
-import Principal from './Organizacion/Principal';
+import Sitio from './Organizacion/Sitio';
 import ResuelvePrincipal from './Utilidades/ResuelvePrincipal';
 
 import './Estilos/Botones.css';
@@ -23,7 +23,7 @@ import Gastos from './Proyecto/Gastos';
 import Inmuebles from './Inmueble/Inmuebles';
 import CalendarioActividades from './Actividades/CalendarioActividades';
 import Actividades from './Actividades/Actividades';
-import EditarSitio from './Organizacion/Editor';
+import EditarSitio from './EditaSitio/Editor';
 
 import { guardarLocalStorage, obtenerLocalStorage } from './Utilidades/ManejaLocalStorage';
 import TienePermiso from './Utilidades/TienePermiso';
@@ -271,7 +271,7 @@ class App extends React.Component {
           <Navegacion />
           <Routes>
               <Route path="/" element={<ResuelvePrincipal ruta={this.state.organizacion.id !== -1 ? "/principal/"+this.state.organizacion.id : ""} replace />}></Route>
-              <Route path="/principal/:idOrganizacion" element={<ConParams app={this} componente={<Principal cargarOrganizacion={this.cargarOrganizacion} />}/> } />
+              <Route path="/principal/:idOrganizacion" element={<ConParams app={this} componente={<Sitio nombre="Principal" cargarOrganizacion={this.cargarOrganizacion} />}/> } />
               <Route path="/iniciarSesion" element={<IniciarSesion />} />
               <Route path="/presidencia/juntaDirectiva/:idOrganizacion" element={
                   <ConParams app={this}  componente={

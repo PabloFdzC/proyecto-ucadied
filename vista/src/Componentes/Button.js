@@ -2,8 +2,9 @@ import { useNode } from '@craftjs/core';
 import Form from 'react-bootstrap/Form';
 
 import React from 'react';
-import { GlobalTextSettings, GlobalBackgroundSettings, GlobalSpacingSettings } from '../GlobalSettings';
-import { unidades } from '../Utilidades';
+import { GlobalTextSettings, GlobalBackgroundSettings, GlobalSpacingSettings } from './GlobalSettings';
+import { unidades } from './Utilidades/Utilidades';
+import Accordion from 'react-bootstrap/Accordion';
 
 export const Button = ({
   tamanno,

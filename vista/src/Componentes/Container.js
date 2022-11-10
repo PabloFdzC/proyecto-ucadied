@@ -2,8 +2,8 @@ import { useNode } from '@craftjs/core';
 import React from 'react';
 import ContainerB from 'react-bootstrap/Container';
 import Form from 'react-bootstrap/Form';
-import { GlobalBackgroundSettings, GlobalSpacingSettings } from '../GlobalSettings';
-import { unidades } from '../Utilidades';
+import { GlobalBackgroundSettings, GlobalSpacingSettings } from './GlobalSettings';
+import { unidades } from './Utilidades/Utilidades';
 
 import Accordion from 'react-bootstrap/Accordion';
 

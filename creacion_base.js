@@ -1,7 +1,6 @@
 const Sequelize = require('sequelize');
 const actividad = require("./modelo/actividad");
 const inmueble = require("./modelo/inmueble");
-const componente = require("./modelo/componente");
 const gasto = require("./modelo/gasto");
 const organizacion = require("./modelo/organizacion");
 const pagina = require("./modelo/pagina");
@@ -65,22 +64,6 @@ organizacion.hasMany(puesto, {
 
 puesto.belongsTo(organizacion, {
   foreignKey: 'id_organizacion'
-});
-
-pagina.hasMany(componente, {
-  foreignKey: 'id_pagina'
-});
-
-componente.belongsTo(pagina, {
-  foreignKey: 'id_pagina'
-});
-
-componente.hasOne(componente, {
-  foreignKey: 'id_componente'
-});
-
-componente.belongsTo(componente, {
-  foreignKey: 'id_componente'
 });
 
 proyecto.hasMany(gasto, {
