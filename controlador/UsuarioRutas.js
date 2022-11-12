@@ -4,6 +4,8 @@ const bodyParser = require('body-parser');
 const jsonParser  = bodyParser.json({ extended: false });
 const usuarioCtrl = require('./UsuarioControlador');
 
+// Ruta para consultar un usuario en específico
+// se manda en la dirección el id del usuario.
 router.get('/consultar/:id_usuario', async (req, res) => {
     try{
         if(req.session.idUsuario && req.session.idUsuario != -1){
@@ -21,6 +23,8 @@ router.get('/consultar/:id_usuario', async (req, res) => {
     }
 });
 
+// Ruta para saber si hay una sesión activa
+// en el sistema.
 router.get('/sesionActiva', async (req, res) => {
     if(req.session.idUsuario && req.session.idUsuario != -1){
         res.send(true);
@@ -29,6 +33,11 @@ router.get('/sesionActiva', async (req, res) => {
     }
 });
 
+// Ruta para consultar una lista de usuarios.
+// Se pueden mandar diversos parámetros por
+// medio de variables en la dirección, entre
+// estos parámetros están el id, el id de la
+// organización y el tipo.
 router.get('/consultar', async (req, res) => {
     try{
         if(req.session.idUsuario && req.session.idUsuario != -1){
@@ -56,6 +65,10 @@ router.get('/consultar', async (req, res) => {
     }
 });
 
+// Ruta para consultar un tipo de usuario.
+// Se manda en la dirección un 1 si se desea
+// consultar administradores y un 0 si se desea
+// consultar usuarios normales.
 router.get('/consultarTipo/:esAdmin', async (req, res) => {
     try{
         if(req.session.idUsuario && req.session.idUsuario != -1){
@@ -73,6 +86,8 @@ router.get('/consultarTipo/:esAdmin', async (req, res) => {
     }
 });
 
+// Ruta para crear un usuario, en el body debe
+// venir la información del usuario.
 router.post('/crear', jsonParser, async (req, res) => {
     try{
         if(req.session.idUsuario && req.session.idUsuario != -1){
@@ -97,6 +112,10 @@ router.post('/crear', jsonParser, async (req, res) => {
     }
 });
 
+// Ruta para iniciar sesión en el sistema.
+// En el body debe venir el correo y la
+// contraseña. La información del usuario
+// se guarda en el session de express.
 router.post('/iniciarSesion', jsonParser, async (req, res) => {
     try{
         const resultado = await usuarioCtrl.iniciarSesion(req.body);
@@ -115,6 +134,9 @@ router.post('/iniciarSesion', jsonParser, async (req, res) => {
     }
 });
 
+// Ruta para cerrar sesión, no se debe mandar
+// un body. Borra la información del usuario
+// del session de express.
 router.post('/cerrarSesion', async (req, res) => {
     try{
         req.session.idUsuario = -1;
@@ -127,6 +149,10 @@ router.post('/cerrarSesion', async (req, res) => {
     }
 });
 
+// Ruta para modificar un usuario. En la dirección
+// se debe mandar el id del usuario a modificar y
+// en el body se manda la información del usuario
+// que se debe modificar.
 router.put('/modificar/:id_usuario', jsonParser, async (req, res) => {
     try{
         if(req.session.idUsuario && req.session.idUsuario != -1){
@@ -144,6 +170,10 @@ router.put('/modificar/:id_usuario', jsonParser, async (req, res) => {
     }
 });
 
+// Ruta para modificar la contraseña de un usuario.
+// En la dirección se debe mandar el id del usuario al
+// que se le modifica la contraseña y en el body debe venir
+// la contraseña nueva.
 router.put('/modificarContrasenna/:id_usuario', jsonParser, async (req, res) => {
     try{
         if(req.session.idUsuario && req.session.idUsuario != -1){
@@ -161,6 +191,8 @@ router.put('/modificarContrasenna/:id_usuario', jsonParser, async (req, res) => 
     }
 });
 
+// Ruta para eliminar un usuario, en la dirección
+// debe venir el id del usuario a eliminar.
 router.delete('/eliminar/:id_usuario', async (req, res) => {
     try{
         if(req.session.idUsuario && req.session.idUsuario != -1){

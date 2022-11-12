@@ -5,7 +5,11 @@ const proyectoCtlr = require('./ProyectoControlador');
 const gastoCtlr = require('./GastoControlador');
 const puestoCtlr = require('./PuestoControlador');
 
-
+// Ruta para consultar un proyecto en específico.
+// Se manda el id del proyecto en la dirección.
+// Revisa antes de consultar el proyecto que el usuario
+// tenga el permiso de modificar proyectos dentro
+// de la organización.
 router.get('/consultar/:id', async (req, res) => {
     try{
         var habilitado = false;
@@ -34,6 +38,13 @@ router.get('/consultar/:id', async (req, res) => {
     }
 });
 
+// Ruta para consultar un conjunto de proyectos.
+// Se pueden mandar parámetros por medio de variables
+// en la dirección. Dentro de estos parámetros está el
+// id del proyecto y el id de la organización.
+// Revisa antes de consultar los proyectos que el usuario
+// tenga el permiso de modificar proyectos dentro
+// de la organización.
 router.get('/consultar', async (req, res) => {
     try{
         var habilitado = false;
@@ -85,6 +96,10 @@ router.get('/consultar', async (req, res) => {
     }
 });
 
+// Ruta para crear un proyecto. Se debe mandar la
+// información del proyecto como body. Revisa antes 
+// de crear el proyecto que el usuario tenga el 
+// permiso de modificar proyectos dentro de la organización.
 router.post('/crear', jsonParser, async (req, res) => {
     try{
         var habilitado = false;
@@ -119,6 +134,10 @@ router.post('/crear', jsonParser, async (req, res) => {
     }
 });
 
+// Ruta para modificar un proyecto. Se manda en la dirección
+// el id del proyecto y en el body la información a modificar.
+// Revisa antes de modificar el proyecto que el usuario
+// tenga el permiso de modificar proyectos dentro de la organización.
 router.put('/modificar/:id_proyecto', jsonParser, async (req, res) => {
     try{
         var habilitado = false;
@@ -157,6 +176,10 @@ router.put('/modificar/:id_proyecto', jsonParser, async (req, res) => {
     }
 });
 
+// Ruta para eliminar un proyecto. Se manda en la dirección
+// el id del proyecto. Revisa antes de eliminar el proyecto 
+// que el usuario tenga el permiso de modificar proyectos dentro 
+// de la organización.
 router.delete('/eliminar/:id', async (req, res) => {
     try{
         var habilitado = false;
@@ -195,6 +218,10 @@ router.delete('/eliminar/:id', async (req, res) => {
     }
 });
 
+// Ruta para consultar los gastos de un proyecto. Se manda 
+// en la dirección el id del proyecto. Revisa antes de consultar
+// los gastos del proyecto  que el usuario tenga el permiso de 
+// modificar proyectos dentro de la organización.
 router.get('/consultarGastos/:id', async (req, res) => {
     try{
         var habilitado = false;

@@ -10,6 +10,7 @@ const usuario = require("./modelo/usuario");
 const sequelize = require('./conexion_base');
 const proyecto_x_usuario = require('./modelo/proyecto_x_usuario');
 const puesto = require('./modelo/puesto');
+const multimedia = require('./modelo/multimedia');
 
 organizacion.hasMany(inmueble, {
   foreignKey: 'id_organizacion'
@@ -145,6 +146,14 @@ usuario.hasMany(proyecto_x_usuario, {
 
 proyecto_x_usuario.belongsTo(usuario, {
   foreignKey: 'id_usuario'
+});
+
+organizacion.hasMany(multimedia, {
+  foreignKey: 'id_organizacion'
+});
+
+multimedia.belongsTo(organizacion, {
+  foreignKey: 'id_organizacion'
 });
 
 sequelize.sync({ alter: true })

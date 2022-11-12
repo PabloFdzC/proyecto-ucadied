@@ -3,6 +3,12 @@ const bodyParser = require('body-parser');
 const jsonParser  = bodyParser.json({ extended: false });
 const puestoCtlr = require('./PuestoControlador');
 
+// Ruta para modificar un puesto, se debe mandar
+// el id del puesto en la dirección del puesto y 
+// en el body la información a modificar. Revisa
+// antes de modificar el puesto que el usuario
+// tenga el permiso de modificar la junta
+// directiva de la organización.
 router.put('/modificar/:id', jsonParser, async (req, res) => {
     try{
         var habilitado = false;
@@ -41,6 +47,11 @@ router.put('/modificar/:id', jsonParser, async (req, res) => {
     }
 });
 
+// Ruta para crear un puesto, se debe mandar
+// en el body la información del puesto. Revisa
+// antes de crear el puesto que el usuario
+// tenga el permiso de modificar la junta
+// directiva de la organización.
 router.post('/crear', jsonParser, async (req, res) => {
     try{
         var habilitado = false;
@@ -77,6 +88,11 @@ router.post('/crear', jsonParser, async (req, res) => {
     }
 });
 
+// Ruta para eliminar un puesto, se debe mandar
+// el id del puesto en la dirección del puesto. 
+// Revisa antes de modificar el puesto que el usuario
+// tenga el permiso de modificar la junta
+// directiva de la organización.
 router.delete('/eliminar/:id', jsonParser, async (req, res) => {
     try{
         var habilitado = false;
@@ -118,6 +134,13 @@ router.delete('/eliminar/:id', jsonParser, async (req, res) => {
     }
 });
 
+// Ruta para consultar un conjunto de puestos.
+// Se pueden enviar parámetros a través de variables
+// en la dirección. Entre estos parámetros están el id,
+// el id de la organización y el id del usuario.
+// Revisa antes de consultar los puestos que el usuario
+// tenga el permiso de modificar la junta
+// directiva de la organización.
 router.get('/consultar', async (req, res) => {
     try{
         var habilitado = false;

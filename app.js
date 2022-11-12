@@ -14,6 +14,8 @@ app.use(cors({
 
 require("./creacion_base");
 
+app.use('/archivos', express.static('archivos'));
+
 
 var sess = {
     secret: 'm!S3ssi0nn0de',

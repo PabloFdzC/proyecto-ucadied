@@ -5,6 +5,13 @@ const actividadCtlr = require('./ActividadControlador');
 const inmuebleCtlr = require('./InmuebleControlador');
 const puestoCtlr = require('./PuestoControlador');
 const { verificarCaptcha } = require('./captcha');
+
+// Ruta para consultar un conjunto de actividades.
+// Se pueden mandar parámentros por medio de variables
+// en la dirección. Dentro de estos parámetros está el
+// id de la actividad, el id de la organización, el 
+// tipo de actividad, el id del inmueble, si la actividad
+// está habilitada o no, y el día, mes y año.
 router.get('/consultar', async (req, res) => {
     try{
         var actividades;
@@ -47,6 +54,8 @@ router.get('/consultar', async (req, res) => {
     }
 });
 
+// Ruta para crear una actividad. Se debe mandar la
+// información de la actividad como body.
 router.post('/crear', jsonParser, async (req, res) => {
     try{
         const resp = {exito:true};
@@ -70,6 +79,10 @@ router.post('/crear', jsonParser, async (req, res) => {
     }
 });
 
+// Ruta para modificar una actividad. Se manda en la dirección
+// el id de la actividad y en el body la información a modificar.
+// Revisa antes de modificar la actividad que el usuario
+// tenga el permiso de modificar actividades dentro de la organización.
 router.put('/modificar/:id_actividad', jsonParser, async (req, res) => {
     try{
         let habilitado = false;
@@ -96,6 +109,9 @@ router.put('/modificar/:id_actividad', jsonParser, async (req, res) => {
     }
 });
 
+// Ruta para habilitar las reservas de las actividades.
+// Revisa antes de habilitar las reservas que el usuario
+// sea administrador.
 router.post('/habilitarReservas', jsonParser, async (req, res) => {
     try{
         var habilitado = false;
@@ -118,6 +134,10 @@ router.post('/habilitarReservas', jsonParser, async (req, res) => {
     }
 });
 
+// Ruta para eliminar las reservas inhabilitadas de una actividad. 
+// Se manda en la dirección el id de la actividad. Revisa antes de 
+// eliminar las reservas que el usuario tenga el permiso de modificar 
+// actividades dentro de la organización.
 router.delete('/eliminarReservasInhabilitadas/:id_actividad', async (req, res) => {
     try{
         let habilitado = false;
@@ -143,6 +163,10 @@ router.delete('/eliminarReservasInhabilitadas/:id_actividad', async (req, res) =
     }
 });
 
+// Ruta para habilitar las reservas de una actividad. 
+// Se manda en el body el id de la actividad. Revisa antes de 
+// habilitar las reservas que el usuario tenga el permiso de modificar 
+// actividades dentro de la organización.
 router.post('/habilitarReservas', jsonParser, async (req, res) => {
     try{
         var habilitado = false;
@@ -191,6 +215,10 @@ router.post('/habilitarReservas', jsonParser, async (req, res) => {
     }
 });
 
+// Ruta para eliminar una actividad. Se manda en la dirección
+// el id de la actividad. Revisa antes de eliminar la actividad 
+// que el usuario tenga el permiso de modificar actividades dentro 
+// de la organización.
 router.delete('/eliminar/:id_actividad', async (req, res) => {
     try{
         let habilitado = false;

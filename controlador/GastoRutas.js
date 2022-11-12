@@ -5,6 +5,13 @@ const gastoCtlr = require('./GastoControlador');
 const puestoCtlr = require('./PuestoControlador');
 const proyectoCtlr = require('./ProyectoControlador');
 
+// Ruta para consultar un conjunto de gastos.
+// Se pueden mandar parámetros por medio de variables
+// en la dirección. Dentro de estos parámetros está el
+// id del gasto y el id del proyecto.
+// Revisa antes de consultar los gastos que el usuario
+// tenga el permiso de modificar proyectos dentro
+// de la organización.
 router.get('/consultar', async (req, res) => {
     try{
         var habilitado = false;
@@ -63,6 +70,10 @@ router.get('/consultar', async (req, res) => {
     }
 });
 
+// Ruta para crear un gasto. Se debe mandar la
+// información del gasto como body. Revisa antes 
+// de crear el gasto que el usuario tenga el 
+// permiso de modificar proyectos dentro de la organización.
 router.post('/crear', jsonParser, async (req, res) => {
     try{
         var habilitado = false;
@@ -108,6 +119,10 @@ router.post('/crear', jsonParser, async (req, res) => {
     }
 });
 
+// Ruta para modificar un gasto. Se manda en la dirección
+// el id del gasto y en el body la información a modificar.
+// Revisa antes de modificar el gasto que el usuario
+// tenga el permiso de modificar proyectos dentro de la organización.
 router.put('/modificar/:id_gasto', jsonParser, async (req, res) => {
     try{
         var habilitado = false;
@@ -155,6 +170,10 @@ router.put('/modificar/:id_gasto', jsonParser, async (req, res) => {
     }
 });
 
+// Ruta para eliminar un gasto. Se manda en la dirección
+// el id del gasto. Revisa antes de eliminar el gasto 
+// que el usuario tenga el permiso de modificar proyectos dentro 
+// de la organización.
 router.delete('/eliminar/:id_gasto', async (req, res) => {
     try{
         var habilitado = false;

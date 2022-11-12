@@ -13,5 +13,6 @@ module.exports = sequelize.define('puesto', {
     edita_junta: type.BOOLEAN,
     edita_proyecto: type.BOOLEAN,
     edita_actividad: type.BOOLEAN,
+    edita_inmueble: type.BOOLEAN,
     nombre: type.STRING
   });

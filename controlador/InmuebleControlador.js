@@ -4,11 +4,14 @@ const Sequelize = require("sequelize");
 const reserva_inmueble = require('../modelo/reserva_inmueble');
 const queries_generales = require('./QueriesGenerales');
 
-
+// Función para consultar un conjunto de inmuebles.
+// Se debe enviar como parámetro los filtros de búsqueda.
 async function consultar(params){
     return await queries_generales.consultar(inmueble, {where: params});
 }
 
+// Función para consultar un conjunto de reservas de inmuebles.
+// Se debe enviar como parámetro los filtros de búsqueda.
 async function consultar_reservas(params){
     if(params.id_reserva_inmueble){
         return await queries_generales.consultar(reserva_inmueble, {where: {
@@ -25,6 +28,9 @@ async function consultar_reservas(params){
     }
 }
 
+// Función para consultar un conjunto de reservas de inmuebles
+// de un mes en específico. Se debe enviar como parámetro el
+// mes y el año.
 async function consultar_reservas_mes_anio(mes, anio){
     return await queries_generales.consultar(reserva_inmueble, {where: {
         [Op.and]: [
@@ -35,6 +41,9 @@ async function consultar_reservas_mes_anio(mes, anio){
     }});
 }
 
+// Función para consultar las reservas de un inmueble un día 
+// en específico. Se debe enviar como parámetro el id del inmueble
+// y la fecha.
 async function consultar_reserva_fecha(fecha, id_inmueble){
     return await queries_generales.consultar(reserva_inmueble, {where: {
         inicio: {
@@ -46,23 +55,38 @@ async function consultar_reserva_fecha(fecha, id_inmueble){
     }});
 }
 
+// Función para crear un inmueble. Recibe como parámetro
+// la información del inmueble.
 async function crear(info){
     return await queries_generales.crear(inmueble, info);
 }
 
+// Función para crear varias reservas de un inmueble. Recibe 
+// como parámetro la información de las reservas.
 async function crear_reservas(info){
     return await queries_generales.crear_varios(reserva_inmueble, info);
 }
 
+// Función para modificar un inmueble. Recibe como parámetros
+// el id del inmueble y la infomración que se desea modificar.
 async function modificar(id, info){
     return await queries_generales.modificar(inmueble, {id}, info)
 }
 
+// Función para eliminar un inmueble. Recibe como parámetro
+// el id del inmueble que se desea eliminar.
 async function eliminar(id){
     return await queries_generales.eliminar(inmueble, {id});
 }
 
+// Función para eliminar una reserva. Recibe como parámetro
+// el id de la reserva que se desea eliminar.
+async function eliminar_reserva(id){
+    return await queries_generales.eliminar(reserva_inmueble, {id})
+}
 
+// Función para habilitar una reserva. Recibe como parámetro
+// el id de la reserva que se desea habilitar.
 async function habilitar_reserva(id){
     return await queries_generales.modificar(reserva_inmueble, {id}, {habilitado: '1'})
 }
@@ -77,5 +101,6 @@ module.exports = {
     crear_reservas,
     modificar,
     eliminar,
-    habilitar_reserva
+    habilitar_reserva,
+    eliminar_reserva
 }

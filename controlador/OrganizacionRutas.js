@@ -4,7 +4,8 @@ const jsonParser  = bodyParser.json({ extended: false });
 const organizacionCtrl = require('./OrganizacionControlador');
 const nodemailer = require('nodemailer');
 
-
+// Ruta para consultar una organización en específico.
+// Se manda el id de la organización en la dirección.
 router.get('/consultar/:id_organizacion', async (req, res) => {
     try{
         const organizaciones = await organizacionCtrl.consultar(req.params);
@@ -16,6 +17,7 @@ router.get('/consultar/:id_organizacion', async (req, res) => {
     }
 });
 
+// Ruta para consultar todas las organizaciones.
 router.get('/consultar', async (req, res) => {
     try{
         const organizaciones = await organizacionCtrl.consultar(req.params);
@@ -27,6 +29,9 @@ router.get('/consultar', async (req, res) => {
     }
 });
 
+// Ruta para consultar las organizaciones de un tipo.
+// Se manda en la dirección un 1 si se desea consultar
+// uniones y un 0 si se desea consultar asociaciones.
 router.get('/consultarTipo/:esUnion', async (req, res) => {
     try{
         const organizaciones = await organizacionCtrl.consultarTipo(req.params.esUnion);
@@ -38,6 +43,8 @@ router.get('/consultarTipo/:esUnion', async (req, res) => {
     }
 });
 
+// Ruta para crear una organización. Se debe mandar la
+// información de la organización como body.
 router.post('/crear', jsonParser, async (req, res) => {
     try{
         if(req.session.tipoUsuario && req.session.tipoUsuario === "Administrador"){
@@ -55,6 +62,8 @@ router.post('/crear', jsonParser, async (req, res) => {
     }
 });
 
+// Ruta para modificar una organización. Se manda en la dirección
+// el id de la organización y en el body la información a modificar.
 router.put('/modificar/:id_organizacion', jsonParser, async (req, res) => {
     try{
         if(req.session.idUsuario && req.session.idUsuario != -1){
@@ -72,6 +81,8 @@ router.put('/modificar/:id_organizacion', jsonParser, async (req, res) => {
     }
 });
 
+// Ruta para eliminar una organización. Se manda en la dirección
+// el id de la organización.
 router.delete('/eliminar/:id_organizacion', async (req, res) => {
     try{
         if(req.session.tipoUsuario && req.session.tipoUsuario === "Administrador"){
@@ -89,6 +100,8 @@ router.delete('/eliminar/:id_organizacion', async (req, res) => {
     }
 });
 
+// Ruta para agregar un miembro a una organización. En el body debe
+// venir el id del usuario y el id de la organziación.
 router.post('/agregarMiembro', jsonParser, async (req, res) => {
     try{
         if(req.session.idUsuario && req.session.idUsuario != -1){
@@ -106,6 +119,8 @@ router.post('/agregarMiembro', jsonParser, async (req, res) => {
     }
 });
 
+// Ruta para eliminar un miembro de una organización. En el body debe
+// venir el id del usuario y el id de la organziación.
 router.delete('/eliminarMiembro', jsonParser, async (req, res) => {
     try{
         if(req.session.idUsuario && req.session.idUsuario != -1){
@@ -123,6 +138,8 @@ router.delete('/eliminarMiembro', jsonParser, async (req, res) => {
     }
 });
 
+// Ruta para consultar los miembros de una organización. Se debe
+// enviar en la dirección el id de la organización.
 router.get('/consultarMiembros/:id_organizacion', jsonParser, async (req, res) => {
     try{
         if(req.session.idUsuario && req.session.idUsuario != -1){
@@ -140,6 +157,9 @@ router.get('/consultarMiembros/:id_organizacion', jsonParser, async (req, res) =
     }
 });
 
+// Ruta para el form de contáctenos. En el body debe venir la información
+// escrita en el form. Se envía un correo a la organización y también
+// un correo de confirmación a la persona que manda la información.
 router.post('/formContactenos', jsonParser, async (req, res) => {
     try{
         if(req.body.id_organizacion){
@@ -151,12 +171,12 @@ router.post('/formContactenos', jsonParser, async (req, res) => {
                     var transporter = nodemailer.createTransport({
                         service: 'gmail',
                         auth: {
-                        user: 'pruebaucadied@gmail.com',
-                        pass: 'ggpagiaxezsddzcd'
+                        user: 'sistemaucadied@gmail.com',
+                        pass: 'bxlumqofylsqxqjk'
                         }
                     });
                     var mailOptions = {
-                        from: 'pruebaucadied@gmail.com',
+                        from: 'sistemaucadied@gmail.com',
                         to: organizacion.email,
                         subject: 'Formulario Contáctenos',
                         html: `
@@ -173,6 +193,7 @@ router.post('/formContactenos', jsonParser, async (req, res) => {
                             <h1>Mensaje:</h1>
                             <p>${req.body.mensaje}<p>
                         </div>
+                        <p>Este es un mensaje automatizado, favor no responder a esta dirección.<p>
                         `
                     };
                     transporter.sendMail(mailOptions, function(error, info){
@@ -183,7 +204,7 @@ router.post('/formContactenos', jsonParser, async (req, res) => {
                     });
                     if(!error_encontrado){
                         mailOptions = {
-                            from: 'pruebaucadied@gmail.com',
+                            from: 'sistemaucadied@gmail.com',
                             to: req.body.email,
                             subject: 'Formulario contáctenos enviado correctamente',
                             html: `
@@ -200,6 +221,7 @@ router.post('/formContactenos', jsonParser, async (req, res) => {
                                 <h1>Mensaje:</h1>
                                 <p>${req.body.mensaje}<p>
                             </div>
+                            <p>Este es un mensaje automatizado, favor no responder a esta dirección.<p>
                             `
                         };
                         transporter.sendMail(mailOptions, function(error, info){

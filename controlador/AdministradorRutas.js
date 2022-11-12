@@ -5,7 +5,10 @@ const jsonParser  = bodyParser.json({ extended: false });
 
 const usuarioCtrl = require('./UsuarioControlador');
 
-
+// Ruta para crear un administrador. Recibe la información del
+// administrador en el body. Deja crear el administrador si está
+// siendo creado por un administrador, o si no existe ningún
+// administrador en el sistema.
 router.post('/crear', jsonParser,  async (req, res) => {
     try{
         if(req.session.tipoUsuario && req.session.tipoUsuario === "Administrador"){
@@ -36,6 +39,7 @@ router.post('/crear', jsonParser,  async (req, res) => {
     }
 });
 
+// Ruta para saber si existe un administrador en el sistema o no.
 router.get('/existeAdministrador', async (req, res) => {
     const existeAdministrador = await usuarioCtrl.existeAdministrador();
     res.send({existeAdministrador});

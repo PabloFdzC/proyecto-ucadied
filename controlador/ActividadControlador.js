@@ -7,6 +7,9 @@ const { Op } = require("sequelize");
 const Sequelize = require("sequelize");
 const inmueble = require('../modelo/inmueble');
 
+// Función para consultar un conjunto de actividades. Se mandan como
+// parámetros los filtro de búsqueda de actividad, de reserva, de inmueble
+// y el id del usuario que lo solicita.
 async function consultar(paramsActividad, paramsReserva, paramsInmueble, id_usuario){
     var resp = [];
     var mesDiaAnio = [];
@@ -86,6 +89,8 @@ async function consultar(paramsActividad, paramsReserva, paramsInmueble, id_usua
     return resp.concat(resp2);
 }
 
+// Función para buscar disponibilidad de una fecha en el horario
+// de un inmueble.
 async function buscar_disponibilidad_horario(inicio, final, horario){
     const dias_semana = ['D', 'L', 'K', 'M', 'J', 'V', 'S'];
     const dia = dias_semana[inicio.getDay()];
@@ -104,6 +109,9 @@ async function buscar_disponibilidad_horario(inicio, final, horario){
     return false;
 }
 
+// Función para buscar si existe disponibilidad de una fecha
+// respecto a las reservas a inmuebles que existen en el
+// sistema.
 async function buscar_disponibilidad_reservas(inicio, final, id_inmueble){
     const reservas =  await inmuebleCtlr.consultar_reserva_fecha(inicio, id_inmueble);
     var inicio_reservas;
@@ -122,6 +130,9 @@ async function buscar_disponibilidad_reservas(inicio, final, id_inmueble){
     return true;
 }
 
+// Utiliza las funciones anteriores para buscar si existe disponibilidad
+// en una lista de días respecto al horario del inmueble y a las reservas
+// que existen en el sistema.
 async function buscar_disponibilidad_dias(dias, horario, id_inmueble){
     var inicio = new Date();
     var final = new Date();

@@ -10,6 +10,8 @@ const ProyectoRouter = require('./ProyectoRutas');
 const UsuarioRouter = require('./UsuarioRutas');
 const GastoRouter = require('./GastoRutas');
 
+// El Api se utiliza para redireccionar al archivo correspondiente.
+
 router.use('/actividad', ActividadRouter);
 router.use('/administrador', AdministradorRouter);
 router.use('/inmueble', InmuebleRouter);
