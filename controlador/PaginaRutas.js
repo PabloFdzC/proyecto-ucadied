@@ -33,7 +33,7 @@ const multi_upload = multer({
             return cb(err);
         }
     },
-}).array('imagenes', 10)
+}).array('archivos', 10)
 
 // Ruta para consultar un conjunto de páginas.
 // Se pueden mandar parámetros por medio de variables
