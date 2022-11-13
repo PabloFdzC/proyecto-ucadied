@@ -131,3 +131,49 @@ export const GlobalSpacingSettings = (props) => {
     </>
   );
 };
+
+export const GlobalURLSettings = (props) => {
+
+  return (
+    <>
+      <div className="mb-3">
+            <label htmlFor="url" className="form-label">URL</label>
+            <input
+              type="url"
+              className="form-control"
+              key="url"
+              name="url"
+              value={props.src}
+              onChange={(e) => manejaCambio(props, "url", e)} />
+        </div>
+    </>
+  );
+};
+
+export const GlobalDimensionsSettings = (props) => {
+
+  return (
+    <>
+      <div className="mb-3">
+            <label htmlFor="width" className="form-label">Ancho</label>
+            <input
+              type="width"
+              className="form-control"
+              key="width"
+              name="width"
+              value={props.width}
+              onChange={(e) => manejaCambio(props, "width", e)} />
+        </div>
+        <div className="mb-3">
+            <label htmlFor="height" className="form-label">Alto</label>
+            <input
+              type="height"
+              className="form-control"
+              key="height"
+              name="height"
+              value={props.height}
+              onChange={(e) => manejaCambio(props, "height", e)} />
+        </div>
+    </>
+  );
+};

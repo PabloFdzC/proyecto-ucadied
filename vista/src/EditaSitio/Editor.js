@@ -12,6 +12,7 @@ import { Card, CardBottom, CardTop } from '../Componentes/Card';
 import { Container } from '../Componentes/Container';
 import { Text } from '../Componentes/Text';
 import { Header } from './Header';
+import { Video } from '../Componentes/Video';
 
 export default function App(props) {
 
@@ -25,6 +26,7 @@ export default function App(props) {
           Container,
           CardTop,
           CardBottom,
+          Video,
         }}
       >
         <Header idOrganizacion={props.idOrganizacion} />

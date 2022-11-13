@@ -8,6 +8,7 @@ import { Button } from '../Componentes/Button';
 import { Card } from '../Componentes/Card';
 import { Container } from '../Componentes/Container';
 import { Text } from '../Componentes/Text';
+import { Video } from '../Componentes/Video';
 
 export const Toolbox = () => {
   const { connectors } = useEditor();
@@ -27,6 +28,10 @@ export const Toolbox = () => {
       <ButtonB ref={(ref) => connectors.create(ref, <Card />)}>
         Card
       </ButtonB>
+      <ButtonB ref={(ref) => connectors.create(ref, <Video width={420} height={345} src="https://www.youtube.com/embed/jNQXAC9IVRw"/>)}>
+        Video
+      </ButtonB>
     </div>
   );
 };
+
