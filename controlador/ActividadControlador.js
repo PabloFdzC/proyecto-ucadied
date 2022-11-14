@@ -114,11 +114,9 @@ async function buscar_disponibilidad_horario(inicio, final, horario){
 // sistema.
 async function buscar_disponibilidad_reservas(inicio, final, id_inmueble){
     const reservas =  await inmuebleCtlr.consultar_reserva_fecha(inicio, id_inmueble);
-    var inicio_reservas;
-    var final_reservas;
     for(var i = 0; i < reservas.length; i+=1){
-        inicio_reservas = new Date(reservas[i].inicio);
-        final_reservas = new Date(reservas[i].final);
+        let inicio_reservas = new Date(reservas[i].inicio);
+        let final_reservas = new Date(reservas[i].final);
         if((inicio_reservas.getUTCHours() <= inicio.getUTCHours() && final_reservas.getUTCHours() >= final.getUTCHours()) ||
         (final_reservas.getUTCHours() == inicio.getUTCHours() && final_reservas.getUTCMinutes() > inicio.getUTCMinutes()) ||
         (inicio_reservas.getUTCHours() > inicio.getUTCHours() && inicio_reservas.getUTCHours() < final.getUTCHours()) ||
@@ -134,14 +132,12 @@ async function buscar_disponibilidad_reservas(inicio, final, id_inmueble){
 // en una lista de días respecto al horario del inmueble y a las reservas
 // que existen en el sistema.
 async function buscar_disponibilidad_dias(dias, horario, id_inmueble){
-    var inicio = new Date();
-    var final = new Date();
     var errores = [];
     for(var i = 0; i < dias.length; i+=1){
-        inicio = new Date(dias[i].inicio);
-        final = new Date(dias[i].final);
+        const inicio = new Date(dias[i].inicio);
+        const final = new Date(dias[i].final);
         if(await buscar_disponibilidad_horario(inicio, final, horario)){
-            if(await !buscar_disponibilidad_reservas(inicio, final, id_inmueble)){
+            if(!(await buscar_disponibilidad_reservas(inicio, final, id_inmueble))){
                 errores = errores.concat([{
                     inicio:inicio.toUTCString(),
                     final:final.toUTCString()
@@ -169,30 +165,24 @@ async function crear_habilitar(info, id_usuario, habilitar){
                 if(errores.length === 0){
                     info.habilitado = id_usuario && id_usuario != -1;
                     if(habilitar){
-                        console.log("cambiaHabilitado");
                         return await cambiaHabilitado(info);
                     }
                     else{
-                        console.log("crear");
                         return await crear(info);
                     }
                 }
                 else{
-                    console.log("errores");
                     return {errores};
                 }
             }
             else{
-                console.log("error1");
                 return{error: "Información de días no enviada"}
             }
         }
         else{
-            console.log("error2");
             return {error: "inmueble no encontrado"};
         }
     }else{
-        console.log("error3");
         return {error: "inmueble no encontrado"};
     }
 }

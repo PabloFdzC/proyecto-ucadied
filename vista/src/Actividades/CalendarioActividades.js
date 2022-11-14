@@ -103,12 +103,14 @@ class CalendarioActividades extends React.Component {
             const resp = await this.queriesGenerales.obtener("/inmueble/consultar", {
                 id_organizacion:this.props.idOrganizacion,
             });
-            this.setState({
-                inmuebles:this.state.inmuebles.concat(resp.data),
-                campos:Object.assign({}, this.state.campos,{
-                    id_inmueble:resp.data[0].id.toString(),
-                }),
-            });
+            if(resp.data.length > 0){
+                this.setState({
+                    inmuebles:this.state.inmuebles.concat(resp.data),
+                    campos:Object.assign({}, this.state.campos,{
+                        id_inmueble:resp.data[0].id.toString(),
+                    }),
+                });
+            }
         } catch(err){
             console.log(err);
         }
@@ -216,7 +218,6 @@ class CalendarioActividades extends React.Component {
                             <label htmlFor="id_inmueble" className="form-label">Inmueble</label>
                             <select type="text" className="form-select" key="id_inmueble" name="id_inmueble" value={this.state.campos.id_inmueble} onChange={this.manejaCambioInmueble} >
                                 {this.state.inmuebles.map((inmueble, i)=><option key={i} value={inmueble.id}>{inmueble.nombre}</option>)}
-                                <option value="3">haaa</option>
                             </select>
                         </div>
                         <button className="btn btn-primary" onClick={()=>this.muestraModal(true)}><i className="lni lni-plus"></i>  Agregar actividad</button>
@@ -235,7 +236,6 @@ class CalendarioActividades extends React.Component {
                             datesSet={this.fechaPuestaCalendario}
                         />
                         </div>
-                        {/* <Calendar ref={this.calendario} style={{width:"100%", backgroundColor:"#137e31"}} muestraDia cargaDatosMes={this.cargarActividades} datos={this.state.actividades} /> */}
                     </div>
                     <Modal size="lg" show={this.state.muestraActividadForm} onHide={()=>this.muestraModal(false)} className="modal-green" centered>
                     <Modal.Body>

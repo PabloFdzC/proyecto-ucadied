@@ -67,6 +67,7 @@ router.get('/consultar', async (req, res) => {
 router.post('/crear', jsonParser, async (req, res) => {
     try{
         var habilitado = false;
+        var error_encontrado = false;
         if(req.session.idUsuario && req.session.idUsuario != -1){
             if(req.session.tipoUsuario === "Administrador"){
                 habilitado = true;

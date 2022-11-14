@@ -10,10 +10,8 @@ import Tab from 'react-bootstrap/Tab';
 import listaHoras from '../Utilidades/listaHoras';
 import Select from 'react-select';
 import {fechaAHoraAMPM, horaAFecha,partirStringHora} from '../Utilidades/ManejoHoras';
-// SOLO ES NECESARIO PONER EL CAPTCHA EN PRODUCCIÓN
-// EN DESARROLLO MEJOR SOLO CUANDO SE QUIERA PROBAR
-// FUNCIONAMIENTO
-import ReCAPTCHA from "react-google-recaptcha";
+
+import Reaptcha from 'reaptcha';
 
 import {stringAFecha, fechaAString} from '../Utilidades/ManejoFechas';
 import Toast from 'react-bootstrap/Toast';
@@ -46,10 +44,10 @@ class ActividadForm extends React.Component {
         this.titulo = "Agregar Actividad";
         this.diasLetra = ["D","L","K","M","J","V","S"];
         this.horas = listaHoras();
-        this.captcha = React.createRef();
         this.tipoInicial = "Pública";
         this.fechaHoy = fechaAString(new Date());
         var campos = {
+            captcha:"",
             id_organizacion:props.idOrganizacion,
             nombre: "",
             tipo: this.tipoInicial,
@@ -72,6 +70,7 @@ class ActividadForm extends React.Component {
             mensajeError: "",
             diasPosibles:[],
             errores: {
+                captcha:"",
                 nombre: "",
                 tipo: "",
                 id_inmueble:"",
@@ -91,6 +90,7 @@ class ActividadForm extends React.Component {
         // el mismo nombre que se le puso en el
         // objeto del state de campos
         this.validacion = new Validacion({
+            captcha:"requerido",
             nombre: "requerido",
             tipo: "seleccionado",
             id_inmueble:"seleccionado",
@@ -116,6 +116,8 @@ class ActividadForm extends React.Component {
         this.manejaCambio = this.manejaCambio.bind(this);
         this.crearActividad = this.crearActividad.bind(this);
         this.reiniciarCampos = this.reiniciarCampos.bind(this);
+        this.volver = this.volver.bind(this);
+        this.captchaVerificado = this.captchaVerificado.bind(this);
     }
 
     /*
@@ -252,8 +254,8 @@ class ActividadForm extends React.Component {
                 inicio.setUTCHours(horaI, minI, 0, 0);
                 final.setUTCHours(horaF, minF, 0, 0);
                 dias.push({
-                    inicio:inicio.toUTCString(),
-                    final:final.toUTCString(),
+                    inicio:inicio,
+                    final:final,
                 })
             }
             fechaInicio.setUTCDate(fechaInicio.getUTCDate()+1);
@@ -298,14 +300,9 @@ class ActividadForm extends React.Component {
                 });
             }
         }
-        // Si no hay errores entonces se manda la información al
-        // server
-        // RECORDARSE DE ACTIVAR EL CAPTCHA AQUÏ TAMBIÉN
-        //const captcha = this.captcha.current.getValue();
-        const captcha = true;
-        if(!this.state.errores.hayError && captcha){
+        if(!this.state.errores.hayError){
             var datos = {
-                captcha:captcha,
+                captcha:this.state.campos,
                 id_organizacion: this.props.idOrganizacion,
                 nombre: this.state.campos.nombre,
                 tipo: this.state.campos.tipo,
@@ -331,6 +328,8 @@ class ActividadForm extends React.Component {
                 } else {
                     this.diasPosibles(datos.dias, error.response.data.errores);
                 }
+            } finally{
+                //this.captcha.current.reset();
             }
         } else {
             if(this.state.errores.nombre.length !== 0 || this.state.errores.tipo.length !== 0 ||
@@ -340,7 +339,9 @@ class ActividadForm extends React.Component {
                     key:"Actividad"
                 });
             } else if(this.state.errores.fechaInicio.length !== 0 || this.state.errores.fechaFinal.length !== 0 ||
-                this.state.errores.horaInicio.length !== 0 || this.state.errores.horaInicio.length !== 0 || !captcha){
+                this.state.errores.horaInicio.length !== 0 || this.state.errores.horaInicio.length !== 0 ||
+                this.state.errores.captcha.length !== 0){
+                    console.log(this.state.errores.captcha);
                 this.setState({
                     key:"Fechas"
                 });
@@ -348,6 +349,7 @@ class ActividadForm extends React.Component {
         }
 
     }
+
 
 
     /*
@@ -371,6 +373,24 @@ class ActividadForm extends React.Component {
           });
     }
 
+    volver(){
+        //this.captcha.current.reset();
+        this.props.cerrarModal();
+        this.reiniciarCampos();
+    }
+
+    // componentDidMount(){
+    //     this.captcha.current.reset();
+    // }
+
+    captchaVerificado(captcha){
+        this.setState({
+            campos: Object.assign({}, this.state.campos, {
+                captcha,
+            }),
+        });
+    }
+
     render(){
         // Esta primera parte nos permite mostrar
         // el horario que tenga el inmueble que el
@@ -384,14 +404,13 @@ class ActividadForm extends React.Component {
                 break;
             }
         }
-        const captcha = /*(
-        // El captcha se pone de esta forma para que sea
-        // más fácil comentarlo cuando no lo queremos
-        // usar en desarrollo
-        <ReCAPTCHA
-            ref={this.captcha}
+        const captcha = 
+        <Reaptcha
+            // ref={this.captcha}
+            onVerify={this.captchaVerificado}
+            onExpired={()=>this.captchaVerificado("")}
             sitekey="6Leu-2kiAAAAAMHi78aFYa-E444kM55j7bRqQyMa"
-        />, )*/ null;
+        />;
         
 
         return (
@@ -412,7 +431,7 @@ class ActividadForm extends React.Component {
                 {captcha}
                 <div className="d-flex justify-content-end">
                     <div className="m-1">
-                        <button type="button" className="btn btn-secondary" aria-label="Volver" onClick={()=>{this.setState({diasPosibles:[]})}}>Volver</button>
+                        <button type="button" className="btn btn-secondary" aria-label="Volver" onClick={()=>{this.setState({diasPosibles:[]});}}>Volver</button>
                     </div>
                     <div className="m-1">
                         <button type="submit" className="btn btn-primary">Agregar</button>
@@ -572,7 +591,7 @@ class ActividadForm extends React.Component {
                 <div className="d-flex justify-content-end">
                     {this.props.cerrarModal ?
                     <div className="m-1">
-                        <button type="button" className="btn btn-secondary" aria-label="Volver" onClick={()=>{this.props.cerrarModal();this.reiniciarCampos()}}>Volver</button>
+                        <button type="button" className="btn btn-secondary" aria-label="Volver" onClick={this.volver}>Volver</button>
                     </div>:
                     <></>
                     }
@@ -600,7 +619,7 @@ class ActividadForm extends React.Component {
                 </div>
                 {this.props.cerrarModal ?
                 <div className="m-1">
-                    <button type="button" className="btn btn-secondary" aria-label="Volver" onClick={()=>{this.props.cerrarModal();this.reiniciarCampos()}}>Volver</button>
+                    <button type="button" className="btn btn-secondary" aria-label="Volver" onClick={this.volver}>Volver</button>
                 </div>:
                 <></>
                 }

@@ -5,22 +5,29 @@ import React from 'react';
 import { GlobalURLSettings, GlobalDimensionsSettings } from './GlobalSettings';
 import Accordion from 'react-bootstrap/Accordion';
 
+import { unidades } from './Utilidades/Utilidades';
+
 export const Video = ({
     width,
+    widthUnit,
+    widthCustom,
     height,
+    heightUnit,
+    heightCustom,
     src,
     ...props }) => {
     const {
         connectors: { connect, drag },
     } = useNode();
+    width += widthCustom ? " " + widthUnit : "";
+    height += heightCustom ? " " + heightUnit : "";
     return (
-        <div class="embed-responsive embed-responsive-16by9" ref={(ref) => connect(drag(ref))}>
-            <iframe class="embed-responsive-item" 
+        <div className="ratio ratio-16x9" ref={(ref) => connect(drag(ref))}>
+            <iframe  
                 src={src}
-                width = {width}
-                height = {height}
+                style = {{width, height}}
                 {...props}
-                allowfullscreen
+                allowFullScreen
                 ></iframe>  
         </div>      
     )
@@ -29,12 +36,20 @@ export const Video = ({
 export const VideoSettings = () => {
     const {
         width,
+        widthUnit,
+        widthCustom,
         height,
+        heightUnit,
+        heightCustom,
         src,
         actions: { setProp },
     } = useNode((node) => ({
         width:node.data.props.width,
+        widthUnit:node.data.props.widthUnit,
+        widthCustom:node.data.props.widthCustom,
         height:node.data.props.height,
+        heightUnit:node.data.props.heightUnit,
+        heightCustom:node.data.props.heightCustom,
         src:node.data.props.src,
     }));
 
@@ -47,8 +62,22 @@ export const VideoSettings = () => {
                         <Accordion.Body>
                         <GlobalDimensionsSettings
                             setProp={setProp}
-                            width={width}
-                            height={height} />
+                            unitName="widthUnit"
+                            id="width"
+                            value={width}
+                            unit={widthUnit}
+                            name="Ancho"
+                            custom={widthCustom}
+                            customName="widthCustom" />
+                        <GlobalDimensionsSettings
+                            setProp={setProp}
+                            unitName="heightUnit"
+                            id="height"
+                            value={height}
+                            unit={heightUnit}
+                            name="Alto"
+                            custom={heightCustom}
+                            customName="heightCustom" />
                         </Accordion.Body>
                     </Accordion.Item>
                     <Accordion.Item eventKey="URL">
@@ -66,8 +95,12 @@ export const VideoSettings = () => {
 };
 
 export const VideoDefaultProps = {
-    width:420,
-    height:345,
+    width:100,
+    widthCustom:true,
+    widthUnit:unidades[3],
+    height:100,
+    heightCustom:true,
+    heightUnit:unidades[3],
     src: 'https://www.youtube.com/embed/jNQXAC9IVRw'
   };
 

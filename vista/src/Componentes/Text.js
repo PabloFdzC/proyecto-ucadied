@@ -7,6 +7,8 @@ import { unidades } from './Utilidades/Utilidades';
 
 import Accordion from 'react-bootstrap/Accordion';
 
+import "./css/estilos.css";
+
 export const Text = ({
   tag,
   text,
@@ -42,12 +44,12 @@ export const Text = ({
 
     setEditable(false);
   }, [selected]);
-
   return (
     <div
       {...props}
       ref={(ref) => connect(drag(ref))}
       onClick={() => selected && setEditable(true)}
+      className="textos"
     >
       <ContentEditable
         html={text}
@@ -81,6 +83,7 @@ const TextSettings = () => {
   const {
     tag,
     text,
+    textAlign,
     color,
     marginTop,
     marginRight,
@@ -96,6 +99,7 @@ const TextSettings = () => {
   } = useNode((node) => ({
     tag: node.data.props.tag,
     text: node.data.props.text,
+    textAlign: node.data.props.textAlign,
     color: node.data.props.color,
     marginTop:node.data.props.marginTop,
     marginRight:node.data.props.marginRight,
@@ -118,17 +122,47 @@ const TextSettings = () => {
     "h6",
     "p",
   ];
+  const etiquetasES = [
+    "Título 1",
+    "Título 2",
+    "Título 3",
+    "Título 4",
+    "Título 5",
+    "Título 6",
+    "Párrafo",
+  ];
+  const justificados = [
+    "start",
+    "center",
+    "end",
+  ];
+  const justificadosES = [
+    "Izquierda",
+    "Centro",
+    "Derecha",
+  ];
   return (
     <>
       <Form>
         <div className="mb-3">
-          <label htmlFor="text" className="form-label">Etiqueta</label>
+          <label htmlFor="etiqueta" className="form-label">Tipo</label>
           <select
             className="form-select"
             name="etiqueta"
+            id="etiqueta"
             value={tag}
             onChange={(e) =>{setProp((props) => (props.tag = e.target.value))}}>
-              {etiquetas.map((valor, indice)=><option key={indice} value={valor}>{valor}</option>)}
+              {etiquetas.map((valor, indice)=><option key={indice} value={valor}>{etiquetasES[indice]}</option>)}
+          </select>
+        </div>
+        <div className="mb-3">
+          <label htmlFor="textAlign" className="form-label">Justificado</label>
+          <select
+            className="form-select"
+            name="textAlign"
+            value={textAlign}
+            onChange={(e) =>{setProp((props) => (props.textAlign = e.target.value))}}>
+              {justificados.map((valor, indice)=><option key={indice} value={valor}>{justificadosES[indice]}</option>)}
           </select>
         </div>
         

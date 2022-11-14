@@ -2,7 +2,12 @@ import { useNode } from '@craftjs/core';
 import Form from 'react-bootstrap/Form';
 
 import React from 'react';
-import { GlobalTextSettings, GlobalBackgroundSettings, GlobalSpacingSettings } from './GlobalSettings';
+import { 
+  GlobalTextSettings,
+  GlobalBackgroundSettings,
+  GlobalSpacingSettings,
+  GlobalURLSettings,
+ } from './GlobalSettings';
 import { unidades } from './Utilidades/Utilidades';
 import Accordion from 'react-bootstrap/Accordion';
 
@@ -22,6 +27,7 @@ export const Button = ({
   paddingLeft,
   marginUnit,
   paddingUnit,
+  src,
   ...props
   }) => {
   const {
@@ -32,8 +38,9 @@ export const Button = ({
     className += "btn-"+tamanno;
   }
   return (
-    <button
+    <a
       ref={(ref) => connect(drag(ref))}
+      href={src}
       style={{
         backgroundColor,
         color,
@@ -51,7 +58,7 @@ export const Button = ({
       {...props}
     >
       {text}
-    </button>
+    </a>
   );
 };
 
@@ -73,6 +80,7 @@ export const ButtonSettings = () => {
     paddingLeft,
     marginUnit,
     paddingUnit,
+    src,
     actions: { setProp },
   } = useNode((node) => ({
     tamanno:node.data.props.tamanno,
@@ -90,6 +98,7 @@ export const ButtonSettings = () => {
     paddingLeft:node.data.props.paddingLeft,
     marginUnit:node.data.props.marginUnit,
     paddingUnit:node.data.props.paddingUnit,
+    src:node.data.props.src
   }));
 
   return (
@@ -130,6 +139,14 @@ export const ButtonSettings = () => {
                 text={text}
                 color={color} />
             </Accordion.Body>
+          </Accordion.Item>
+          <Accordion.Item eventKey="URL">
+              <Accordion.Header>URL</Accordion.Header>
+              <Accordion.Body>
+              <GlobalURLSettings
+                  setProp={setProp}
+                  src={src} />
+              </Accordion.Body>
           </Accordion.Item>
           <Accordion.Item eventKey="Fondo">
             <Accordion.Header>Fondo</Accordion.Header>

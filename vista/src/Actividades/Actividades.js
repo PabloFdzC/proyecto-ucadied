@@ -275,7 +275,7 @@ class Actividades extends React.Component {
     }
 
     async habilitarReservas(){
-        var datos;
+        var datos = {};
         if(Object.keys(this.state.Reserva).length > 0){
             datos = {
                 id_inmueble: this.state.Reserva.id_inmueble,
@@ -291,8 +291,9 @@ class Actividades extends React.Component {
                 dias: this.state.Actividad.reserva_inmuebles,
             };
         }
-        if(datos){
+        if(Object.keys(datos).length > 0){
             try{
+                
                 const resp = await this.queriesGenerales.postear("/actividad/habilitarReservas", datos);
                 this.setState({
                     mensajeModal: "¡Habilitada con éxito!",

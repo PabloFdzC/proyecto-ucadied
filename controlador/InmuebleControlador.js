@@ -45,6 +45,7 @@ async function consultar_reservas_mes_anio(mes, anio){
 // en específico. Se debe enviar como parámetro el id del inmueble
 // y la fecha.
 async function consultar_reserva_fecha(fecha, id_inmueble){
+    fecha = new Date(fecha);
     return await queries_generales.consultar(reserva_inmueble, {where: {
         inicio: {
             [Op.gte]: fecha.setUTCHours(0, 0, 0, 0),

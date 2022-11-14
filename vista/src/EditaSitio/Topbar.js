@@ -19,27 +19,25 @@ export const Topbar = () => {
 
   return (
     <>
-    <ContainerB >
-      <Row>
-        <Col>
-          <button
-            className="btn btn-primary"
-            disabled={!canUndo}
-            onClick={() => actions.history.undo()}
-            >
-              <i className="bi bi-arrow-90deg-left"></i>  Deshacer
-          </button>
-        </Col>
-        <Col>
+    <div className="d-flex justify-content-end flex-fill me-4">
+      <div className="m-1" style={{width:"fit-content"}}>
         <button
-          className="btn btn-primary"
+          className="btn btn-dark"
+          disabled={!canUndo}
+          onClick={() => actions.history.undo()}
+          >
+            <i className="bi bi-arrow-90deg-left"></i>  Deshacer
+        </button>
+      </div>
+      <div className="m-1" style={{width:"fit-content"}}>
+        <button
+          className="btn btn-dark"
           disabled={!canRedo}
           onClick={() => actions.history.redo()}>
             <i className="bi bi-arrow-90deg-right"></i>  Restaurar
         </button>
-        </Col>
-      </Row>
-    </ContainerB>
+      </div>
+    </div>
     </>
     
   );

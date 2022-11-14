@@ -28,27 +28,32 @@ export const SettingsPanel = () => {
   });
 
   return isEnabled && selected ? (
-    <div className="container" style={{overflowY:"scroll"}}>
-      <h3 >Edición de componente</h3>
-      <div data-cy="settings-panel">
-        {selected.settings && React.createElement(selected.settings)}
-      </div>
-      {selected.isDeletable ? (
-        <div className="d-flex justify-content-end">
-          <div className="m-1">
-            <button
-              className="btn btn-danger"
-              onClick={() => {
-                actions.delete(selected.id);
-              }}
-            >
-              <i className="lni lni-trash-can"></i> Eliminar
-            </button>
-          </div>
-        </div>
-        
-        
-      ) : null}
+    <>
+    <div style={{backgroundColor:"#076321"}}>
+      <h4 className="ms-2">Edición de componente</h4>
     </div>
+    <div className="overflow-auto" style={{maxHeight:"100%"}}>
+      <div style={{maxHeight:"100%"}}>
+        <div className="ms-2" data-cy="settings-panel">
+          {selected.settings && React.createElement(selected.settings)}
+        </div>
+        {selected.isDeletable ? (
+          <div className="d-flex justify-content-end">
+            <div className="m-1">
+              <button
+                className="btn btn-danger"
+                onClick={() => {
+                  actions.delete(selected.id);
+                }}
+              >
+                <i className="lni lni-trash-can"></i> Eliminar
+              </button>
+            </div>
+          </div>
+          ) : null}
+      </div>
+    </div>
+    </>
+    
   ) : null;
 };

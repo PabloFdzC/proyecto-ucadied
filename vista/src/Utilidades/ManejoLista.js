@@ -1,7 +1,10 @@
 function buscarEnListaPorId(lista, id){
-  return lista.findIndex(valor => {
+  if(id && !isNaN(id)){
+    return lista.findIndex(valor => {
       return valor.id === id;
       });
+  }
+  return -1;
 }
 
 export {

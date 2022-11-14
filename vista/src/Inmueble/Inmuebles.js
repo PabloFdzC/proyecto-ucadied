@@ -7,6 +7,7 @@ import Tabla from '../Utilidades/Table/Table.jsx';
 import QueriesGenerales from "../QueriesGenerales";
 import Modal from 'react-bootstrap/Modal';
 import {fechaAHoraAMPM} from '../Utilidades/ManejoHoras';
+import { buscarEnListaPorId } from '../Utilidades/ManejoLista';
 /*
 Recibe los props:
 cargarOrganizacion: Función de App.js para cargar la organización
@@ -92,7 +93,7 @@ class Inmuebles extends React.Component {
 
     async avisaCreado(inmueble){
         var inmuebles = this.state.inmuebles;
-        const indice = this.state.usuarios.indexOf(this.state.Usuario);
+        const indice = buscarEnListaPorId(inmuebles, this.state.inmueble.id)
         if(indice !== -1){
             inmuebles[indice] = inmueble;
             this.setState({

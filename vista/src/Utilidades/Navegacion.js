@@ -53,7 +53,6 @@ class Navegacion extends React.Component {
                                 <Nav.Link as={Link} to={"/proyectos/"+organizacion.id}>Proyectos</Nav.Link>
                                 <Nav.Link as={Link} to={"/actividades/"+organizacion.id}>Actividades</Nav.Link>
                                 <Nav.Link as={Link} to={"/inmuebles/"+organizacion.id}>Inmuebles</Nav.Link>
-                                <Nav.Link as={Link} to={"/mapaDeSitio/"+organizacion.id}>Mapa de Sitio</Nav.Link>
                                 <Nav.Link as={Link} to={"/editarSitio/"+organizacion.id}>Editar Sitio</Nav.Link>
 
                             </Nav>
@@ -75,8 +74,6 @@ class Navegacion extends React.Component {
                                 <Nav.Link as={Link} to={"/principal/"+organizacion.id}>Principal</Nav.Link>
                                 <Nav.Link as={Link} to="/asociaciones">Asociaciones</Nav.Link>
                                 <Nav.Link as={Link} to={"/calendarioActividades/"+organizacion.id}>Actividades</Nav.Link>
-                                <Nav.Link as={Link} to={"/mapaDeSitio/"+organizacion.id}>Mapa de Sitio</Nav.Link>
-
                             </Nav>
                             <Nav className="ms-auto">
                                 <Nav.Link as={Link} to="/iniciarSesion" >Iniciar Sesión</Nav.Link>

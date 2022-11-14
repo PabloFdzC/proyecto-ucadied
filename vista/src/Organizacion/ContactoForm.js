@@ -60,19 +60,6 @@ class ContactoForm extends React.Component {
         });
     }
 
-    // Hay que hacerla
-    enviarMensaje(){
-
-    }
-
-
-    componentDidMount() {
-        if(!this.organizacionPedida){
-            this.organizacionPedida = true;
-            this.cargarOrganizacion();
-        }
-    }
-
     manejaCambio(evento){
         manejarCambio(evento, this);
     }
@@ -98,10 +85,6 @@ class ContactoForm extends React.Component {
                 console.log(error);
             }
         }
-    }
-
-    async avisaCreado(asociacion){
-        await this.props.avisaCreado(asociacion);
     }
 
 

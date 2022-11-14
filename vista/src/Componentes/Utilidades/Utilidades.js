@@ -1,5 +1,7 @@
-export const manejaCambio = (props, valor, evento) => {
-  props.setProp((p) => (p[valor] = evento.target.value));
+export const manejaCambio = (setProp, nombreProp, evento) => {
+  const objetivo = evento.target;
+  const valor = objetivo.type === 'checkbox' ? objetivo.checked : objetivo.value;
+  setProp((p) => (p[nombreProp] = valor));
 };
 
 export const unidades = [
