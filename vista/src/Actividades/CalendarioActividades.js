@@ -78,6 +78,15 @@ class CalendarioActividades extends React.Component {
                 });
             }
         }
+        actividadesCalendario.sort((a,b)=>{
+            if (a.inicio < b.inicio) {
+                return -1;
+            }
+            if (a.inicio > b.inicio) {
+            return 1;
+            }
+            return 0;
+        });
         return actividadesCalendario;
     }
     

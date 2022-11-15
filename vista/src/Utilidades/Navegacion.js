@@ -30,7 +30,7 @@ class Navegacion extends React.Component {
                             </Nav>
                             <Nav className="ms-auto">
                                 <NavDropdown title="Configuración" align="end">
-                                <NavDropdown.Item as={Link} to="/perfil" >Perfil</NavDropdown.Item>
+                                <NavDropdown.Item as={Link} to="/contrasenna" >Cambiar contraseña</NavDropdown.Item>
                                 <NavDropdown.Item as={Link} to="/iniciarSesion" onClick={cerrarSesionUsuario} >Cerrar Sesión</NavDropdown.Item>
                                 </NavDropdown>
                             </Nav>
@@ -58,7 +58,7 @@ class Navegacion extends React.Component {
                             </Nav>
                             <Nav className="ms-auto">
                                 <NavDropdown title="Configuración" align="end">
-                                <NavDropdown.Item as={Link} to="/perfil" >Perfil</NavDropdown.Item>
+                                <NavDropdown.Item as={Link} to="/contrasenna" >Cambiar contraseña</NavDropdown.Item>
                                 <NavDropdown.Item as={Link} to="/iniciarSesion" onClick={cerrarSesionUsuario} >Cerrar Sesión</NavDropdown.Item>
                                 </NavDropdown>
                             </Nav>

@@ -53,7 +53,7 @@ export const ImageSettings = () => {
     }));
 
     return (
-        <div>
+        <div className="p-2">
             <Form>
                 <Accordion>
                     <Accordion.Item eventKey="Dimensiones">
@@ -104,6 +104,7 @@ export const ImageDefaultProps = {
   };
 
 Image.craft = {
+    displayName: 'Imagen',
     props: ImageDefaultProps,
     related: {
         settings: ImageSettings,

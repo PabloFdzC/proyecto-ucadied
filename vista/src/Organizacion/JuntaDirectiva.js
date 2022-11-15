@@ -263,11 +263,11 @@ class JuntaDirectiva extends React.Component {
                             </div>
                             <Modal show={this.state.muestraPuestoF} onHide={()=>this.muestraModal("Puesto",false)} className="modal-green" centered>
                             <Modal.Body>
-                                {usuario.id === this.state.Puesto.id_usuario ? 
+                                {usuario.id == this.state.Puesto.id_usuario ? 
                                 <>
                                 <h3 className="text-center">No puede modificar su propio puesto</h3>
                                 <div className="d-flex justify-content-end">
-                                    <button onClick={()=>this.muestraModal("Puesto",false)}>Volver</button>
+                                    <button className="btn btn-secondary" onClick={()=>this.muestraModal("Puesto",false)}>Volver</button>
                                 </div>
                                 
                                 </>
@@ -283,11 +283,11 @@ class JuntaDirectiva extends React.Component {
                             </Modal>
                             <Modal show={this.state.muestraEliminarPuesto} onHide={()=>this.muestraModalEliminar("Puesto",false)} className="modal-green" centered>
                             <Modal.Body>
-                                {usuario.id === this.state.Puesto.id_usuario ? 
+                                {usuario.id == this.state.Puesto.id_usuario ? 
                                 <>
                                 <h3 className="text-center">No puede eliminar su propio puesto</h3>
                                 <div className="d-flex justify-content-end">
-                                    <button onClick={()=>this.muestraModal("Puesto",false)}>Volver</button>
+                                    <button className="btn btn-secondary" onClick={()=>this.muestraModal("Puesto",false)}>Volver</button>
                                 </div>
                                 
                                 </>

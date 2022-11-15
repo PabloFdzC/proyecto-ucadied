@@ -124,7 +124,7 @@ class Afiliados extends React.Component {
                                 </div>
                                 <Modal size="lg" show={this.state.muestra} onHide={()=>this.muestraModal(false)} className="modal-green" centered>
                                 <Modal.Body>
-                                <UsuarioForm titulo="Usuario" idOrganizacion={this.props.idOrganizacion} cerrarModal={()=>this.muestraModal(false)} />
+                                <UsuarioForm titulo="Usuario" idOrganizacion={this.props.idOrganizacion} cerrarModal={()=>this.muestraModal(false)} ocupaPuesto />
                                 </Modal.Body>
                                 </Modal>
                             </>

@@ -23,31 +23,37 @@ export const Toolbox = () => {
       <div className="d-flex m-2" style={{overflowX:"scroll"}}>
         <div className="m-1" style={{width:"fit-content"}}>
           <ButtonB ref={(ref) =>connectors.create(ref, <Button />)}>
+            <i className="bi bi-hand-index-thumb"></i>
             Botón
           </ButtonB>
           </div>
           <div className="m-1" style={{width:"fit-content"}}>
             <ButtonB ref={(ref) => connectors.create(ref, <Text />)}>
+              <i className="bi bi-fonts"></i>
               Texto
             </ButtonB>
           </div>
           <div className="m-1" style={{width:"fit-content"}}>
             <ButtonB ref={(ref) => connectors.create(ref,<Element canvas is={Container} />)}>
+              <i className="bi bi-bounding-box"></i>
               Contenedor
             </ButtonB>
           </div>
           <div className="m-1" style={{width:"fit-content"}}>
             <ButtonB ref={(ref) => connectors.create(ref, <Card />)}>
+              <i className="bi bi-file-slides"></i>
               Card
             </ButtonB>
           </div>
           <div className="m-1" style={{width:"fit-content"}}>
             <ButtonB ref={(ref) => connectors.create(ref, <Image />)}>
+              <i className="bi bi-card-image"></i>
               Imagen
             </ButtonB>
           </div>
           <div className="m-1" style={{width:"fit-content"}}>
             <ButtonB ref={(ref) => connectors.create(ref, <Video />)}>
+              <i className="lni lni-video"></i>
               Video
             </ButtonB>
           </div>

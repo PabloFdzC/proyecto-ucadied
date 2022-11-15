@@ -10,22 +10,21 @@ class ContrasennaForm extends React.Component {
         this.queriesGenerales = new QueriesGenerales();
         this.state = {
             campos:{
-                email:"",
+                id:props.idUsuario,
                 contrasenna:"",
                 ccontrasenna:"",
             },
             errores:{
                 hayError:false,
-                email:"",
                 contrasenna:"",
                 ccontrasenna:"",
             },
+            enviado:false,
             muestraMensajeError:false,
             mensajeError:"",
         }
 
         this.validacion = new Validacion({
-            email: "requerido|email",
             contrasenna: "requerido",
             ccontrasenna: "requerido",
         }, this);
@@ -42,7 +41,7 @@ class ContrasennaForm extends React.Component {
         evento.preventDefault();
         this.validacion.validarCampos(this.state.campos);
         if(this.state.errores.contrasenna === "" && this.state.campos.contrasenna !== this.state.campos.ccontrasenna){
-            this.setState({
+            await this.setState({
                 errores: Object.assign({},this.state.errores, {
                     hayError:true,
                     contrasenna:"Contraseñas distintas",
@@ -51,7 +50,13 @@ class ContrasennaForm extends React.Component {
         }
         if(!this.state.errores.hayError){
             try{
-                const resp = await this.queriesGenerales.put("/usuario/modificarContrasenna", this.state.campos);
+                const campos = {
+                    contrasenna:this.state.campos.ccontrasenna,
+                };
+                const resp = await this.queriesGenerales.modificar("/usuario/modificarContrasenna/"+this.state.campos.id, campos);
+                this.setState({
+                    enviado:true,
+                });
             }catch(error){
                 console.log(error);
                 this.setState({
@@ -63,47 +68,41 @@ class ContrasennaForm extends React.Component {
     }
 
     render(){
-        return <form onSubmit={this.modificarContrasenna} className="needs-validation" noValidate>
-        <div className="pl-3 pr-3">
-          {!this.props.email ? 
-          <div className="mb-3 position-relative">
-              <label htmlFor="email" className="form-label">Email</label>
-              <input type="email" className={this.state.errores.email.length > 0 ? "form-control is-invalid":"form-control"} key="email" name="email" value={this.state.campos.email} required onChange={this.manejaCambio} />
-              <div className="invalid-tooltip">
-                  {this.state.errores.email}
-              </div>
-          </div>:
-          <></>}
-            
-            <div className="mb-3 position-relative">
-                <label htmlFor="contraseña" className="form-label">Contraseña</label>
-                <input type="password" className={this.state.errores.contrasenna.length > 0 ? "form-control is-invalid":"form-control"} key="contraseña" id="contraseña" name="contrasenna" value={this.state.campos.contrasenna} required onChange={this.manejaCambio} />
-                <div className="invalid-tooltip">
-                    {this.state.errores.contrasenna}
+        return <>
+        {this.state.enviado ? 
+            <h2 className="text-center">¡Modificado con éxito!</h2>
+        :
+            <form onSubmit={this.modificarContrasenna} className="needs-validation" noValidate>
+                <div className="mb-3 position-relative">
+                    <label htmlFor="contraseña" className="form-label">Contraseña nueva</label>
+                    <input type="password" className={this.state.errores.contrasenna.length > 0 ? "form-control is-invalid":"form-control"} key="contraseña" id="contraseña" name="contrasenna" value={this.state.campos.contrasenna} required onChange={this.manejaCambio} />
+                    <div className="invalid-tooltip">
+                        {this.state.errores.contrasenna}
+                    </div>
                 </div>
-            </div>
-            <div className="mb-3 position-relative">
-                <label htmlFor="ccontraseña" className="form-label">Confirmar contraseña</label>
-                <input type="password" className={this.state.errores.ccontrasenna.length > 0 ? "form-control is-invalid":"form-control"} key="ccontraseña" id="ccontraseña" name="ccontrasenna" value={this.state.campos.ccontrasenna} required onChange={this.manejaCambio} />
-                <div className="invalid-tooltip">
-                    {this.state.errores.ccontrasenna}
+                <div className="mb-3 position-relative">
+                    <label htmlFor="ccontraseña" className="form-label">Confirmar contraseña</label>
+                    <input type="password" className={this.state.errores.ccontrasenna.length > 0 ? "form-control is-invalid":"form-control"} key="ccontraseña" id="ccontraseña" name="ccontrasenna" value={this.state.campos.ccontrasenna} required onChange={this.manejaCambio} />
+                    <div className="invalid-tooltip">
+                        {this.state.errores.ccontrasenna}
+                    </div>
                 </div>
-            </div>
-        </div> 
-        <div className="d-flex justify-content-end">
-            <button type="submit" className="btn btn-primary btn-lg">Modificar</button>
-        </div>
-        <div className="d-flex justify-content-end">
-            <div style={{position:"fixed"}}>
-                <Toast bg="danger" onClose={() => this.setState({muestraMensajeError:false,mensajeError:""})} show={this.state.muestraMensajeError} delay={4000} autohide>
-                <Toast.Header>
-                    <strong className="me-auto">Error</strong>
-                </Toast.Header>
-                <Toast.Body>{this.state.mensajeError}</Toast.Body>
-                </Toast>
-            </div>
-        </div>
-    </form>;
+                <div className="d-flex justify-content-end">
+                    <button type="submit" className="btn btn-primary">Modificar</button>
+                </div>
+                <div className="d-flex justify-content-end">
+                    <div style={{position:"fixed"}}>
+                        <Toast bg="danger" onClose={() => this.setState({muestraMensajeError:false,mensajeError:""})} show={this.state.muestraMensajeError} delay={4000} autohide>
+                        <Toast.Header>
+                            <strong className="me-auto">Error</strong>
+                        </Toast.Header>
+                        <Toast.Body>{this.state.mensajeError}</Toast.Body>
+                        </Toast>
+                    </div>
+                </div>
+            </form>
+        }
+        </>;
     }
 }
 

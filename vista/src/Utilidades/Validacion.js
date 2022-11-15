@@ -65,6 +65,12 @@ class Validacion {
                     errores.hayError = true;
                 }
             }
+            if (reglasDeCampo.indexOf("captcha") > -1){
+                if(this.validaVacio(campos[c])){
+                    errores[c] = "Debe realizar el captcha."
+                    errores.hayError = true;
+                }
+            }
         }
         var estadoNuevo = this.componente.state.errores;
         for (let e in errores){

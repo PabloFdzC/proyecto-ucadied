@@ -3,6 +3,7 @@ const router = require('express').Router();
 const bodyParser = require('body-parser');
 const jsonParser  = bodyParser.json({ extended: false });
 const usuarioCtrl = require('./UsuarioControlador');
+const { verificarCaptcha } = require('./captcha');
 
 // Ruta para consultar un usuario en específico
 // se manda en la dirección el id del usuario.
@@ -155,6 +156,9 @@ router.post('/cerrarSesion', async (req, res) => {
 // que se debe modificar.
 router.put('/modificar/:id_usuario', jsonParser, async (req, res) => {
     try{
+        if(req.body.contrasenna){
+            delete req.body.contrasenna;
+        }
         if(req.session.idUsuario && req.session.idUsuario != -1){
             const resultado = await usuarioCtrl.modificar(req.params.id_usuario, req.body)
             res.json(resultado);
@@ -177,12 +181,37 @@ router.put('/modificar/:id_usuario', jsonParser, async (req, res) => {
 router.put('/modificarContrasenna/:id_usuario', jsonParser, async (req, res) => {
     try{
         if(req.session.idUsuario && req.session.idUsuario != -1){
-            const resultado = await usuarioCtrl.modificar(req.params.id_usuario, req.body)
-            res.json(resultado);
+            const idParams = parseInt(req.params.id_usuario);
+            if(req.session.idUsuario === idParams){
+                const resultado = await usuarioCtrl.modificar(req.params.id_usuario, req.body)
+                res.json(resultado);
+            } else{
+                res.status(400);
+                res.send("No puede cambiar la contraseña de este usuario.");
+            }
         }
         else{
             res.status(400);
             res.send("Sesión no iniciada");
+        }
+    }catch (err){
+        console.log(err);
+        res.status(400);
+        res.send("Algo salió mal");
+    }
+});
+
+router.put('/restablecerContrasenna', jsonParser, async (req, res) => {
+    try{
+        const resp = await verificarCaptcha(req.body.captcha);
+        delete req.body.captcha;
+        if(resp.exito){
+            const resultado = await usuarioCtrl.restablecerContrasenna(req.body)
+            res.json(resultado);
+        } else { 
+            console.log(resp);
+            res.status(400);
+            res.send(resp);    
         }
     }catch (err){
         console.log(err);

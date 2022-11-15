@@ -4,52 +4,13 @@ const jsonParser  = bodyParser.json({ extended: false });
 const inmuebleCtlr = require('./InmuebleControlador');
 const puestoCtlr = require('./PuestoControlador');
 
-
-// Ruta para consultar un inmueble en específico.
-// Se manda el id del inmueble en la dirección.
-// Revisa antes de consultar el inmueble que el usuario
-// tenga el permiso de modificar inmuebles dentro
-// de la organización.
-router.get('/consultar/:id_inmueble', async (req, res) => {
-    try{
-        var habilitado = false;
-        var inmuebles = []
-        if(req.session.idUsuario && req.session.idUsuario != -1){
-            inmuebles = await inmuebleCtlr.consultar({id: req.params.id_inmueble});
-            if(req.session.tipoUsuario === "Administrador"){
-                habilitado = true;
-            }
-            else if(inmuebles.length === 1){
-                const inmueble = inmuebles[0];
-                habilitado = await puestoCtlr.consultar_permisos(req.session.idUsuario, inmueble.id_organizacion, "edita_inmueble");
-            }
-        }
-        if(habilitado){
-            res.json(inmuebles);
-        }
-        else{
-            res.status(400);
-            res.send("No se cuenta con los permisos necesarios");
-        }
-    }catch(err){
-        console.log(err);
-        res.status(400);
-        res.send("Algo salió mal");
-    }
-});
-
 // Ruta para consultar un conjunto de inmuebles.
 // Se pueden mandar parámetros por medio de variables
 // en la dirección. Dentro de estos parámetros está el
 // id del inmueble y el id de la organización.
-// Revisa antes de consultar los inmuebles que el usuario
-// tenga el permiso de modificar inmuebles dentro
-// de la organización.
+// Revisa antes de consultar los inmuebles
 router.get('/consultar', async (req, res) => {
     try{
-        var habilitado = false;
-        var inmueble_encontrado = false;
-        var inmueble;
         var params = {};
         if(req.query.id){
             params.id = req.query.id;
@@ -57,38 +18,8 @@ router.get('/consultar', async (req, res) => {
         if(req.query.id_organizacion){
             params.id_organizacion = req.query.id_organizacion;
         }
-        if(req.session.idUsuario && req.session.idUsuario != -1){
-            if(req.session.tipoUsuario === "Administrador"){
-                habilitado = true;
-            }
-            else{
-                if(params.id_organizacion){
-                    habilitado = await puestoCtlr.consultar_permisos(req.session.idUsuario, params.id_organizacion, "edita_inmueble");
-                }
-                if(params.id){
-                    inmueble =  await inmuebleCtlr.consultar(req.query);
-                    inmueble_encontrado = true;
-                    if(!habilitado){
-                        if(inmueble.length === 1){
-                            habilitado = await puestoCtlr.consultar_permisos(req.session.idUsuario, inmueble[0].id_organizacion, "edita_inmueble");
-                        }
-                    }
-                }
-            }
-        }
-        if(habilitado){
-            if(inmueble_encontrado){
-                res.json(inmueble);
-            }
-            else{
-                const inmuebles = await inmuebleCtlr.consultar(params);
-                res.json(inmuebles);
-            }
-        }
-        else{
-            res.status(400);
-            res.send("No se cuenta con los permisos necesarios");
-        }
+        const inmuebles = await inmuebleCtlr.consultar(params);
+        res.json(inmuebles);
     }catch(err){
         console.log(err);
         res.status(400);

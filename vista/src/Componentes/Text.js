@@ -142,8 +142,12 @@ const TextSettings = () => {
     "Derecha",
   ];
   return (
-    <>
+    <div className="p-2">
       <Form>
+        <GlobalTextSettings
+            setProp={setProp}
+            text={text}
+            color={color} />
         <div className="mb-3">
           <label htmlFor="etiqueta" className="form-label">Tipo</label>
           <select
@@ -165,17 +169,7 @@ const TextSettings = () => {
               {justificados.map((valor, indice)=><option key={indice} value={valor}>{justificadosES[indice]}</option>)}
           </select>
         </div>
-        
         <Accordion>
-          <Accordion.Item eventKey="Texto">
-          <Accordion.Header>Texto</Accordion.Header>
-            <Accordion.Body>
-              <GlobalTextSettings
-                        setProp={setProp}
-                        text={text}
-                        color={color} />
-            </Accordion.Body>
-          </Accordion.Item>
           <Accordion.Item eventKey="Espaciado">
           <Accordion.Header>Espaciado</Accordion.Header>
             <Accordion.Body>
@@ -195,7 +189,7 @@ const TextSettings = () => {
           </Accordion.Item>
         </Accordion>
       </Form>
-    </>
+    </div>
   );
 };
 
@@ -217,6 +211,7 @@ export const TextDefaultProps = {
 };
 
 Text.craft = {
+  displayName: 'Texto',
   props: TextDefaultProps,
   related: {
     settings: TextSettings,

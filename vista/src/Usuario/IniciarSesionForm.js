@@ -5,6 +5,7 @@ import Validacion from '../Utilidades/Validacion';
 import { Navigate } from "react-router-dom";
 import {usuarioContexto} from '../usuarioContexto';
 import Toast from 'react-bootstrap/Toast';
+import { Link } from 'react-router-dom';
 
 class IniciarSesionForm extends React.Component {
     constructor(props){
@@ -84,6 +85,7 @@ class IniciarSesionForm extends React.Component {
                                     {this.state.errores.contrasenna}
                                 </div>
                             </div>
+                            <Link to="/olvidaContrasenna" style={{color:"#FFF"}}>  Olvidé mi contraseña</Link>
                         </div> 
                         <div className="d-flex justify-content-center">
                             <button type="submit" className="btn btn-primary btn-lg">Iniciar Sesión</button>

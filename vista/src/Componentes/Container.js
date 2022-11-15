@@ -121,7 +121,7 @@ export const ContainerSettings = () => {
   const alinear = ["", "start", "end", "center", "baseline", "stretch"];
   const alinearES = ["Por defecto","Inicio", "Final", "Centro", "Línea base", "Estirar"];
   return (
-    <>
+    <div className="p-2">
       <Form >
         <h5>Acomodo de elementos</h5>
         <div className="mb-3">
@@ -208,7 +208,7 @@ export const ContainerSettings = () => {
           </Accordion.Item>
         </Accordion>
       </Form>
-    </>
+    </div>
   );
 };
 
@@ -235,6 +235,7 @@ export const ContainerDefaultProps = {
 };
 
 Container.craft = {
+  displayName: 'Contenedor',
   props: ContainerDefaultProps,
   related: {
     settings: ContainerSettings,

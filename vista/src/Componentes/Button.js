@@ -102,7 +102,7 @@ export const ButtonSettings = () => {
   }));
 
   return (
-    <div>
+    <div className="p-2">
       <Form>
         <div className="mb-3 position-relative">
           <label htmlFor="text" className="form-label">Tamaño</label>
@@ -203,6 +203,7 @@ export const ButtonDefaultProps = {
 };
 
 Button.craft = {
+  displayName: 'Botón',
   props: ButtonDefaultProps,
   related: {
     settings: ButtonSettings,

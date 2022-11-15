@@ -4,6 +4,7 @@ import {usuarioContexto} from '../usuarioContexto';
 import ProyectoForm from './ProyectoForm';
 import QueriesGenerales from "../QueriesGenerales";
 import Modal from 'react-bootstrap/Modal';
+import ConfirmaAccion from '../Utilidades/ConfirmaAccion';
 
 /*
 Recibe los props:
@@ -18,6 +19,7 @@ class Proyectos extends React.Component {
         this.soloVer = props.soloVer;
         this.queriesGenerales = new QueriesGenerales();
         this.state = {
+            Proyecto:{},
             proyectos: [],
             muestraPF:false,
         }
@@ -27,8 +29,9 @@ class Proyectos extends React.Component {
         this.muestraModal = this.muestraModal.bind(this);
     }
 
-    async eliminarProyecto(id){
+    async eliminarProyecto(){
         try{
+            const id = this.state.Proyecto.id;
             await this.queriesGenerales.eliminar("/proyecto/eliminar/"+id, {});
             let i = -1;
             for (let j = 0; j < this.state.proyectos.length; j++){
@@ -83,6 +86,14 @@ class Proyectos extends React.Component {
         });
     }
 
+    muestraEliminarProyecto(muestra, valor){
+        if(!valor) valor={};
+        this.setState({
+            Proyecto:valor,
+            muestraEliminarProyecto:muestra,
+        })
+    }
+
     render(){
         var proyectos;
         if(this.state.proyectos.length > 0){
@@ -133,7 +144,13 @@ class Proyectos extends React.Component {
                             <ProyectoForm idOrganizacion={organizacion.id} esUnion={false} avisaCreado={this.avisaCreado} cerrarModal={()=>this.muestraModal(false)} />
                         </Modal.Body>
                         </Modal>
-                            </>);
+                        <Modal show={this.state.muestraEliminarPuesto} onHide={()=>this.muestraEliminarProyecto(false)} className="modal-green" centered>
+                        <Modal.Body>
+                            <ConfirmaAccion claseBtn={"btn-danger"} titulo={"¿Desea eliminar "+this.state.Proyecto.nombre+"?"} accion={this.eliminarProyecto} cerrarModal={()=>this.muestraEliminarProyecto(false)} accionNombre="Eliminar" />
+                            
+                        </Modal.Body>
+                        </Modal>
+                    </>);
                     } else {
                         return <Navigate to='/iniciarSesion' replace={true}/>;
                     }

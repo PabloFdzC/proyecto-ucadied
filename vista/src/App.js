@@ -24,6 +24,8 @@ import Inmuebles from './Inmueble/Inmuebles';
 import CalendarioActividades from './Actividades/CalendarioActividades';
 import Actividades from './Actividades/Actividades';
 import EditarSitio from './EditaSitio/Editor';
+import Contrasenna from './Usuario/Contrasenna';
+import OlvidaContrasenna from './Usuario/OlvidaContrasenna';
 
 import { guardarLocalStorage, obtenerLocalStorage } from './Utilidades/ManejaLocalStorage';
 import TienePermiso from './Utilidades/TienePermiso';
@@ -332,6 +334,8 @@ class App extends React.Component {
               <Route path="/unionCantonal" element={<UnionCantonal />} />
               <Route path="/asociaciones" element={<Asociaciones soloVer={ this.state.usuario.tipo !== "Administrador" } />} />
               <Route path="/usuarios" element={<Usuarios />} />
+              <Route path="/contrasenna" element={<Contrasenna />} />
+              <Route path="/olvidaContrasenna" element={<OlvidaContrasenna />} />
               <Route path="/prueba" element={
                 <></>
               } />

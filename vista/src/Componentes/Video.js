@@ -54,7 +54,7 @@ export const VideoSettings = () => {
     }));
 
     return (
-        <div>
+        <div className="p-2">
             <Form>
                 <Accordion>
                     <Accordion.Item eventKey="Dimensiones">

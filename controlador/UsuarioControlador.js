@@ -20,6 +20,32 @@ function creadorContrasenna(){
     return contrasenna;
 }
 
+async function enviarContrasennaCorreo(email, contrasenna){
+    var transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+        user: 'sistemaucadied@gmail.com',
+        pass: 'bxlumqofylsqxqjk'
+        }
+    });
+    var mailOptions = {
+        from: 'sistemaucadied@gmail.com',
+        to: email,
+        subject: 'Su correo y contraseña en el sistema UCADIED',
+        html: `
+        <div>
+        <span>Acaba de registrarse correctamente en el sistema de UCADIED, sus datos de inicio de sesión son los siguientes:</span>
+        </div>
+        <div>
+            <p>Correo: ${email}<p>
+            <p>Contraseña: ${contrasenna}<p>
+        </div>
+        <p>Este es un mensaje automatizado, favor no responder a esta dirección.<p>
+        `
+    };
+    await transporter.sendMail(mailOptions);
+}
+
 // Crea un usuario con una contraseña aleatoria
 // recibe un parámetro el cual debe ser un diccionario
 // con la información del usuario. Después de crear
@@ -41,33 +67,7 @@ async function crear(info){
             edita_actividad: info.edita_actividad,
         })
     }
-    var transporter = nodemailer.createTransport({
-        service: 'gmail',
-        auth: {
-        user: 'sistemaucadied@gmail.com',
-        pass: 'bxlumqofylsqxqjk'
-        }
-    });
-    var mailOptions = {
-        from: 'sistemaucadied@gmail.com',
-        to: info.email,
-        subject: 'Su correo y contraseña en el sistema UCADIED',
-        html: `
-        <div>
-        <span>Acaba de registrarse correctamente en el sistema de UCADIED, sus datos de inicio de sesión son los siguientes:</span>
-        </div>
-        <div>
-            <p>Correo: ${info.email}<p>
-            <p>Contraseña: ${contrasenna}<p>
-        </div>
-        <p>Este es un mensaje automatizado, favor no responder a esta dirección.<p>
-        `
-    };
-    transporter.sendMail(mailOptions, function(error, info){
-        if (error) {
-            console.log(error);
-        }
-    });
+    await enviarContrasennaCorreo(info.email, contrasenna);
     return {
         usuario_creado,
         puesto_creado,
@@ -149,11 +149,11 @@ async function iniciarSesion(info){
             };
         }
         else{
-            return {error: "Email o contraseña incorrectos"};
+            throw {error: "Email o contraseña incorrectos"};
         }
     }
     else{
-        return {error: "Email o contraseña incorrectos"};
+        throw {error: "Email o contraseña incorrectos"};
     }
 }
 
@@ -174,7 +174,20 @@ async function eliminar(id){
         return await queries_generales.eliminar(usuario, {id});
     }
     else{
-        return {error: "El usuario no existe."}
+        throw {error: "El usuario no existe."};
+    }
+}
+
+async function restablecerContrasenna(info){
+    if(info.email && (typeof info.email) === "string"){
+        const usuario = await consultar({email:info.email});
+        if(usuario.length === 1){
+            const contrasenna = creadorContrasenna();
+            const resp = await modificar(usuario[0].id, {contrasenna});
+            await enviarContrasennaCorreo(info.email, contrasenna)
+            return resp;
+        }
+        throw {error: "El usuario no existe."};
     }
 }
 
@@ -185,5 +198,6 @@ module.exports = {
     crear,
     modificar,
     eliminar,
-    iniciarSesion
+    iniciarSesion,
+    restablecerContrasenna,
 }

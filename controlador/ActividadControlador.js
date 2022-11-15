@@ -45,7 +45,7 @@ async function consultar(paramsActividad, paramsReserva, paramsInmueble, id_usua
                     }
                 ],
                 attributes:{exclude:["coordinador","telefonos","email","nombre"]},
-                where: paramsActividad
+                where: paramsActividad,
             });
         } else if(!paramsActividad.tipo || paramsActividad.tipo == ""){
             paramsActividad.tipo = "Privada";
