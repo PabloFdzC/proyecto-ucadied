@@ -437,7 +437,7 @@ class ActividadForm extends React.Component {
                                 {this.state.diasPosibles.map((valor, i)=>{
                                     let inicio = new Date(valor.inicio);
                                     let final = new Date(valor.final);
-                                    return <p key={i}>{inicio.toLocaleDateString()} {fechaAHoraAMPM(inicio, true)}-{fechaAHoraAMPM(final, true)}</p>;
+                                    return <p key={i}>{inicio.toLocaleDateString()} {fechaAHoraAMPM(inicio, true, true)}-{fechaAHoraAMPM(final, true, true)}</p>;
                                     })}
                             </div>
                             <h3 className="text-center">¿Desea agregar la actividad de todas formas?</h3>
@@ -531,7 +531,7 @@ class ActividadForm extends React.Component {
                                                 {inmuebleSeleccionado.horario.map((horario,i)=>
                                                 <div className="input-group mb-3" key={i} style={{width:"auto"}}>
                                                     <span className="input-group-text bg-info" id={horario.dia}>{horario.dia}</span>
-                                                    <label  className="form-control bg-info" aria-describedby={horario.dia}>{fechaAHoraAMPM(new Date(horario.inicio),true)}-{fechaAHoraAMPM(new Date(horario.final),true)}</label>
+                                                    <label  className="form-control bg-info" aria-describedby={horario.dia}>{fechaAHoraAMPM(new Date(horario.inicio),true, true)}-{fechaAHoraAMPM(new Date(horario.final),true, true)}</label>
                                                 </div>)}
                                             </div>
                                             <div className="row">
