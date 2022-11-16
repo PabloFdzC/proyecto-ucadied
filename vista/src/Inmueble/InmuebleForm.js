@@ -8,7 +8,7 @@ import Row from 'react-bootstrap/Row';
 import Tab from 'react-bootstrap/Tab';
 import Toast from 'react-bootstrap/Toast';
 import Select from 'react-select';
-import { convertirHoraAMPM, horaAFecha } from '../Utilidades/ManejoHoras';
+import { horaAFecha } from '../Utilidades/ManejoHoras';
 
 /*
 Recibe los props:
@@ -36,11 +36,11 @@ class InmuebleForm extends React.Component {
               if(this.campos.horario[i].dia === horario[j].dia){
                 horario[j].inicio = {
                   value:this.campos.horario[i].inicio,
-                  label:convertirHoraAMPM(this.campos.horario[i].inicio,true)
+                  label:this.campos.horario[i].inicioBonito,
                 };
                 horario[j].final = {
                   value:this.campos.horario[i].final,
-                  label:convertirHoraAMPM(this.campos.horario[i].final,true),
+                  label:this.campos.horario[i].finalBonito,
                 };
               }
             }
@@ -111,7 +111,7 @@ class InmuebleForm extends React.Component {
         manejarCambio(evento, this);
     }
 
-    validarHorario(){
+    async validarHorario(){
       var errores = [...this.state.errores.horario];
       var llenos = 0;
       var hayError = false;
@@ -131,7 +131,7 @@ class InmuebleForm extends React.Component {
         }
       }
       if(llenos === 0){
-        this.setState({
+        await this.setState({
           errores: Object.assign({},this.state.errores, {
             hayError:true,
           }),
@@ -139,7 +139,7 @@ class InmuebleForm extends React.Component {
           mensajeError:"Debe existir al menos un horario",
         });
       } else if(hayError){
-        this.setState({
+        await this.setState({
           errores: Object.assign({},this.state.errores, {
             horario:errores,
             hayError:true,
@@ -151,7 +151,7 @@ class InmuebleForm extends React.Component {
     async enviarInmueble(evento){
         evento.preventDefault();
         this.validacion.validarCampos(this.state.campos);
-        this.validarHorario();
+        await this.validarHorario();
         if(!this.state.errores.hayError){
           var campos = {
             nombre:this.state.campos.nombre,

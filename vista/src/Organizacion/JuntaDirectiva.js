@@ -38,6 +38,7 @@ class JuntaDirectiva extends React.Component {
             {name:'Edita Junta Directiva',selector:row=>row.edita_junta ? "Sí":"No"},
             {name:'Edita proyectos',selector:row=>row.edita_proyecto ? "Sí":"No"},
             {name:'Edita actividades',selector:row=>row.edita_actividad ? "Sí":"No"},
+            {name:'Edita inmuebles',selector:row=>row.edita_inmueble ? "Sí":"No"},
             ];
         this.organizacionPedida = false;
         this.actualizaTablaPuesto = this.actualizaTablaPuesto.bind(this);
@@ -58,6 +59,7 @@ class JuntaDirectiva extends React.Component {
         (solo es necesario si se va a modificar un dato en la tabla),
     */
     muestraModal(nombre, muestra, valor){
+        console.log(valor);
         if(!valor) valor={};
         this.setState({
             [nombre]:valor,
@@ -129,6 +131,7 @@ class JuntaDirectiva extends React.Component {
                     edita_junta: m.edita_junta,
                     edita_proyecto: m.edita_proyecto,
                     edita_actividad: m.edita_actividad,
+                    edita_inmueble: m.edita_inmueble,
                 };
                 puestosLista.push(puesto);
             }
@@ -153,6 +156,7 @@ class JuntaDirectiva extends React.Component {
             edita_junta: booleano,
             edita_proyecto: booleano,
             edita_actividad: booleano,
+            edita_inmueble: booleano,
         }
     */
     async avisaCreadoPuesto(puestoNuevo){
@@ -166,6 +170,7 @@ class JuntaDirectiva extends React.Component {
                 edita_junta: puestoNuevo.edita_junta,
                 edita_proyecto: puestoNuevo.edita_proyecto,
                 edita_actividad: puestoNuevo.edita_actividad,
+                edita_inmueble: puestoNuevo.edita_inmueble,
             };
             this.actualizaTablaPuesto(usuario);
         }catch(err){
@@ -177,6 +182,7 @@ class JuntaDirectiva extends React.Component {
     actualizaTablaPuesto acomoda los datos necesarios y mete un
     nuevo puesto en la tabla o actualiza la información de uno
     existente
+    Parámetros:
     - puestoNuevo: objeto que debe por lo menos tener los campos
         {
             id_usuario: número entero,
@@ -187,6 +193,7 @@ class JuntaDirectiva extends React.Component {
             edita_junta: booleano,
             edita_proyecto: booleano,
             edita_actividad: booleano,
+            edita_inmueble: booleano,
         }
     */
     async actualizaTablaPuesto(puestoNuevo){

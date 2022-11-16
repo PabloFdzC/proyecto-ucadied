@@ -64,8 +64,8 @@ class CalendarioActividades extends React.Component {
                 actividadesCalendario.push({
                     inicio: horaI,
                     final: horaF,
-                    inicioBonito: fechaAHoraAMPM(horaI, true),
-                    finalBonito: fechaAHoraAMPM(horaF, true),
+                    inicioBonito: fechaAHoraAMPM(horaI, true, true),
+                    finalBonito: fechaAHoraAMPM(horaF, true, true),
                     id: actividades[i].reserva_inmuebles[j].id,
                     id_actividad: actividades[i].reserva_inmuebles[j].id_actividad,
                     id_inmueble: actividades[i].reserva_inmuebles[j].id_inmueble,

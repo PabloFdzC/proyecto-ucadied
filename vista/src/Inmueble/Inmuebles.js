@@ -2,12 +2,12 @@ import React from 'react';
 import InmuebleForm from './InmuebleForm';
 import { Navigate } from "react-router-dom";
 import {usuarioContexto} from '../usuarioContexto';
-//import Tabla from '../Utilidades/Tabla';
 import Tabla from '../Utilidades/Table/Table.jsx';
 import QueriesGenerales from "../QueriesGenerales";
 import Modal from 'react-bootstrap/Modal';
 import {fechaAHoraAMPM} from '../Utilidades/ManejoHoras';
 import { buscarEnListaPorId } from '../Utilidades/ManejoLista';
+import ConfirmaAccion from '../Utilidades/ConfirmaAccion';
 /*
 Recibe los props:
 cargarOrganizacion: Función de App.js para cargar la organización
@@ -23,6 +23,9 @@ class Inmuebles extends React.Component {
         this.state = {
             inmuebles: [],
             inmueble:{},
+            muestraForm:false,
+            muestraEliminar:false,
+            mensajeModal:"",
         }
         this.inmueblesPedidos = false;
         this.titulos = [
@@ -40,27 +43,40 @@ class Inmuebles extends React.Component {
                     S:"Sábado",
                 };
                 return dias[row.dia]}},
-            {name:'Hora Apertura',selector:row=>fechaAHoraAMPM(new Date(row.inicio), true)},
-            {name:'Hora Cierre',selector:row=>fechaAHoraAMPM(new Date(row.final), true)},
+            {name:'Hora Apertura',selector:row=>row.inicioBonito},
+            {name:'Hora Cierre',selector:row=>row.finalBonito},
             ];
 
         this.avisaCreado = this.avisaCreado.bind(this);
         this.muestraModal = this.muestraModal.bind(this);
-        this.agregarInmueble = this.agregarInmueble.bind(this);
+        this.eliminarInmueble = this.eliminarInmueble.bind(this);
     }
 
-    agregarInmueble(inmueble){
+    muestraModal(nombre, muestra, inmueble){
         if(!inmueble) inmueble={};
         this.setState({
-            inmueble:inmueble,
-            muestra:true,
+            inmueble,
+            ["muestra"+nombre]: muestra
         })
     }
 
-    muestraModal(muestra){
-        this.setState({
-            muestra:muestra,
-        })
+    cambiaDatosHorario(horario){
+        for(let j = 0; j < horario.length; j++){
+            let fechaI = new Date(horario[j].inicio);
+            let fechaF = new Date(horario[j].final);
+            horario[j].inicio = fechaAHoraAMPM(fechaI, true, false);
+            horario[j].final = fechaAHoraAMPM(fechaF, true, false);
+            horario[j].inicioBonito = fechaAHoraAMPM(fechaI, true, true);
+            horario[j].finalBonito = fechaAHoraAMPM(fechaF, true, true);
+        }
+        return horario;
+    }
+
+    acomodarDatosInmuebles(datos){
+        for(let i = 0; i < datos.length; i++){
+            datos[i].horario = this.cambiaDatosHorario(datos[i].horario)
+        }
+        return datos;
     }
 
     async cargarInmuebles(){
@@ -68,7 +84,7 @@ class Inmuebles extends React.Component {
             var inmuebles = this.state.inmuebles;
             const resp = await this.queriesGenerales.obtener("/inmueble/consultar", {id_organizacion:this.props.idOrganizacion});
             this.setState({
-                inmuebles:inmuebles.concat(resp.data),
+                inmuebles:this.acomodarDatosInmuebles(resp.data),
             });
         } catch(err){
             console.log(err);
@@ -91,7 +107,24 @@ class Inmuebles extends React.Component {
         }
     }
 
+    async eliminarInmueble(){
+        try{
+            const id = this.state.inmueble.id;
+            await this.queriesGenerales.eliminar("/inmueble/eliminar/"+id, {});
+            const indice = buscarEnListaPorId(this.state.inmuebles, id);
+            if(indice > -1){
+                this.state.inmuebles.splice(indice, 1);
+            }
+            this.setState({
+                mensajeModal: "¡Eliminado con éxito!",
+            });
+        } catch(err){
+            console.log(err);
+        }
+    }
+
     async avisaCreado(inmueble){
+        inmueble.horario = this.cambiaDatosHorario(inmueble.horario);
         var inmuebles = this.state.inmuebles;
         const indice = buscarEnListaPorId(inmuebles, this.state.inmueble.id)
         if(indice !== -1){
@@ -113,8 +146,14 @@ class Inmuebles extends React.Component {
             {
                 nombre:"Modificar",
                 className:"btn-primary",
-                onClick:this.agregarInmueble,
+                onClick:(valor)=>this.muestraModal("Form",true,valor),
                 icon:"lni-pencil-alt",
+            },
+            {
+                nombre:"Eliminar",
+                className:"btn-danger",
+                onClick:(valor)=>this.muestraModal("Eliminar",true, valor),
+                icon:"lni-trash-can",
             },
         ];
         return (
@@ -128,16 +167,34 @@ class Inmuebles extends React.Component {
                                         <h1>Inmuebles</h1>
                                         <h2 className="ms-3 fs-4">{organizacion.nombre}</h2>
                                     </div>
-                                    <button className="btn btn-primary" onClick={()=>this.agregarInmueble()}><i className="lni lni-plus"></i>  Agregar inmueble</button>
+                                    <button className="btn btn-primary" onClick={()=>this.muestraModal("Form", true)}><i className="lni lni-plus"></i>  Agregar inmueble</button>
                                 </div>
                                 <div className="d-flex" style={{height:"inherit"}}>
                                     <div className="w-100" style={{backgroundColor:"#137E31", color:"#FFFFFF"}}>
                                        <Tabla titulos={this.titulos} titulosAnidados={this.titulosAnidados} valorAnidado={"horario"} datos={this.state.inmuebles} acciones={accionesTabla} />
                                     </div>
                                 </div>
-                                <Modal show={this.state.muestra} onHide={()=>this.muestraModal(false)} className="modal-green" centered>
+                                <Modal show={this.state.muestraForm} onHide={()=>this.muestraModal("Form",false)} className="modal-green" centered>
                                 <Modal.Body>
-                                    <InmuebleForm idOrganizacion={this.props.idOrganizacion} avisaCreado={this.avisaCreado} campos={this.state.inmueble} cerrarModal={()=>this.muestraModal(false)} />
+                                    <InmuebleForm idOrganizacion={this.props.idOrganizacion} avisaCreado={this.avisaCreado} campos={this.state.inmueble} cerrarModal={()=>this.muestraModal("Form",false)} />
+                                </Modal.Body>
+                                </Modal>
+                                <Modal show={this.state.muestraEliminar} onHide={()=>this.muestraModalEliminar("Puesto",false)} className="modal-green" centered>
+                                <Modal.Body>
+                                    {
+                                    this.state.mensajeModal === "" ?
+                                        <ConfirmaAccion claseBtn={"btn-danger"} titulo={"¿Desea eliminar el inmueble "+this.state.inmueble.nombre+"?"} accion={this.eliminarInmueble} cerrarModal={()=>this.muestraModal("Eliminar",false)} accionNombre="Eliminar" />
+                                    :
+                                        <>
+                                            <h3 className="text-center">{this.state.mensajeModal}</h3>
+                                            <div className="d-flex justify-content-end">
+                                                <div className="m-1">
+                                                    <button type="button" className="btn btn-secondary" aria-label="Volver" onClick={()=>this.muestraModal("Eliminar",false)}>Volver</button>
+                                                </div>
+                                            </div>
+                                        </>   
+                                    }
+                                    
                                 </Modal.Body>
                                 </Modal>
                             </>
