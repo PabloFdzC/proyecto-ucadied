@@ -31,6 +31,7 @@ class UsuarioForm extends React.Component {
             edita_junta: this.campos.edita_junta ? this.campos.edita_junta : false,
             edita_proyecto: this.campos.edita_proyecto ? this.campos.edita_proyecto : false,
             edita_actividad: this.campos.edita_actividad ? this.campos.edita_actividad : false,
+            edita_inmueble: this.campos.edita_inmueble ? this.campos.edita_inmueble : false,
         };
         
         this.state = {
@@ -95,6 +96,7 @@ class UsuarioForm extends React.Component {
                 edita_junta: false,
                 edita_proyecto: false,
                 edita_actividad: false,
+                edita_inmueble: false,
             })
         });
     }
@@ -158,6 +160,7 @@ class UsuarioForm extends React.Component {
                     campos.edita_junta = this.state.campos.edita_junta;
                     campos.edita_proyecto = this.state.campos.edita_proyecto;
                     campos.edita_actividad = this.state.campos.edita_actividad;
+                    campos.edita_inmueble = this.state.campos.edita_inmueble;
                 }
                 let nuevoEstado = {};
                 if(this.accion === "Modificar"){
@@ -340,6 +343,12 @@ class UsuarioForm extends React.Component {
                                             <input className="form-check-input" type="checkbox" id="edita_actividad" name="edita_actividad" checked={this.state.campos.edita_actividad} onChange={this.manejaCambio} />
                                             <label className="form-check-label" htmlFor="edita_actividad" >
                                                 ¿Puede editar actividades?
+                                            </label>
+                                        </div>
+                                        <div className="form-check">
+                                            <input className="form-check-input" type="checkbox" id="edita_inmueble" name="edita_inmueble" checked={this.state.campos.edita_inmueble} onChange={this.manejaCambio} />
+                                            <label className="form-check-label" htmlFor="edita_inmueble" >
+                                                ¿Puede editar inmuebles?
                                             </label>
                                         </div>
                                     </div>

@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import Tabla from '../Utilidades/Table/Table.jsx'
 import QueriesGenerales from "../QueriesGenerales";
 import Offcanvas from 'react-bootstrap/Offcanvas';
-import {convertirHoraAMPM, fechaAHoraAMPM} from '../Utilidades/ManejoHoras';
+import {fechaAHoraAMPM} from '../Utilidades/ManejoHoras';
 import { Navigate } from "react-router-dom";
 import {fechaAStringSlash} from '../Utilidades/ManejoFechas';
 import '../Estilos/Offcanvas.css';
@@ -64,8 +64,8 @@ class Actividades extends React.Component {
                     S:"Sábado",
                 };
                 return dias[row.dia]}},
-            {name:'Hora Apertura',selector:row=>fechaAHoraAMPM(new Date(row.inicio), true)},
-            {name:'Hora Cierre',selector:row=>fechaAHoraAMPM(new Date(row.final), true)},
+            {name:'Hora Apertura',selector:row=>fechaAHoraAMPM(new Date(row.inicio), true, true)},
+            {name:'Hora Cierre',selector:row=>fechaAHoraAMPM(new Date(row.final), true, true)},
         ];
         this.titulosReservas = [
             {name:'Nombre',selector:row=>row.nombre,sortable:true},
@@ -147,8 +147,8 @@ class Actividades extends React.Component {
                 let fechaF = new Date(datos[i].reserva_inmuebles[j].final);
                 datos[i].reserva_inmuebles[j].dia = fechaI;
                 datos[i].reserva_inmuebles[j].diaBonito = fechaAStringSlash(fechaI);
-                datos[i].reserva_inmuebles[j].inicioBonito = fechaAHoraAMPM(fechaI, true);
-                datos[i].reserva_inmuebles[j].finalBonito = fechaAHoraAMPM(fechaF, true);
+                datos[i].reserva_inmuebles[j].inicioBonito = fechaAHoraAMPM(fechaI, true, true);
+                datos[i].reserva_inmuebles[j].finalBonito = fechaAHoraAMPM(fechaF, true, true);
                 let horario = [];
                 for(let k = 0; k < datos[i].inmuebles[0].horario.length; k++){
                     if(datos[i].inmuebles[0].horario[k].dia === dias[fechaI.getDay()]){
@@ -175,8 +175,8 @@ class Actividades extends React.Component {
                     nombre:datos[i].nombre,
                     inicio: datos[i].reserva_inmuebles[j].inicio,
                     final: datos[i].reserva_inmuebles[j].final,
-                    inicioBonito: fechaAHoraAMPM(fechaI, true),
-                    finalBonito: fechaAHoraAMPM(fechaF, true),
+                    inicioBonito: fechaAHoraAMPM(fechaI, true, true),
+                    finalBonito: fechaAHoraAMPM(fechaF, true, true),
                 })
             }
         }

@@ -108,7 +108,6 @@ class App extends React.Component {
       puestos: usuario.puestos,
     };
     guardarLocalStorage("usuario", camposUsuario);
-    console.log(usuario);
     if((typeof usuario.organizacion) === 'object' && usuario.organizacion){
       guardarLocalStorage("organizacion", usuario.organizacion);
     }
@@ -239,7 +238,6 @@ class App extends React.Component {
       });
     } else {
       if(this.state.usuario.tipo === "Usuario"){
-        console.log("cargarPuestos");
         await this.cargarPuestos();
       }
     }
@@ -310,7 +308,7 @@ class App extends React.Component {
               } />
               <Route path="/inmuebles/:idOrganizacion" element={
                   <ConParams app={this}  componente={
-                      <TienePermiso cargarOrganizacion={this.cargarOrganizacion} ruta="/inmuebles/" permiso="edita_actividad" componente={
+                      <TienePermiso cargarOrganizacion={this.cargarOrganizacion} ruta="/inmuebles/" permiso="edita_inmueble" componente={
                           <Inmuebles />
                       } />
                   }/>

@@ -22,6 +22,7 @@ class MiembroJuntaDirectivaForm extends React.Component {
             edita_junta: this.campos.edita_junta ? this.campos.edita_junta : false,
             edita_proyecto: this.campos.edita_proyecto ? this.campos.edita_proyecto : false,
             edita_actividad: this.campos.edita_actividad ? this.campos.edita_actividad : false,
+            edita_inmueble: this.campos.edita_inmueble ? this.campos.edita_inmueble : false,
             id_asociacion: null,
         };
         this.state = {
@@ -76,6 +77,7 @@ class MiembroJuntaDirectivaForm extends React.Component {
                     edita_junta: this.state.campos.edita_junta ? this.state.campos.edita_junta : false,
                     edita_proyecto: this.state.campos.edita_proyecto ? this.state.campos.edita_proyecto : false,
                     edita_actividad: this.state.campos.edita_actividad ? this.state.campos.edita_actividad : false,
+                    edita_inmueble: this.state.campos.edita_inmueble ? this.state.campos.edita_inmueble : false,
                 };
                 let mensajeExito = "¡Agregado con éxito!";
                 let resp;
@@ -121,7 +123,10 @@ class MiembroJuntaDirectivaForm extends React.Component {
             this.setState({
                 usuarios:usuariosSelect,
                 campos: Object.assign({}, this.state.campos, {
-                    id_usuario: null,
+                    id_usuario: this.campos.id_usuario ? {
+                        value: this.campos.id_usuario,
+                        label: this.campos.nombre,
+                    } : null,
                 }),
             });
         } catch(err){
@@ -267,6 +272,12 @@ class MiembroJuntaDirectivaForm extends React.Component {
                     <div className="form-check">
                         <input className="form-check-input" type="checkbox" id="edita_actividad" name="edita_actividad" checked={this.state.campos.edita_actividad} onChange={this.manejaCambio} />
                         <label className="form-check-label" htmlFor="edita_actividad" >
+                            ¿Puede editar actividades?
+                        </label>
+                    </div>
+                    <div className="form-check">
+                        <input className="form-check-input" type="checkbox" id="edita_inmueble" name="edita_inmueble" checked={this.state.campos.edita_inmueble} onChange={this.manejaCambio} />
+                        <label className="form-check-label" htmlFor="edita_inmueble" >
                             ¿Puede editar actividades?
                         </label>
                     </div>

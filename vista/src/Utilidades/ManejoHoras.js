@@ -23,7 +23,7 @@ Entradas:
 
 Salida: string con la hora en formato am/md/pm
  */
-function convertirHoraAMPM(hora, con0){
+function convertirHoraAMPM(hora, con0, conTiempo){
   let [horas,minutos] = Array.isArray(hora) ? hora : hora.split(":");
   let tiempo = "am";
   horas = parseInt(horas);
@@ -42,7 +42,9 @@ function convertirHoraAMPM(hora, con0){
       minutos = "0"+minutos;
     }
   }
-  return horas+":"+minutos+tiempo;
+  if(conTiempo)
+    return horas+":"+minutos+tiempo;
+  return horas+":"+minutos;
 }
 
 function horaAFecha(hora){
@@ -52,8 +54,8 @@ function horaAFecha(hora){
   return fecha;
 }
 
-function fechaAHoraAMPM(fecha, con0){
-  return convertirHoraAMPM([fecha.getUTCHours(), fecha.getUTCMinutes()], con0);
+function fechaAHoraAMPM(fecha, con0, conTiempo){
+  return convertirHoraAMPM([fecha.getUTCHours(), fecha.getUTCMinutes()], con0, conTiempo);
 }
 
 export {

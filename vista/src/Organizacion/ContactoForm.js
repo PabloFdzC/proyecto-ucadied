@@ -83,7 +83,7 @@ class ContactoForm extends React.Component {
                     mensaje:this.state.campos.mensaje,
                     email_organizacion: this.props.emailOrganizacion,
                 }
-                const resp = await this.queriesGenerales.postear("/enviarMensaje", campos);
+                const resp = await this.queriesGenerales.postear("organizacion/externoEnviaCorreo", campos);
                 this.setState({
                     creado:true,
                     titulo:"¡Enviado con Éxito!",
