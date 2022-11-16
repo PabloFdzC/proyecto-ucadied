@@ -163,7 +163,6 @@ async function crear_habilitar(info, id_usuario, habilitar){
             if(info.dias){
                 const errores = await buscar_disponibilidad_dias(info.dias, horario, info.id_inmueble);
                 if(errores.length === 0){
-                    info.habilitado = id_usuario && id_usuario != -1;
                     if(habilitar){
                         return await cambiaHabilitado(info);
                     }

@@ -39,6 +39,7 @@ async function crear(info){
             edita_junta: info.edita_junta,
             edita_proyecto: info.edita_proyecto,
             edita_actividad: info.edita_actividad,
+            edita_inmueble: info.edita_inmueble,
         })
     }
     await correoCtlr.enviarCorreo(`
