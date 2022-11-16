@@ -111,7 +111,7 @@ async function externoEnviaCorreo(info){
     <p><strong>Para responder a este mensaje debe usar el email que viene en la parte de datos del usuario.</strong><p>
     `;
     const asunto = "Mensaje de " + info.nombre;
-    return enviarCorreo(correo, asunto, info.email_organizacion, info.email);
+    return enviarCorreo(correo, asunto, info.email_organizacion);
 }
 
 module.exports = {

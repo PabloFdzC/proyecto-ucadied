@@ -2,8 +2,8 @@ const nodemailer = require('nodemailer');
 
 
 
-async function enviarCorreo(html, asunto, emailPara, emailDe){
-    emailDe = emailDe && (typeof emailDe) === string ? emailDe :'sistemaucadied@gmail.com';
+async function enviarCorreo(html, asunto, emailPara){
+    const emailDe = 'sistemaucadied@gmail.com';
     const transporter = nodemailer.createTransport({
         service: 'gmail',
         auth: {
