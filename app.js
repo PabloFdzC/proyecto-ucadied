@@ -15,12 +15,6 @@ app.use(cors({
 
 require("./creacion_base");
 
-// Aquí primero se crea la carpeta de archivos/Imagen
-const ubicacionArchivos = path.join(__dirname, 'archivos/Imagen');
-fs.mkdirSync(ubicacionArchivos, { recursive: true });
-// Luego se hace pública
-app.use('/archivos/Imagen', express.static(ubicacionArchivos));
-
 
 var sess = {
     secret: 'm!S3ssi0nn0de',
@@ -32,8 +26,10 @@ var sess = {
     }),
   }
 
-
+  const ubicacionArchivos = path.join(__dirname, 'archivos/Imagen');
 if (app.get('env') === 'production') {
+    // La carpeta de archivos en el server la crea el archivo .yml
+    app.use('/archivos/Imagen', express.static(ubicacionArchivos));
     //app.set('trust proxy', 1);
     //sess.cookie.secure = true;
     app.use(express.static(path.join(__dirname, 'vista/build')));
@@ -44,6 +40,11 @@ if (app.get('env') === 'production') {
         res.sendFile(path.join(__dirname, 'vista/build', 'index.html'));
     });
 } else {
+    // Aquí primero se crea la carpeta de archivos/Imagen
+
+    fs.mkdirSync(ubicacionArchivos, { recursive: true });
+    // Luego se hace pública
+    app.use('/archivos/Imagen', express.static(ubicacionArchivos));
     app.use(session(sess));
     app.use('/', ApiRouter);
 }
