@@ -6,6 +6,9 @@ import Tabla from '../Utilidades/Table/Table';
 import QueriesGenerales from "../QueriesGenerales";
 import Modal from 'react-bootstrap/Modal';
 
+import { buscarEnListaPorId } from '../Utilidades/ManejoLista';
+import ConfirmaAccion from '../Utilidades/ConfirmaAccion';
+
 /*
 Recibe los props:
 idProyecto: Número entero que es el id de la organización en la que se
@@ -18,10 +21,13 @@ class Gastos extends React.Component {
         this.queriesGenerales = new QueriesGenerales();
         this.state = {
             gastos: [],
-            muestraGF:false,
+            muestraGasto:false,
+            muestraEliminar:false,
             proyecto:{
                 nombre:"",
             },
+            Gasto:{},
+            mensajeModal:"",
         }
         this.gastosPedidos = false;
         this.proyectoPedido = false;
@@ -38,11 +44,14 @@ class Gastos extends React.Component {
 
         this.avisaCreado = this.avisaCreado.bind(this);
         this.muestraModal = this.muestraModal.bind(this);
+        this.eliminarGasto = this.eliminarGasto.bind(this);
     }
 
-    muestraModal(muestra){
+    muestraModal(nombre, muestra, Gasto){
+        if(!Gasto) Gasto={};
         this.setState({
-            muestraGF:muestra,
+            Gasto,
+            ["muestra"+nombre]:muestra,
         });
     }
 
@@ -60,8 +69,7 @@ class Gastos extends React.Component {
 
     async cargarProyecto(){
         try{
-            const resp = await this.queriesGenerales.obtener("/proyecto/consultar", {id_proyecto:this.props.idProyecto});
-            console.log(resp);
+            const resp = await this.queriesGenerales.obtener("/proyecto/consultar", {id:this.props.idProyecto});
             this.setState({
                 proyecto:resp.data[0],
             });
@@ -89,12 +97,51 @@ class Gastos extends React.Component {
 
     async avisaCreado(gasto){
         var gastos = this.state.gastos;
-        this.setState({
-            gastos:gastos.concat(gasto),
-        });
+        if(!isNaN(this.state.Gasto.id) && this.state.Gasto.id){
+            const indice = buscarEnListaPorId(gastos, this.state.Gasto.id);
+            gastos[indice] = gasto;
+            this.setState({
+                gastos:gastos,
+            });
+            gasto.id = parseInt(gasto.id);
+        } else {
+            this.setState({
+                gastos:gastos.concat(gasto),
+            });
+        }
+    }
+
+    async eliminarGasto(){
+        try{
+            const id = this.state.Gasto.id;
+            await this.queriesGenerales.eliminar("/gasto/eliminar/"+id, {});
+            const indice = buscarEnListaPorId(this.state.gastos, id);
+            if(indice > -1){
+                this.state.gastos.splice(indice, 1);
+            }
+            this.setState({
+                mensajeModal: "¡Eliminado con éxito!",
+            });
+        } catch(err){
+            console.log(err);
+        }
     }
 
     render(){
+        const accionesGastos = [
+            {
+                nombre:"Modificar",
+                className:"btn-primary",
+                onClick:(valor)=>this.muestraModal("Gasto",true, valor),
+                icon:"lni-pencil-alt",
+            },
+            {
+                nombre:"Eliminar",
+                className:"btn-danger",
+                onClick:(valor)=>this.muestraModal("Eliminar",true, valor),
+                icon:"lni-trash-can",
+            },
+        ];
         return (
             <usuarioContexto.Consumer >
                 {({usuario, organizacion})=>{
@@ -106,16 +153,31 @@ class Gastos extends React.Component {
                                         <h1>{this.state.proyecto.nombre} - Gastos</h1>
                                         <h2 className="ms-3 fs-4">{organizacion.nombre}</h2>
                                     </div>
-                                    <button className="btn btn-primary" onClick={()=>this.muestraModal(true)} ><i className="lni lni-plus"></i>  Agregar gasto</button>
+                                    <button className="btn btn-primary" onClick={()=>this.muestraModal("Gasto",true)} ><i className="lni lni-plus"></i>  Agregar gasto</button>
                                 </div>
                                 <div className="d-flex" style={{height:"inherit"}}>
                                     <div className="w-100" style={{backgroundColor:"#137E31", color:"#FFFFFF"}}>
-                                    <Tabla titulos={this.titulos} datos={this.state.gastos} style={{color:"#FFFFFF"}} />
+                                    <Tabla titulos={this.titulos} datos={this.state.gastos} style={{color:"#FFFFFF"}} acciones={accionesGastos} />
                                     </div>
                                 </div>
-                                <Modal show={this.state.muestraGF} onHide={()=>this.muestraModal(false)} className="modal-green" centered>
+                                <Modal show={this.state.muestraGasto} onHide={()=>this.muestraModal("Gasto",false)} className="modal-green" centered>
                                 <Modal.Body>
-                                    <GastoForm idProyecto={this.props.idProyecto} avisaCreado={this.avisaCreado} cerrarModal={()=>this.muestraModal(false)} />
+                                    <GastoForm idProyecto={this.props.idProyecto} avisaCreado={this.avisaCreado} cerrarModal={()=>this.muestraModal("Gasto",false)} campos={this.state.Gasto} />
+                                </Modal.Body>
+                                </Modal>
+                                <Modal show={this.state.muestraEliminar} onHide={()=>this.muestraModal("Eliminar",false)} className="modal-green" centered>
+                                <Modal.Body>
+                                    {this.state.mensajeModal === "" ?
+                                        <ConfirmaAccion claseBtn={"btn-danger"} titulo={"¿Desea eliminar el gasto "+this.state.Gasto.nombre+" del proyecto?"} accion={this.eliminarGasto} cerrarModal={()=>this.muestraModal("Eliminar",false)} accionNombre="Eliminar" />
+                                    :
+                                        <>
+                                            <h3 className="text-center">{this.state.mensajeModal}</h3>
+                                            <div className="d-flex justify-content-end">
+                                                <div className="m-1">
+                                                    <button type="button" className="btn btn-secondary" aria-label="Volver" onClick={()=>this.muestraModal("Eliminar",false)}>Volver</button>
+                                                </div>
+                                            </div>
+                                        </>}
                                 </Modal.Body>
                                 </Modal>
                                 

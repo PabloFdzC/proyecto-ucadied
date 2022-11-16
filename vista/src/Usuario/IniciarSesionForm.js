@@ -47,7 +47,6 @@ class IniciarSesionForm extends React.Component {
                 const resp = await this.queriesGenerales.postear("/usuario/iniciarSesion", this.state.campos);
                 iniciarSesionUsuario(resp.data);
             }catch(error){
-                console.log(error);
                 this.setState({
                     mensajeError:error.response.data.error,
                     muestraMensajeError:true,
@@ -87,18 +86,16 @@ class IniciarSesionForm extends React.Component {
                             </div>
                             <Link to="/olvidaContrasenna" style={{color:"#FFF"}}>  Olvidé mi contraseña</Link>
                         </div> 
-                        <div className="d-flex justify-content-center">
+                        <div className="d-flex justify-content-center mt-2">
                             <button type="submit" className="btn btn-primary btn-lg">Iniciar Sesión</button>
                         </div>
-                        <div className="d-flex justify-content-end">
-                            <div style={{position:"fixed"}}>
-                                <Toast bg="danger" onClose={() => this.setState({muestraMensajeError:false,mensajeError:""})} show={this.state.muestraMensajeError} delay={4000} autohide>
-                                <Toast.Header>
-                                    <strong className="me-auto">Error</strong>
-                                </Toast.Header>
-                                <Toast.Body>{this.state.mensajeError}</Toast.Body>
-                                </Toast>
-                            </div>
+                        <div style={{position:"fixed", right:0, bottom:0}}>
+                            <Toast bg="danger" onClose={() => this.setState({muestraMensajeError:false,mensajeError:""})} show={this.state.muestraMensajeError} delay={4000} autohide>
+                            <Toast.Header>
+                                <strong className="me-auto">Error</strong>
+                            </Toast.Header>
+                            <Toast.Body>{this.state.mensajeError}</Toast.Body>
+                            </Toast>
                         </div>
                     </form>);
                 }}

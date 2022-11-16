@@ -132,7 +132,8 @@ usuario.belongsTo(organizacion, {
 });
 
 proyecto.hasMany(proyecto_x_usuario, {
-  foreignKey: 'id_proyecto'
+  foreignKey: 'id_proyecto',
+  onDelete: 'cascade',
 });
 
 proyecto_x_usuario.belongsTo(proyecto, {

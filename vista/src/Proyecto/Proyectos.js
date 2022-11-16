@@ -22,6 +22,8 @@ class Proyectos extends React.Component {
             Proyecto:{},
             proyectos: [],
             muestraPF:false,
+            mensajeModal:"",
+            muestraEliminarProyecto:false,
         }
         this.proyectosPedidos = false;
         this.avisaCreado = this.avisaCreado.bind(this);
@@ -39,7 +41,9 @@ class Proyectos extends React.Component {
             }
             if (i > -1){
                 this.state.proyectos.splice(i, 1);
-                this.setState({});
+                this.setState({
+                    mensajeModal:"¡Eliminado con éxito!",
+                });
             }
         } catch(err){
             console.log(err);
@@ -61,6 +65,7 @@ class Proyectos extends React.Component {
     muestraModal(muestra){
         this.setState({
             muestraPF:muestra,
+            mensajeModal:"",
         });
     }
 
@@ -91,6 +96,7 @@ class Proyectos extends React.Component {
         this.setState({
             Proyecto:valor,
             muestraEliminarProyecto:muestra,
+            mensajeModal:"",
         })
     }
 
@@ -117,7 +123,7 @@ class Proyectos extends React.Component {
                         </div>
                         <div className="col d-flex flex-column p-3">
                             <Link key={"g"+i} className="btn btn-primary m-1" to={"gastos/"+p.id}><i className="lni lni-coin"></i>  Gastos</Link>
-                            <button key={"e"+i} className="btn btn-danger m-1" onClick={()=>this.eliminarProyecto(p.id)}><i className="lni lni-trash-can"></i>  Eliminar</button>
+                            <button key={"e"+i} className="btn btn-danger m-1" onClick={()=>this.muestraEliminarProyecto(true, p)}><i className="lni lni-trash-can"></i>  Eliminar</button>
                         </div>
                     </div>
                 </div>
@@ -144,10 +150,19 @@ class Proyectos extends React.Component {
                             <ProyectoForm idOrganizacion={organizacion.id} esUnion={false} avisaCreado={this.avisaCreado} cerrarModal={()=>this.muestraModal(false)} />
                         </Modal.Body>
                         </Modal>
-                        <Modal show={this.state.muestraEliminarPuesto} onHide={()=>this.muestraEliminarProyecto(false)} className="modal-green" centered>
+                        <Modal show={this.state.muestraEliminarProyecto} onHide={()=>this.muestraEliminarProyecto(false)} className="modal-green" centered>
                         <Modal.Body>
-                            <ConfirmaAccion claseBtn={"btn-danger"} titulo={"¿Desea eliminar "+this.state.Proyecto.nombre+"?"} accion={this.eliminarProyecto} cerrarModal={()=>this.muestraEliminarProyecto(false)} accionNombre="Eliminar" />
-                            
+                            {this.state.mensajeModal === "" ?
+                                <ConfirmaAccion claseBtn={"btn-danger"} titulo={"¿Desea eliminar "+this.state.Proyecto.nombre+"?"} accion={this.eliminarProyecto} cerrarModal={()=>this.muestraEliminarProyecto(false)} accionNombre="Eliminar" />
+                            :
+                                <>
+                                    <h3 className="text-center">{this.state.mensajeModal}</h3>
+                                    <div className="d-flex justify-content-end">
+                                        <div className="m-1">
+                                            <button type="button" className="btn btn-secondary" aria-label="Volver" onClick={()=>this.muestraEliminarProyecto(false)}>Volver</button>
+                                        </div>
+                                    </div>
+                                </>}
                         </Modal.Body>
                         </Modal>
                     </>);

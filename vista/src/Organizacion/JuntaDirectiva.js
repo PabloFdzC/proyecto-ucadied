@@ -29,6 +29,7 @@ class JuntaDirectiva extends React.Component {
             muestraPuestoF:false,
             muestraUsuarioF:false,
             muestraEliminarPuesto: false,
+            mensajeModal: "",
         };
         this.titulos = [
             {name:'Nombre',selector:row=>row.nombre,sortable:true},
@@ -80,6 +81,7 @@ class JuntaDirectiva extends React.Component {
         this.setState({
             [nombre]:valor,
             ["muestraEliminar"+nombre]:muestra,
+            mensajeModal:"",
         })
     }
     
@@ -211,12 +213,13 @@ class JuntaDirectiva extends React.Component {
     async eliminarPuesto(){
         try{
             const puestoId = this.state.Puesto.id;
-            await this.queriesGenerales.postear("/puesto/eliminar/"+puestoId, {});
+            await this.queriesGenerales.eliminar("/puesto/eliminar/"+puestoId, {});
             const indice = buscarEnListaPorId(this.state.puestos, puestoId);
-            this.state.puestos.splice(indice, 1);
+            if(indice > -1){
+                this.state.puestos.splice(indice, 1);
+            }
             this.setState({
-                Puesto:{},
-                muestraEliminarPuesto: false,
+                mensajeModal: "¡Eliminado con éxito!",
             });
         } catch(err){
             console.log(err);
@@ -297,15 +300,25 @@ class JuntaDirectiva extends React.Component {
                             <Modal show={this.state.muestraEliminarPuesto} onHide={()=>this.muestraModalEliminar("Puesto",false)} className="modal-green" centered>
                             <Modal.Body>
                                 {usuario.id == this.state.Puesto.id_usuario ? 
-                                <>
-                                <h3 className="text-center">No puede eliminar su propio puesto</h3>
-                                <div className="d-flex justify-content-end">
-                                    <button className="btn btn-secondary" onClick={()=>this.muestraModal("Puesto",false)}>Volver</button>
-                                </div>
-                                
-                                </>
+                                    <>
+                                    <h3 className="text-center">No puede eliminar su propio puesto</h3>
+                                    <div className="d-flex justify-content-end">
+                                        <button className="btn btn-secondary" onClick={()=>this.muestraModal("Puesto",false)}>Volver</button>
+                                    </div>
+                                    
+                                    </>
                                 :
-                                <ConfirmaAccion claseBtn={"btn-danger"} titulo={"¿Desea eliminar a "+this.state.Puesto.nombre+" de la Junta Directiva?"} accion={this.eliminarPuesto} cerrarModal={()=>this.muestraModalEliminar("Puesto",false)} accionNombre="Eliminar" />
+                                    this.state.mensajeModal === "" ?
+                                        <ConfirmaAccion claseBtn={"btn-danger"} titulo={"¿Desea eliminar a "+this.state.Puesto.nombre+" de la Junta Directiva?"} accion={this.eliminarPuesto} cerrarModal={()=>this.muestraModalEliminar("Puesto",false)} accionNombre="Eliminar" />
+                                    :
+                                        <>
+                                            <h3 className="text-center">{this.state.mensajeModal}</h3>
+                                            <div className="d-flex justify-content-end">
+                                                <div className="m-1">
+                                                    <button type="button" className="btn btn-secondary" aria-label="Volver" onClick={()=>this.muestraModalEliminar("Puesto",false)}>Volver</button>
+                                                </div>
+                                            </div>
+                                        </>
                                 }
                                 
                             </Modal.Body>

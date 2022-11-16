@@ -85,6 +85,7 @@ class MiembroJuntaDirectivaForm extends React.Component {
                     mensajeExito = "¡Modificado con éxito!";
                 } else {
                     resp = await this.queriesGenerales.postear("/puesto/crear", campos);
+                    campos.id = resp.data.id;
                 }
                 
                 this.setState({

@@ -4,6 +4,7 @@ import manejarCambio from '../Utilidades/manejarCambio';
 import AgregaElemento from '../Utilidades/AgregaElemento';
 import Elementos from '../Utilidades/Elementos';
 import Validacion from '../Utilidades/Validacion';
+import Toast from 'react-bootstrap/Toast';
 
 class OrganizacionForm extends React.Component {
     constructor(props){
@@ -33,6 +34,8 @@ class OrganizacionForm extends React.Component {
             usuarios: [],
             titulo: this.titulo,
             creado:false,
+            muestraMensajeError:false,
+            mensajeError:"",
         };
         this.validacion = new Validacion({
             nombre: "requerido",
@@ -118,16 +121,13 @@ class OrganizacionForm extends React.Component {
                 });
                 var datos = resp.data;
                 datos.usuarios = usuarios;
-                this.avisaCreado(resp.data);
+                this.props.avisaCreado(datos);
             }catch(error){
                 console.log(error);
             }
         }
     }
 
-    async avisaCreado(asociacion){
-        await this.props.avisaCreado(asociacion);
-    }
 
     async cargarUsuarios(idOrganizacion){
         try{
@@ -208,6 +208,14 @@ class OrganizacionForm extends React.Component {
                     <div className="m-1">
                         <button type="submit" className="btn btn-primary">Agregar</button>
                     </div>
+                </div>
+                <div style={{position:"fixed", right:0, bottom:0}}>
+                    <Toast bg="danger" onClose={() => this.setState({muestraMensajeError:false,mensajeError:""})} show={this.state.muestraMensajeError} delay={4000} autohide>
+                    <Toast.Header>
+                        <strong className="me-auto">Error</strong>
+                    </Toast.Header>
+                    <Toast.Body>{this.state.mensajeError}</Toast.Body>
+                    </Toast>
                 </div>
             </form>
             :<>

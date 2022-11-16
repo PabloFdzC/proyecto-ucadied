@@ -480,16 +480,16 @@ class Actividades extends React.Component {
                                 <Modal show={this.state.muestraEliminarReserva} onHide={()=>this.muestraModal("Reserva", "Eliminar",false)} className="modal-green" centered>
                                 <Modal.Body>
                                     {this.state.mensajeModal === "" ?
-                                    <ConfirmaAccion claseBtn={"btn-danger"} accionNombre="Eliminar" titulo={"¿Desea eliminar la reserva del "+this.state.Reserva.diaBonito+ " de " +this.state.Reserva.inicioBonito+"-"+this.state.Reserva.finalBonito+"?"} accion={this.eliminarReservas} cerrarModal={()=>this.muestraModal("Actividad", "Eliminar",false)} />
+                                        <ConfirmaAccion claseBtn={"btn-danger"} accionNombre="Eliminar" titulo={"¿Desea eliminar la reserva del "+this.state.Reserva.diaBonito+ " de " +this.state.Reserva.inicioBonito+"-"+this.state.Reserva.finalBonito+"?"} accion={this.eliminarReservas} cerrarModal={()=>this.muestraModal("Actividad", "Eliminar",false)} />
                                     :
-                                    <>
-                                        <h3 className="text-center">{this.state.mensajeModal}</h3>
-                                        <div className="d-flex justify-content-end">
-                                            <div className="m-1">
-                                                <button type="button" className="btn btn-secondary" aria-label="Volver" onClick={()=>this.muestraModal("Reserva", "Eliminar",false)}>Volver</button>
+                                        <>
+                                            <h3 className="text-center">{this.state.mensajeModal}</h3>
+                                            <div className="d-flex justify-content-end">
+                                                <div className="m-1">
+                                                    <button type="button" className="btn btn-secondary" aria-label="Volver" onClick={()=>this.muestraModal("Reserva", "Eliminar",false)}>Volver</button>
+                                                </div>
                                             </div>
-                                        </div>
-                                    </>}
+                                        </>}
                                 </Modal.Body>
                                 </Modal>
                             </>

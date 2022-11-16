@@ -58,7 +58,6 @@ class ContrasennaForm extends React.Component {
                     enviado:true,
                 });
             }catch(error){
-                console.log(error);
                 this.setState({
                     mensajeError:error.response.data.error,
                     muestraMensajeError:true,
@@ -90,15 +89,13 @@ class ContrasennaForm extends React.Component {
                 <div className="d-flex justify-content-end">
                     <button type="submit" className="btn btn-primary">Modificar</button>
                 </div>
-                <div className="d-flex justify-content-end">
-                    <div style={{position:"fixed"}}>
-                        <Toast bg="danger" onClose={() => this.setState({muestraMensajeError:false,mensajeError:""})} show={this.state.muestraMensajeError} delay={4000} autohide>
-                        <Toast.Header>
-                            <strong className="me-auto">Error</strong>
-                        </Toast.Header>
-                        <Toast.Body>{this.state.mensajeError}</Toast.Body>
-                        </Toast>
-                    </div>
+                <div style={{position:"fixed", right:0, bottom:0}}>
+                    <Toast bg="danger" onClose={() => this.setState({muestraMensajeError:false,mensajeError:""})} show={this.state.muestraMensajeError} delay={4000} autohide>
+                    <Toast.Header>
+                        <strong className="me-auto">Error</strong>
+                    </Toast.Header>
+                    <Toast.Body>{this.state.mensajeError}</Toast.Body>
+                    </Toast>
                 </div>
             </form>
         }

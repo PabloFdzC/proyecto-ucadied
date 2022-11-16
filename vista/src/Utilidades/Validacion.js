@@ -27,13 +27,19 @@ class Validacion {
                         continue;
                     }
                 } else {
-                    if(typeof campos[c].value === 'string' || campos[c].value instanceof String){
-                        if(this.validaVacio(campos[c].value)){
+                    if((typeof campos[c]) === 'object' && campos[c]){
+                        if(typeof campos[c].value === 'string' || campos[c].value instanceof String){
+                            if(this.validaVacio(campos[c].value)){
+                                errores[c] = "Debe seleccionar una opción."
+                                errores.hayError = true;
+                                continue;
+                            }
+                        } else if(isNaN(campos[c].value)){
                             errores[c] = "Debe seleccionar una opción."
                             errores.hayError = true;
                             continue;
                         }
-                    } else if(isNaN(campos[c].value)){
+                    } else if(!campos[c]) {
                         errores[c] = "Debe seleccionar una opción."
                         errores.hayError = true;
                         continue;

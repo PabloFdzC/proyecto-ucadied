@@ -2,26 +2,39 @@ import React from 'react';
 import QueriesGenerales from "../QueriesGenerales";
 import manejarCambio from '../Utilidades/manejarCambio';
 import Validacion from '../Utilidades/Validacion';
+import {
+    fechaAString,
+    stringBarrasAFecha,
+    fechaAStringSlash,
+    stringAFecha
+} from '../Utilidades/ManejoFechas';
+import Toast from 'react-bootstrap/Toast';
 
 class GastoForm extends React.Component {
     constructor(props){
         super(props);
         this.queriesGenerales = new QueriesGenerales();
         this.url = props.url;
-        this.titulo = "Agregar Gasto";
+        this.campos = props.campos ? props.campos : {};
+        this.accion = Object.entries(this.campos).length > 0 ? "Modificar" : "Agregar";
+        let fecha = this.campos.fecha ? this.campos.fecha : "";
+        if(fecha !== ""){
+            // Esto se hace por el formato que trae la fecha
+            fecha = fechaAString(stringBarrasAFecha(fecha));
+        }
         var campos = {
             id_proyecto:props.idProyecto,
-            nombre: "",
-            monto: "",
-            fecha: "",
-            numero_acta:"",
-            numero_acuerdo:"",
-            proveedor: "",
-            numero_factura: "",
-            numero_comprobante_pago: "",
+            nombre: this.campos.nombre ? this.campos.nombre : "",
+            monto: this.campos.monto ? this.campos.monto.toString() : "",
+            fecha: fecha,
+            numero_acta: this.campos.numero_acta ? this.campos.numero_acta.toString() : "",
+            numero_acuerdo: this.campos.numero_acuerdo ? this.campos.numero_acuerdo.toString() : "",
+            proveedor: this.campos.proveedor ? this.campos.proveedor : "",
+            numero_factura: this.campos.numero_factura ? this.campos.numero_factura.toString() : "",
+            numero_comprobante_pago: this.campos.numero_comprobante_pago ? this.campos.numero_comprobante_pago.toString() : "",
         };
         this.state = {
-            titulo: this.titulo,
+            titulo: this.accion + " Gasto",
             campos:campos,
             errores: {
                 nombre: "",
@@ -35,6 +48,8 @@ class GastoForm extends React.Component {
                 hayError: false,
             },
             creado:false,
+            muestraMensajeError: false,
+            mensajeError:"",
         };
         this.validacion = new Validacion({
             nombre: "requerido",
@@ -48,13 +63,13 @@ class GastoForm extends React.Component {
         }, this);
 
         this.manejaCambio = this.manejaCambio.bind(this);
-        this.crearGasto = this.crearGasto.bind(this);
+        this.enviarGasto = this.enviarGasto.bind(this);
         this.reiniciarCampos = this.reiniciarCampos.bind(this);
     }
 
     reiniciarCampos(){
         this.setState({
-            titulo: this.titulo,
+            titulo: this.accion + " Gasto",
             creado:false,
             campos: Object.assign({},this.state.campos, {
                 id_proyecto:this.props.idProyecto,
@@ -74,19 +89,45 @@ class GastoForm extends React.Component {
         manejarCambio(evento, this);
     }
 
-    async crearGasto(evento){
+    async enviarGasto(evento){
         evento.preventDefault();
         this.validacion.validarCampos(this.state.campos);
         if(!this.state.errores.hayError){
           try{
-              const resp = await this.queriesGenerales.postear("/gasto/crear", this.state.campos);
+              let resp;
+              const campos = {
+                id_proyecto:this.props.idProyecto,
+                nombre: this.state.campos.nombre,
+                monto: this.state.campos.monto,
+                fecha: this.state.campos.fecha,
+                numero_acta: this.state.campos.numero_acta,
+                numero_acuerdo: this.state.campos.numero_acuerdo,
+                proveedor: this.state.campos.proveedor,
+                numero_factura: this.state.campos.numero_factura,
+                numero_comprobante_pago: this.state.campos.numero_comprobante_pago,
+              }
+              let mensajeExito = "¡Agregado con éxito!";
+              let datos;
+              if(this.accion === "Agregar"){
+                resp = await this.queriesGenerales.postear("/gasto/crear", campos)
+                datos = resp.data;
+              } else{
+                resp = await this.queriesGenerales.modificar("/gasto/modificar/"+this.props.campos.id, campos);
+                datos = campos;
+                datos.id = this.props.campos.id;
+                datos.fecha = fechaAStringSlash(stringAFecha(datos.fecha));
+                mensajeExito = "¡Modificado con éxito!";
+              }
               this.setState({
                   creado:true,
-                  titulo:"¡Agregado con éxito!",
+                  titulo:mensajeExito,
               });
-              this.props.avisaCreado(resp.data);
+              this.props.avisaCreado(datos);
           }catch(error){
-              console.log(error);
+              this.setState({
+                muestraMensajeError: true,
+                mensajeError:error.response.data,
+              });
           }
       }
     }
@@ -95,7 +136,7 @@ class GastoForm extends React.Component {
         return (<>
         <h2 className="modal-title text-center">{this.state.titulo}</h2>
         {!this.state.creado ? 
-        <form onSubmit={this.crearGasto} className="needs-validation" noValidate>
+        <form onSubmit={this.enviarGasto} className="needs-validation" noValidate>
           <div className="row">
             <div className="col-12 col-md-6">
               <div className="mb-3 position-relative">
@@ -166,15 +207,26 @@ class GastoForm extends React.Component {
                 <></>
                 }
                 <div className="m-1">
-                    <button type="submit" className="btn btn-primary">Agregar</button>
+                    <button type="submit" className="btn btn-primary">{this.accion}</button>
                 </div>
+            </div>
+            <div style={{position:"fixed", right:0, bottom:0}}>
+                <Toast bg="danger" onClose={() => this.setState({muestraMensajeError:false,mensajeError:""})} show={this.state.muestraMensajeError} delay={4000} autohide>
+                <Toast.Header>
+                    <strong className="me-auto">Error</strong>
+                </Toast.Header>
+                <Toast.Body>{this.state.mensajeError}</Toast.Body>
+                </Toast>
             </div>
         </form>
         :
         <div className="d-flex justify-content-end">
-            <div className="m-1">
-                <button type="button" className="btn btn-primary" aria-label="Agregar otro" onClick={this.reiniciarCampos}>Agregar otro</button>
-            </div>
+            {this.accion === "Agregar" ? 
+                <div className="m-1">
+                    <button type="button" className="btn btn-primary" aria-label="Agregar otro" onClick={this.reiniciarCampos}>Agregar otro</button>
+                </div>
+            :
+                <></>}
             {this.props.cerrarModal ?
             <div className="m-1">
                 <button type="button" className="btn btn-secondary" aria-label="Volver" onClick={()=>{this.props.cerrarModal();this.reiniciarCampos()}}>Volver</button>
