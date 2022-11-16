@@ -1,14 +1,9 @@
 import { Editor, Frame, Element } from '@craftjs/core';
 import React from 'react';
-import ContainerB from 'react-bootstrap/Container';
-import Row from 'react-bootstrap/Row';
-import Col from 'react-bootstrap/Col';
 
 import { SettingsPanel } from './SettingsPanel';
 import { Toolbox } from './Toolbox';
-import { Topbar } from './Topbar';
 import { Button } from '../Componentes/Button';
-import { Card, CardBottom, CardTop } from '../Componentes/Card';
 import { Container } from '../Componentes/Container';
 import { Text } from '../Componentes/Text';
 import { Header } from './Header';
@@ -16,7 +11,6 @@ import { Image } from '../Componentes/Image';
 import { Video } from '../Componentes/Video';
 import { Contacto } from '../Componentes/Contacto';
 
-import QueriesGenerales from '../QueriesGenerales';
 
 import { RenderNode } from './RenderNode';
 import { Viewport } from './Viewport';
@@ -36,12 +30,9 @@ export default function App(props) {
   return (
       <Editor
         resolver={{
-          Card,
           Button,
           Text,
           Container,
-          CardTop,
-          CardBottom,
           Image,
           Video,
           Contacto,
@@ -161,29 +152,6 @@ export default function App(props) {
                                 color="#160C28"
                                 text={loremIpsum} />
                           </Element>
-                      </Element>
-                  </Element>
-                  <Element
-                    canvas
-                    is={Container}
-                    type="row" >
-                      <Element
-                        canvas
-                        is={Container}
-                        backgroundColor="#9E1327"
-                        width={100}
-                        widthUnit="%"
-                        widthCustom={true}
-                        paddingTop={0.375}
-                        paddingRight={0.75}
-                        paddingBottom={0.375}
-                        paddingLeft={0.75}
-                        type="column" >
-                          <Text
-                            tag="h4"
-                            color="#FFFFFF"
-                            text="Noticias"
-                            textAlign="center" />
                       </Element>
                   </Element>
                   <Element

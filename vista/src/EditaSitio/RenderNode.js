@@ -1,7 +1,8 @@
 /**
- * Este código fue tomado de https://codesandbox.io/s/9lmx8?file=/components/editor/RenderNode.tsx
- * se le hicieron pequeñas modificaciones para que se ajustaran
- * al proyecto
+ * Este código fue en su mayoría tomado de: 
+ * https://codesandbox.io/s/9lmx8?file=/components/editor/RenderNode.tsx
+ * que es el ejemplo avanzado de usar la biblioteca craft.js
+ * se le hicieron pequeñas modificaciones para que se ajustaran al proyecto
  */
 
 import { useNode, useEditor } from '@craftjs/core';
@@ -54,27 +55,6 @@ export const RenderNode = ({ render }) => {
     };
   }, []);
 
-  const scroll = useCallback(() => {
-    const { current: currentDOM } = currentRef;
-
-    if (!currentDOM) return;
-    const { top, left } = getPos(dom);
-    currentDOM.style.top = top;
-    currentDOM.style.left = left;
-  }, [dom, getPos]);
-
-  useEffect(() => {
-    document
-      .querySelector('.craftjs-renderer')
-      .addEventListener('scroll', scroll);
-
-    return () => {
-      document
-        .querySelector('.craftjs-renderer')
-        .removeEventListener('scroll', scroll);
-    };
-  }, [scroll]);
-
   return (
     <>
       {isHover || isActive
@@ -86,6 +66,9 @@ export const RenderNode = ({ render }) => {
                 left: getPos(dom).left,
                 top: getPos(dom).top,
                 zIndex: 9999,
+              }}
+              onClick={() => {
+                actions.selectNode(id);
               }}
             >
               <h2 className="me-2 indicator-h2">{name}</h2>

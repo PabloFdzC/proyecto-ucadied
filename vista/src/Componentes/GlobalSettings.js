@@ -17,10 +17,10 @@ export const GlobalTextSettings = (props) => {
                onChange={(e) => manejaCambio(props.setProp, "text", e)} />
         </div>
         <div className="mb-3">
-            <label htmlFor="colorFondo" className="form-label">Color</label>
+            <label htmlFor="colorLetras" className="form-label">Color de letras</label>
             <SeleccionColor
-              id="colorFondo"
-              name="colorFondo"
+              id="colorLetras"
+              name="colorLetras"
               value={props.color}
               onChange={(e) => manejaCambio(props.setProp, "color", e)}
               onChangeComplete={(e) => props.setProp((p) => (p.color = e.hex))} />

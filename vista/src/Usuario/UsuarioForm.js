@@ -166,7 +166,9 @@ class UsuarioForm extends React.Component {
                 } else {
                     const resp = await this.queriesGenerales.postear(url+"/crear", campos); 
                     campos.id = resp.data.usuario_creado.id;
-                    campos.id_puesto = resp.data.puesto_creado.id;
+                    if((typeof resp.data.puesto_creado) === 'object' && resp.data.puesto_creado){
+                        campos.id_puesto = resp.data.puesto_creado.id;
+                    }
                     nuevoEstado.titulo = "¡Agregado con Éxito!";
                     nuevoEstado.contrasenna = resp.data.contrasenna;
                 }

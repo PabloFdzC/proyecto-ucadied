@@ -23,6 +23,7 @@ class JuntaDirectiva extends React.Component {
         this.queriesGenerales = new QueriesGenerales();
         this.state = {
             Puesto:{},
+            Usuario:{},
             puestos:[],
             key: "puestos",
             muestraPuestoF:false,
@@ -60,7 +61,7 @@ class JuntaDirectiva extends React.Component {
         this.setState({
             [nombre]:valor,
             ["muestra"+nombre+"F"]:muestra,
-        })
+        });
     }
 
     /*
@@ -96,7 +97,7 @@ class JuntaDirectiva extends React.Component {
             this.organizacionPedida = true;
             try{
                 await this.props.cargarOrganizacion(this.props.idOrganizacion);
-                this.cargarPuestos(this.props.idOrganizacion);
+                await this.cargarPuestos(this.props.idOrganizacion);
             }catch(err){
                 console.log(err);
             }
@@ -116,7 +117,6 @@ class JuntaDirectiva extends React.Component {
                 id_organizacion: idOrganizacion,
             });
             var puestosLista = [];
-            console.log(resp);
             for(let m of resp.data){
                 var puesto = {
                     id_usuario: m.id_usuario.toString(),
@@ -251,9 +251,22 @@ class JuntaDirectiva extends React.Component {
                                     <h2 className="ms-3 fs-4">{organizacion.nombre}</h2>
                                 </div>
                                 <div className="d-flex justify-content-end">
-                                    <div className="m-1">
-                                        <button className="btn btn-primary" onClick={()=>this.muestraModal(organizacion.id === organizacion.id_organizacion ?"Puesto":"Usuario",true)}><i className="lni lni-plus"></i>  Agregar miembro</button>
-                                    </div>
+                                    {organizacion.id === organizacion.id_organizacion ?
+                                        <>
+                                        <div className="m-1">
+                                            <button className="btn btn-primary" onClick={()=>this.muestraModal("Puesto",true)}><i className="lni lni-plus"></i>  Agregar puesto a usuario</button>
+                                        </div>
+                                        </>
+                                    :
+                                        <>
+                                        <div className="m-1">
+                                            <button className="btn btn-dark" onClick={()=>this.muestraModal("Puesto",true)}><i className="lni lni-plus"></i>  Agregar puesto a usuario</button>
+                                        </div>
+                                        <div className="m-1">
+                                            <button className="btn btn-primary" onClick={()=>this.muestraModal("Usuario",true)}><i className="lni lni-plus"></i>  Agregar miembro</button>
+                                        </div>
+                                        </>
+                                    }
                                 </div>
                             </div>
                             <div className="d-flex" style={{height:"100%"}}>

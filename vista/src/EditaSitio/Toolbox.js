@@ -5,11 +5,11 @@ import ButtonB from 'react-bootstrap/Button';
 import ContainerB from 'react-bootstrap/Container';
 
 import { Button } from '../Componentes/Button';
-import { Card } from '../Componentes/Card';
 import { Container } from '../Componentes/Container';
 import { Text } from '../Componentes/Text';
 import { Image } from '../Componentes/Image';
 import { Video } from '../Componentes/Video';
+import { Contacto } from '../Componentes/Contacto';
 
 export const Toolbox = () => {
   const { connectors } = useEditor();
@@ -34,15 +34,18 @@ export const Toolbox = () => {
             </ButtonB>
           </div>
           <div className="m-1" style={{width:"fit-content"}}>
-            <ButtonB ref={(ref) => connectors.create(ref,<Element canvas is={Container} />)}>
+            <ButtonB ref={(ref) => connectors.create(ref,
+              <Element canvas
+                is={Container}
+                width={100}
+                widthUnit="px"
+                widthCustom={true}
+                height={100}
+                heightUnit="px"
+                heightCustom={true}
+                backgroundColor="#000" />)}>
               <i className="bi bi-bounding-box"></i>
               Contenedor
-            </ButtonB>
-          </div>
-          <div className="m-1" style={{width:"fit-content"}}>
-            <ButtonB ref={(ref) => connectors.create(ref, <Card />)}>
-              <i className="bi bi-file-slides"></i>
-              Card
             </ButtonB>
           </div>
           <div className="m-1" style={{width:"fit-content"}}>
@@ -55,6 +58,12 @@ export const Toolbox = () => {
             <ButtonB ref={(ref) => connectors.create(ref, <Video />)}>
               <i className="lni lni-video"></i>
               Video
+            </ButtonB>
+          </div>
+          <div className="m-1" style={{width:"fit-content"}}>
+            <ButtonB ref={(ref) => connectors.create(ref, <Contacto />)}>
+              <i className="bi bi-envelope"></i>
+              Contacto
             </ButtonB>
           </div>
         

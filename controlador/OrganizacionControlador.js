@@ -4,18 +4,12 @@ const queries_generales = require('./QueriesGenerales');
 const { Op } = require("sequelize");
 const sequelize = require("sequelize");
 const juntaDirectivaCtrl = require("./PuestoControlador");
+const { enviarCorreo } = require('./CorreoControlador');
 
 // Función para consultar un conjunto de organizaciones.
 // Se debe enviar como parámetro los filtros de búsqueda.
 async function consultar(params){
-    if(params.id_organizacion){
-        return await queries_generales.consultar(organizacion, {where: {
-            id: params.id_organizacion
-        }});
-    }
-    else{
-        return await queries_generales.consultar(organizacion, {});
-    }
+    return await queries_generales.consultar(organizacion, {where: params});
 }
 
 // Consulta organizaciones de un tipo, si se
@@ -100,6 +94,26 @@ async function consultarMiembros(id_organizacion){
     });
 }
 
+async function externoEnviaCorreo(info){
+    const correo = `
+    <div>
+        <h1>Datos del usuario</h1>
+        <ul style="text-align:"left", list-style:"none"">
+            <li>Nombre: ${info.nombre}</li>
+            <li>Email: ${info.email}</li>
+            <li>Telefono: ${info.telefono}</li>
+        </ul>
+    </div>
+    <div>
+        <h1>Mensaje</h1>
+        <span>${info.mensaje}</span>
+    </div>
+    <p><strong>Para responder a este mensaje debe usar el email que viene en la parte de datos del usuario.</strong><p>
+    `;
+    const asunto = "Mensaje de " + info.nombre;
+    return enviarCorreo(correo, asunto, info.email_organizacion, info.email);
+}
+
 module.exports = {
     consultar,
     consultarTipo,
@@ -108,5 +122,6 @@ module.exports = {
     eliminar,
     agregarMiembro,
     eliminarMiembro,
-    consultarMiembros
+    consultarMiembros,
+    externoEnviaCorreo,
 }

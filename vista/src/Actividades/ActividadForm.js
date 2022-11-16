@@ -348,7 +348,6 @@ class ActividadForm extends React.Component {
             } else if(this.state.errores.fechaInicio.length !== 0 || this.state.errores.fechaFinal.length !== 0 ||
                 this.state.errores.horaInicio.length !== 0 || this.state.errores.horaInicio.length !== 0 ||
                 this.state.errores.captcha.length !== 0){
-                    console.log(this.state.errores.captcha);
                 this.setState({
                     key:"Fechas"
                 });

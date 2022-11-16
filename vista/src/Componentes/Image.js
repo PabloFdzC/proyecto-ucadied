@@ -1,13 +1,17 @@
 import { useNode } from '@craftjs/core';
 import Form from 'react-bootstrap/Form';
 
-import React from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { GlobalURLSettings, GlobalDimensionsSettings } from './GlobalSettings';
 import Accordion from 'react-bootstrap/Accordion';
 
 import { unidades } from './Utilidades/Utilidades';
 
 import logoUcadied from '../Imagenes/logo-UCADIED.png';
+import QueriesGenerales from '../QueriesGenerales';
+import {usuarioContexto} from '../usuarioContexto';
+
+import './css/estilos.css';
 
 export const Image = ({
     width,
@@ -21,8 +25,8 @@ export const Image = ({
     const {
         connectors: { connect, drag },
     } = useNode();
-    width += widthCustom ? " " + widthUnit : "";
-    height += heightCustom ? " " + heightUnit : "";
+    width += widthCustom ?  widthUnit : "";
+    height += heightCustom ? heightUnit : "";
     return (
         <img
           ref={(ref) => connect(drag(ref))}
@@ -33,6 +37,10 @@ export const Image = ({
 };
 
 export const ImageSettings = () => {
+    const cargado = false;
+    const [imagenes, setImagenes] = useState([]);
+    const [errorImagenes, setErrorImagenes] = useState("");
+
     const {
         width,
         widthUnit,
@@ -51,11 +59,78 @@ export const ImageSettings = () => {
         heightCustom:node.data.props.heightCustom,
         src:node.data.props.src,
     }));
+    const queriesGGlobal = new QueriesGenerales();
+    const contexto = useContext(usuarioContexto);
+
+    const cargarImagenes = async () =>{
+        const queriesG = new QueriesGenerales();
+        const resp = await queriesG.obtener("/pagina/consultarArchivos",{
+            id_organizacion: contexto.organizacion.id,
+        });
+        setImagenes(resp.data);
+    };
+
+    const subirImagenes = async (evento) =>{
+        setErrorImagenes("");
+        const imagenesParaSubir = evento.target.files;
+        const queriesG = new QueriesGenerales({
+            headers:{'content-type': 'multipart/form-data'}
+        });
+        const formData = new FormData();
+        formData.append("id_organizacion", contexto.organizacion.id);
+        for(let i = 0; i < imagenesParaSubir.length; i++){
+            formData.append("archivos", imagenesParaSubir[i]);
+        }
+        try{
+            const resp = await queriesG.postear("/pagina/subirArchivos",formData);
+            console.log(resp.data);
+            setImagenes(imagenes.concat(resp.data));
+        }catch(error){
+            console.log(error);
+            setErrorImagenes(imagenesParaSubir.length > 1 ? "No se pudieron subir las imágenes":"No se pudo subir la imagen");
+        }
+        
+    };
+
+    useEffect(() => {
+        async function cargar(){
+            await cargarImagenes();
+        }
+        cargar();
+      }, [cargado]);
 
     return (
         <div className="p-2">
             <Form>
+                <h5>Lista de imágenes</h5>
+                <div className="row overflow-auto p-1" style={{maxHeight:"200px"}}>
+                    {imagenes.map((value, index)=>
+                        <div className="col-4 p-0 selecciona-imagen" key={index} onClick={()=>setProp((p) => (p.src = queriesGGlobal.url+value.url))}>
+                            <img className="w-100" key={"img"+index} src={queriesGGlobal.url+value.url} />
+                        </div>
+                    )}
+                </div> 
+                <div className="mb-3 position-relative">
+                    <label htmlFor="formFile" className="form-label">Subir imagen</label>
+                    <input
+                        className={errorImagenes.length > 0 ? "form-control is-invalid":"form-control"}
+                        type="file"
+                        name="files"
+                        id="formFile"
+                        accept=".png, .jpg, .jpeg, .gif" onChange={subirImagenes} multiple />
+                    <div className="invalid-tooltip">
+                        {errorImagenes}
+                    </div>
+                </div>
                 <Accordion>
+                    <Accordion.Item eventKey="URL">
+                        <Accordion.Header>URL</Accordion.Header>
+                        <Accordion.Body>
+                        <GlobalURLSettings
+                            setProp={setProp}
+                            src={src} />
+                        </Accordion.Body>
+                    </Accordion.Item>
                     <Accordion.Item eventKey="Dimensiones">
                         <Accordion.Header>Dimensiones</Accordion.Header>
                         <Accordion.Body>
@@ -79,14 +154,6 @@ export const ImageSettings = () => {
                             customName="heightCustom" />
                         </Accordion.Body>
                     </Accordion.Item>
-                    <Accordion.Item eventKey="URL">
-                        <Accordion.Header>URL</Accordion.Header>
-                        <Accordion.Body>
-                        <GlobalURLSettings
-                            setProp={setProp}
-                            src={src} />
-                        </Accordion.Body>
-                    </Accordion.Item>
                 </Accordion>
             </Form>
         </div>
@@ -95,10 +162,10 @@ export const ImageSettings = () => {
 
 export const ImageDefaultProps = {
     width:100,
-    widthCustom:true,
+    widthCustom:false,
     widthUnit:unidades[3],
     height:100,
-    heightCustom:true,
+    heightCustom:false,
     heightUnit:unidades[3],
     src: logoUcadied
   };

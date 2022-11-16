@@ -4,23 +4,18 @@ const jsonParser  = bodyParser.json({ extended: false });
 const organizacionCtrl = require('./OrganizacionControlador');
 const nodemailer = require('nodemailer');
 
-// Ruta para consultar una organización en específico.
-// Se manda el id de la organización en la dirección.
-router.get('/consultar/:id_organizacion', async (req, res) => {
-    try{
-        const organizaciones = await organizacionCtrl.consultar(req.params);
-        res.json(organizaciones);
-    }catch(err){
-        console.log(err);
-        res.status(400);
-        res.send("Algo salió mal");
-    }
-});
 
 // Ruta para consultar todas las organizaciones.
 router.get('/consultar', async (req, res) => {
     try{
-        const organizaciones = await organizacionCtrl.consultar(req.params);
+        var params = {};
+        if(req.query.id){
+            params.id = req.query.id;
+        }
+        if(req.query.id_organizacion){
+            params.id_organizacion = req.query.id_organizacion;
+        }
+        const organizaciones = await organizacionCtrl.consultar(params);
         res.json(organizaciones);
     }catch(err){
         console.log(err);
@@ -254,6 +249,25 @@ router.post('/formContactenos', jsonParser, async (req, res) => {
         else{
             res.status(400);
             res.send("Parámetros incorrectos");
+        }
+    }catch(err){
+        console.log(err);
+        res.status(400);
+        res.send("Algo salió mal");
+    }
+});
+
+router.post('/crear', jsonParser, async (req, res) => {
+    try{
+        const resp = await verificarCaptcha(req.body.captcha);
+        delete req.body.captcha;
+        if(resp.exito){
+            const correo = await organizacionCtrl.externoEnviaCorreo(req.body);
+            res.json(correo);
+        } else { 
+            console.log(resp);
+            res.status(400);
+            res.send(resp);    
         }
     }catch(err){
         console.log(err);

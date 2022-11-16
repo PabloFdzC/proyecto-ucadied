@@ -34,16 +34,17 @@ async function eliminar(id){
 // Función para guardar los archivos en la base de datos
 // recibe una lista con los archivos y el id de la organización.
 async function crear_archivos(archivos, id_organizacion){
-    let archivo = {}
+    const archivoParaSubir = [];
     for(var i = 0; i < archivos.length; i+=1){
-        archivo = {
-            url: "archivos/" + archivos[i].filename,
-            tipo: asignar_tipo(archivos[i].mimetype),
+        const tipo = asignar_tipo(archivos[i].mimetype);
+        const archivo = {
+            url: "archivos/"+ tipo+"/" + archivos[i].filename,
+            tipo: tipo,
             id_organizacion
         }
-        await queries_generales.crear(multimedia, archivo);
+        archivoParaSubir.push(archivo);
     }
-    return {success: "Archivos guardados"};
+    return await queries_generales.crear_varios(multimedia, archivoParaSubir);
 }
 
 // Le asigna el tipo a los archivos, pueden ser imágenes

@@ -3,12 +3,15 @@ import QueriesGenerales from "../QueriesGenerales";
 import manejarCambio from '../Utilidades/manejarCambio';
 import Validacion from '../Utilidades/Validacion';
 
+import Reaptcha from 'reaptcha';
+
 class ContactoForm extends React.Component {
     constructor(props){
         super(props);
         this.queriesGenerales = new QueriesGenerales();
         this.organizacionPedida = false;
         var campos = {
+            captcha:"",
             nombre: "",
             email: "",
             telefono: "",
@@ -25,6 +28,7 @@ class ContactoForm extends React.Component {
         this.state = {
             campos:campos,
             errores: {
+                captcha:"",
                 nombre: "",
                 email: "",
                 telefono: "",
@@ -37,14 +41,16 @@ class ContactoForm extends React.Component {
             enviado:false,
         };
         this.validacion = new Validacion({
+            captcha:"captcha",
             nombre: "requerido",
-            email: "requerido",
-            telefono: "requerido",
+            email: "requerido|email",
+            telefono: "requerido|numeros",
             mensaje: "requerido"
         }, this);
 
         this.manejaCambio = this.manejaCambio.bind(this);
         this.enviarMensaje = this.enviarMensaje.bind(this);
+        this.captchaVerificado = this.captchaVerificado.bind(this);
     }
 
     reiniciarCampos(){
@@ -70,10 +76,12 @@ class ContactoForm extends React.Component {
         if(!this.state.errores.hayError){
             try{
                 const campos = {
+                    captcha:this.state.campos.captcha,
                     nombre:this.state.campos.nombre,
                     email:this.state.campos.email,
                     telefono:this.state.campos.telefono,
                     mensaje:this.state.campos.mensaje,
+                    email_organizacion: this.props.emailOrganizacion,
                 }
                 const resp = await this.queriesGenerales.postear("/enviarMensaje", campos);
                 this.setState({
@@ -87,8 +95,29 @@ class ContactoForm extends React.Component {
         }
     }
 
+    captchaVerificado(captcha){
+        this.setState({
+            campos: Object.assign({}, this.state.campos, {
+                captcha,
+            }),
+        });
+    }
+
 
     render(){
+        const captcha =
+        <div className="mb-3 position-relative">
+            <Reaptcha
+                onVerify={this.captchaVerificado}
+                onExpired={()=>this.captchaVerificado("")}
+                onError={()=>this.captchaVerificado("")}
+                sitekey="6Leu-2kiAAAAAMHi78aFYa-E444kM55j7bRqQyMa" />
+            <input className={this.state.errores.captcha.length > 0 ? "form-control is-invalid":"form-control"} style={{display:"none"}} />
+            <div className="invalid-tooltip">
+                {this.state.errores.captcha}
+            </div>
+        </div>;
+
         return (   
         <>
             <h3>Envíar mensaje</h3>
@@ -124,6 +153,7 @@ class ContactoForm extends React.Component {
                         {this.state.errores.mensaje}
                     </div>
                 </div>
+                {captcha}
                 <div className="d-flex justify-content-end">
                     <div className="m-1">
                         <button type="submit" className="btn btn-primary">Enviar</button>

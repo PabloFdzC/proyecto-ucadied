@@ -1,10 +1,14 @@
 import axios from 'axios'
 
 class QueriesGenerales {
-    constructor(){
+    constructor(config){
+        if(!config){
+            config = {};
+        }
+        this.url = config.url ? config.url : "http://localhost:8080/";
         this.http = axios.create({
-            baseURL: "http://localhost:8080/", 
-            headers: {
+            baseURL: this.url, 
+            headers: (typeof config.headers) === "object" &&  config.headers ? config.headers : {
             "Content-type": "application/json"
             },
             withCredentials: true

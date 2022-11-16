@@ -4,6 +4,7 @@ const path = require('path');
 const ApiRouter = require('./controlador/api');
 const session = require('express-session');
 const MemoryStore = require('memorystore')(session);
+const fs = require("fs");
 
 const app = express();
 app.use(cors({
@@ -14,7 +15,11 @@ app.use(cors({
 
 require("./creacion_base");
 
-app.use('/archivos', express.static('archivos'));
+// Aquí primero se crea la carpeta de archivos/Imagen
+const ubicacionArchivos = path.join(__dirname, 'archivos/Imagen');
+fs.mkdirSync(ubicacionArchivos, { recursive: true });
+// Luego se hace pública
+app.use('/archivos/Imagen', express.static(ubicacionArchivos));
 
 
 var sess = {

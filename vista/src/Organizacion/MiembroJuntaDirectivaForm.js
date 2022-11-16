@@ -16,12 +16,13 @@ class MiembroJuntaDirectivaForm extends React.Component {
             id_usuario: this.campos.id_usuario ? {
                 value: this.campos.id_usuario,
                 label: this.campos.nombre,
-            } : "",
+            } : null,
             puesto: this.campos.puesto ? this.campos.puesto : "",
             edita_pagina: this.campos.edita_pagina ? this.campos.edita_pagina : false,
             edita_junta: this.campos.edita_junta ? this.campos.edita_junta : false,
             edita_proyecto: this.campos.edita_proyecto ? this.campos.edita_proyecto : false,
             edita_actividad: this.campos.edita_actividad ? this.campos.edita_actividad : false,
+            id_asociacion: null,
         };
         this.state = {
             titulo:this.titulo,
@@ -32,9 +33,9 @@ class MiembroJuntaDirectivaForm extends React.Component {
                 puesto:"",
             },
             usuarios:[],
+            asociaciones:[],
             enviado:false,
         };
-
         this.validacion = new Validacion({
             id_usuario: "seleccionado",
             puesto: "seleccionado",
@@ -44,6 +45,7 @@ class MiembroJuntaDirectivaForm extends React.Component {
         this.enviarMiembro = this.enviarMiembro.bind(this);
         this.manejaCambio = this.manejaCambio.bind(this);
         this.reiniciarCampos = this.reiniciarCampos.bind(this);
+        this.cambioAsociacion = this.cambioAsociacion.bind(this);
     }
 
     reiniciarCampos(){
@@ -100,42 +102,91 @@ class MiembroJuntaDirectivaForm extends React.Component {
     }
 
     async cargarUsuarios(){
-        if(this.props.idOrganizacion){
-            try{
-                var usuarios = this.state.usuarios;
-                let params = this.props.esUnion ? {tipo:"Usuario"}: {id_organizacion:this.props.idOrganizacion,tipo:"Usuario"};
-                const resp = await this.queriesGenerales.obtener("/usuario/consultar", params);
-                var usuariosSelect = [];
-                for(let usuario of resp.data){
-                    usuariosSelect.push({
-                        label:usuario.nombre,
-                        value:usuario.id,
-                    });
-                }
-                this.setState({
-                    usuarios:usuarios.concat(usuariosSelect),
+        try{
+            let params = {tipo:"Usuario"};
+            if(this.props.esUnion){
+                params.id_organizacion = this.state.campos.id_asociacion.value;
+            } else {
+                params.id_organizacion = this.props.idOrganizacion;
+            }
+            const resp = await this.queriesGenerales.obtener("/usuario/consultar", params);
+            const usuariosSelect = [];
+            for(let usuario of resp.data){
+                usuariosSelect.push({
+                    label:usuario.nombre,
+                    value:usuario.id,
                 });
-            } catch(err){
+            }
+            this.setState({
+                usuarios:usuariosSelect,
+                campos: Object.assign({}, this.state.campos, {
+                    id_usuario: null,
+                }),
+            });
+        } catch(err){
+            if(this.state.campos.id_asociacion){
                 console.log(err);
             }
         }
+        
     }
 
-    componentDidUpdate(prevProps, prevState, snapshot){
-        if(prevProps.idOrganizacion != this.props.idOrganizacion){
-            this.cargarUsuarios();
+    async cargarAsociaciones(){
+        var asociaciones = this.state.asociaciones;
+        const resp = await this.queriesGenerales.obtener("/organizacion/consultarTipo/0", {});
+        const asociacionesSelect = [];
+        let asociacionSeleccionada = {};
+        for(let asociacion of resp.data){
+            let meteAsociacion = {
+                label:asociacion.nombre,
+                value:asociacion.id,
+            };
+            asociacionesSelect.push(meteAsociacion);
+            if(asociacion.id === this.campos.id_asociacion){
+                asociacionSeleccionada = meteAsociacion;
+            }
         }
+        this.setState({
+            asociaciones:asociaciones.concat(asociacionesSelect),
+            campos: Object.assign({}, this.state.campos, {
+                id_asociacion: asociacionSeleccionada,
+            }),
+        });
     }
+
+    // componentDidUpdate(prevProps, prevState, snapshot){
+    //     if(prevProps.idOrganizacion != this.props.idOrganizacion){
+    //         this.cargarUsuarios();
+    //     }
+    // }
 
     /*
     componentDidMount es una función de react que
     se llama antes de hacer el render y llama a cargar
     los usuarios
     */
-    componentDidMount() {
-        if(!this.usuariosPedidos){
+    async componentDidMount() {
+        if(!this.asociacionesPedidas){
+            this.asociacionesPedidas = true;
+            await this.cargarAsociaciones();
+        }
+        if(!this.usuariosPedidos && !this.props.esUnion){
             this.usuariosPedidos = true;
-            this.cargarUsuarios();
+            await this.cargarUsuarios();
+        }
+    }
+
+    async cambioAsociacion(opcion){
+        await this.manejaCambio({target:{name:"id_asociacion",type:"select",value:opcion}});
+        if(!opcion){
+            this.setState({
+                campos: Object.assign({}, this.state.campos, {
+                    id_usuario: opcion,
+                }),
+                usuarios:[],
+            });
+        } else {
+            await this.cargarUsuarios();
         }
     }
 
@@ -145,13 +196,36 @@ class MiembroJuntaDirectivaForm extends React.Component {
             <h2 className="modal-title text-center">{this.state.titulo}</h2>
             {!this.state.enviado ?
             <form onSubmit={this.enviarMiembro} className="needs-validation" noValidate>
+                {this.props.esUnion ?
+                    <div className="mb-3 position-relative">
+                        <label htmlFor="id_asociacion" className="form-label">Asociación</label>
+                        <div className="p-0 form-control">
+                            <Select
+                            isDisabled={this.accion === "Modificar"}
+                            isClearable
+                            key="id_asociacion"
+                            name="id_asociacion"
+                            required
+                            // value={this.state.campos.id_asociacion}
+                            onChange={this.cambioAsociacion}
+                            options={this.state.asociaciones}
+                            />
+                        </div>
+                    </div>
+                :
+                    <></>
+                }
                 <div className="mb-3 position-relative">
                     <label htmlFor="id_usuario" className="form-label">Nombre</label>
                     <div className={this.state.errores.id_usuario.length > 0 ? "p-0 form-control is-invalid":"p-0 form-control"}>
                         <Select
                         isDisabled={this.accion === "Modificar"}
                         isClearable
-                        key="id_usuario" name="id_usuario" required value={this.state.campos.id_usuario} onChange={(opcion)=>this.manejaCambio({target:{name:"id_usuario",type:"select",value:opcion}})}
+                        key="id_usuario"
+                        name="id_usuario"
+                        required
+                        value={this.state.campos.id_usuario}
+                        onChange={(opcion)=>this.manejaCambio({target:{name:"id_usuario",type:"select",value:opcion}})}
                         options={this.state.usuarios}
                         />
                     </div>

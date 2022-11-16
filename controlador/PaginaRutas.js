@@ -10,7 +10,7 @@ const path = require('path');
 // y se define el nombre que tendrán.
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-        cb(null, path.join(__dirname, '../archivos/'))
+        cb(null, path.join(__dirname, '../archivos/Imagen'))
     },
     filename: function (req, file, cb) {
             cb(null, "archivo_" + Date.now() + file.originalname.match(/\..*$/)[0])
@@ -188,8 +188,6 @@ router.delete('/eliminar/:id_pagina', async (req, res) => {
 // organización.
 router.post('/subirArchivos', multi_upload, async (req, res) => {
     try{
-        console.log(req.body);
-        console.log(req.files);
         var error_encontrado = false;
         var habilitado = false;
         if(req.session.idUsuario && req.session.idUsuario != -1){

@@ -1,3 +1,10 @@
+/**
+ * Este código fue en su mayoría tomado de: 
+ * https://codesandbox.io/s/9lmx8?file=/components/editor/Viewport/index.tsx
+ * que es el ejemplo avanzado de usar la biblioteca craft.js
+ * se le hicieron pequeñas modificaciones para que se ajustaran al proyecto
+ */
+
 import { useEditor } from '@craftjs/core';
 import React, { useEffect } from 'react';
 
@@ -18,7 +25,6 @@ export const Viewport = ({ children }) => {
     }
 
     window.requestAnimationFrame(() => {
-      // Notify doc site
       window.parent.postMessage(
         {
           LANDING_PAGE_LOADED: true,

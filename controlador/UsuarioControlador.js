@@ -4,7 +4,7 @@ const usuario = require('../modelo/usuario');
 const queries_generales = require('./QueriesGenerales');
 const organizacionCtrl = require('./OrganizacionControlador');
 const puestoCtlr = require('./PuestoControlador');
-const nodemailer = require('nodemailer');
+const correoCtlr = require('./CorreoControlador');
 
 // Esta función se encarga de crear una contraseña aleatoria de 16 dígitos
 // a través de letras mayúsculas y mínúsculas y números.
@@ -18,32 +18,6 @@ function creadorContrasenna(){
         contrasenna += caracteres[valor_random];
     }
     return contrasenna;
-}
-
-async function enviarContrasennaCorreo(email, contrasenna){
-    var transporter = nodemailer.createTransport({
-        service: 'gmail',
-        auth: {
-        user: 'sistemaucadied@gmail.com',
-        pass: 'bxlumqofylsqxqjk'
-        }
-    });
-    var mailOptions = {
-        from: 'sistemaucadied@gmail.com',
-        to: email,
-        subject: 'Su correo y contraseña en el sistema UCADIED',
-        html: `
-        <div>
-        <span>Acaba de registrarse correctamente en el sistema de UCADIED, sus datos de inicio de sesión son los siguientes:</span>
-        </div>
-        <div>
-            <p>Correo: ${email}<p>
-            <p>Contraseña: ${contrasenna}<p>
-        </div>
-        <p>Este es un mensaje automatizado, favor no responder a esta dirección.<p>
-        `
-    };
-    await transporter.sendMail(mailOptions);
 }
 
 // Crea un usuario con una contraseña aleatoria
@@ -67,7 +41,18 @@ async function crear(info){
             edita_actividad: info.edita_actividad,
         })
     }
-    await enviarContrasennaCorreo(info.email, contrasenna);
+    await correoCtlr.enviarCorreo(`
+            <div>
+            <span>Acaba de registrarse correctamente en el sistema de UCADIED, sus datos de inicio de sesión son los siguientes:</span>
+            </div>
+            <div>
+                <p>Correo:${info.email}<p>
+                <p>Contraseña:${contrasenna}<p>
+            </div>
+            <p>Este es un mensaje automatizado, favor no responder a esta dirección.<p>
+            `,
+            'Su correo y contraseña en el sistema UCADIED',
+            info.email);
     return {
         usuario_creado,
         puesto_creado,
@@ -132,12 +117,10 @@ async function iniciarSesion(info){
         if(match){
             var organizacion = {};
             var puestos = [];
-            if(usuario_info.id_organizacion){
-                organizacion = await organizacionCtrl.consultar({id_organizacion:usuario_info.id_organizacion});
-                organizacion = organizacion[0];
-            }
             if(usuario_info.tipo === "Usuario"){
                 puestos = await puestoCtlr.consultar_puestos_usuario(usuario_info.id);
+                organizacion = await organizacionCtrl.consultar({id:usuario_info.id_organizacion});
+                organizacion = organizacion[0];
             }
             return {
                 id_usuario: usuario_info.id,
@@ -149,11 +132,11 @@ async function iniciarSesion(info){
             };
         }
         else{
-            throw {error: "Email o contraseña incorrectos"};
+            return {error: "Email o contraseña incorrectos"};
         }
     }
     else{
-        throw {error: "Email o contraseña incorrectos"};
+        return {error: "Email o contraseña incorrectos"};
     }
 }
 
@@ -184,7 +167,17 @@ async function restablecerContrasenna(info){
         if(usuario.length === 1){
             const contrasenna = creadorContrasenna();
             const resp = await modificar(usuario[0].id, {contrasenna});
-            await enviarContrasennaCorreo(info.email, contrasenna)
+            await correoCtlr.enviarCorreo(`
+            <div>
+            <span>La nueva contraseña es:</span>
+            </div>
+            <div>
+                ${contrasenna}
+            </div>
+            <p>Este es un mensaje automatizado, favor no responder a esta dirección.<p>
+            `,
+            'Restablecer contraseña en el sistema UCADIED',
+            info.email);
             return resp;
         }
         throw {error: "El usuario no existe."};

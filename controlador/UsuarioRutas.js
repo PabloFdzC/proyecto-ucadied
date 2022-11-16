@@ -5,25 +5,6 @@ const jsonParser  = bodyParser.json({ extended: false });
 const usuarioCtrl = require('./UsuarioControlador');
 const { verificarCaptcha } = require('./captcha');
 
-// Ruta para consultar un usuario en específico
-// se manda en la dirección el id del usuario.
-router.get('/consultar/:id_usuario', async (req, res) => {
-    try{
-        if(req.session.idUsuario && req.session.idUsuario != -1){
-            const usuario = await usuarioCtrl.consultar(req.params);
-            res.json(usuario);
-        }
-        else{
-            res.status(400);
-            res.send("Sesión no iniciada");
-        }
-    }catch (err){
-        console.log(err);
-        res.status(400);
-        res.send("Algo salió mal");
-    }
-});
-
 // Ruta para saber si hay una sesión activa
 // en el sistema.
 router.get('/sesionActiva', async (req, res) => {

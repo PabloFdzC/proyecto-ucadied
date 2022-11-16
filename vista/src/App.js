@@ -108,7 +108,10 @@ class App extends React.Component {
       puestos: usuario.puestos,
     };
     guardarLocalStorage("usuario", camposUsuario);
-    guardarLocalStorage("organizacion", usuario.organizacion);
+    console.log(usuario);
+    if((typeof usuario.organizacion) === 'object' && usuario.organizacion){
+      guardarLocalStorage("organizacion", usuario.organizacion);
+    }
     
     this.setState({
       usuario: camposUsuario,
@@ -164,8 +167,9 @@ class App extends React.Component {
   - id: número entero o string de número entero
   */
   async cargarOrganizacion(id){
+    id = parseInt(id);
     if(id !== this.state.organizacion.id || this.state.organizacion.cedula === ""){
-      const resp = await this.queriesGenerales.obtener("/organizacion/consultar/"+id, {});
+      const resp = await this.queriesGenerales.obtener("/organizacion/consultar", {id});
       if(resp.data.length > 0){
         this.actualizaOrganizacionActual(resp.data[0]);
       }
@@ -273,7 +277,7 @@ class App extends React.Component {
           <Navegacion />
           <Routes>
               <Route path="/" element={<ResuelvePrincipal ruta={this.state.organizacion.id !== -1 ? "/principal/"+this.state.organizacion.id : ""} replace />}></Route>
-              <Route path="/principal/:idOrganizacion" element={<ConParams app={this} componente={<Sitio nombre="Principal" cargarOrganizacion={this.cargarOrganizacion} />}/> } />
+              <Route path="/principal/:idOrganizacion" element={<ConParams app={this} componente={<Sitio nombre="principal" cargarOrganizacion={this.cargarOrganizacion} />}/> } />
               <Route path="/iniciarSesion" element={<IniciarSesion />} />
               <Route path="/presidencia/juntaDirectiva/:idOrganizacion" element={
                   <ConParams app={this}  componente={
@@ -284,7 +288,9 @@ class App extends React.Component {
               } />
               <Route path="/presidencia/afiliados/:idOrganizacion" element={
                   <ConParams app={this} componente={
-                    <Afiliados cargarOrganizacion={this.cargarOrganizacion} />  
+                    <TienePermiso cargarOrganizacion={this.cargarOrganizacion} ruta="/presidencia/afiliados/" permiso="edita_junta" componente={
+                      <Afiliados cargarOrganizacion={this.cargarOrganizacion} />
+                    } />
                   } />
               } />
               <Route path="/presidencia/asociaciones/" element={<Asociaciones soloVer={this.state.usuario.tipo!=="Administrador"}/>} />
@@ -324,9 +330,9 @@ class App extends React.Component {
               } />
               <Route path="/editarSitio/:idOrganizacion" element={
                   <ConParams app={this}  componente={
-                      // <TienePermiso ruta="/editarSitio/" componente={
-                          <EditarSitio cargarOrganizacion={this.cargarOrganizacion} />
-                      // } />
+                       <TienePermiso cargarOrganizacion={this.cargarOrganizacion} ruta="/editarSitio/" permiso="edita_pagina" componente={
+                          <EditarSitio  />
+                       } />
                   }/>
               } />
 

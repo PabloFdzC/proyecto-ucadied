@@ -26,7 +26,7 @@ export const Header = (props) => {
     try{
       const pagina = await queriesG.obtener("pagina/consultar", {
         id_organizacion: props.idOrganizacion,
-        nombre:"Principal",
+        nombre,
       });
       if(pagina.data.length > 0){
         const json = lz.decompress(lz.decodeBase64(pagina.data[0].componentes));
@@ -48,7 +48,7 @@ export const Header = (props) => {
         componentes,
       };
       if(idSitio){
-        await queriesG.postear("pagina/modificar/"+idSitio, datos);
+        await queriesG.modificar("pagina/modificar/"+idSitio, datos);
       } else {
         await queriesG.postear("pagina/crear", datos);
       }

@@ -1,3 +1,7 @@
 .textos{
   height: fit-content;
 }
+
+.selecciona-imagen{
+  cursor:pointer;
+}
