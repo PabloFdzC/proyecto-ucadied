@@ -10,8 +10,7 @@ const fetch = require("isomorphic-fetch");
 // bien y sino se manda un objeto con el atributo
 // error
 async function verificarCaptcha(llave){
-  //let apiCaptcha = process.env.API_CAPTCHA;
-  let apiCaptcha = "6Leu-2kiAAAAAI3yj3WBU8U5epfKzN0zC2AWT9pE";
+  let apiCaptcha = process.env.API_CAPTCHA;
   const url = `https://www.google.com/recaptcha/api/siteverify?secret=${apiCaptcha}&response=${llave}`;
   try{
     var resp = await fetch(url, {
