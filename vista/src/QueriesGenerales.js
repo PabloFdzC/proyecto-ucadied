@@ -5,7 +5,7 @@ class QueriesGenerales {
         if(!config){
             config = {};
         }
-        this.url = config.url ? config.url : "http://localhost:8080/";
+        this.url = config.url ? config.url : "http://132.226.153.180:8080/";
         this.http = axios.create({
             baseURL: this.url, 
             headers: (typeof config.headers) === "object" &&  config.headers ? config.headers : {
