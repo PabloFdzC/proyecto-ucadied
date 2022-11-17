@@ -98,5 +98,4 @@ jobs:
           sudo mkdir -p /var/node/proyecto-ucadied
           cd /var/node/proyecto-ucadied 
           sudo unzip -o ~/proyecto-ucadied/proyecto-ucadied.zip
-          sudo mkdir -p /var/node/proyecto-ucadied/archivos/Imagen
           sudo systemctl restart myapp
