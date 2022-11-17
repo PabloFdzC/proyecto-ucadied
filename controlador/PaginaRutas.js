@@ -259,7 +259,7 @@ router.delete('/eliminarArchivo/:id_archivo', async (req, res) => {
                 habilitado = true;
             }
             else{
-                const archivos = await paginaCtlr.consultar({id: req.params.id_archivo});
+                const archivos = await paginaCtlr.consultar_archivos({id: req.params.id_archivo});
                 if(archivos.length === 1){
                     const archivo = archivos[0];
                     habilitado = await puestoCtlr.consultar_permisos(req.session.idUsuario, archivo.id_organizacion, "edita_pagina");

@@ -79,7 +79,10 @@ class UsuarioForm extends React.Component {
         this.manejaCambioOrganizacion = this.manejaCambioOrganizacion.bind(this);
     }
 
-    // Falta reiniciar los otros campos
+    /*
+    reiniciarCampos devuelve los campos del formulario
+    a su valor inicial
+     */
     reiniciarCampos(){
         this.setState({
             titulo: this.props.titulo,

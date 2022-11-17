@@ -15,8 +15,16 @@ import lz from 'lzutf8';
 
 import { Link } from 'react-router-dom';
 
+/* 
+  SitioCargado se tiene que poner como componente
+  porque el hook useEditor solo puede usarse dentro
+  del componente Editor.
+  Entonces desde aquí se carga la página
+*/
 const SitioCargado = (props) => {
   const { actions } = useEditor();
+  // cargado no se modifica para que solo se cargue la
+  // página una vez
   const [cargado, setCargado] = useState(false);
   const [mensaje, setMensaje] = useState("");
   const queriesG = new QueriesGenerales();
@@ -28,8 +36,10 @@ const SitioCargado = (props) => {
         nombre: props.nombre
       });
       if(pagina.data.length > 0){
+        // las páginas se guardan como un string comprimido entonces
+        // es necesario descomprimirlas
         const json = lz.decompress(lz.decodeBase64(pagina.data[0].componentes));
-        //setComponentes(json);
+        // y luego usar deserialice que recibe un string json
         actions.deserialize(json);
       } else {
         setMensaje("Se debe crear el sitio");
@@ -47,6 +57,8 @@ const SitioCargado = (props) => {
   },[cargado]);
 
 
+  // Si no se ha creado la página se muestra un link para
+  // redirigir al usuario a crear la página
   return <>
       {mensaje.length > 0?
         <div className="d-flex flex-column center-text justify-content-center align-items-center" style={{height:"inherit"}}>
@@ -60,6 +72,8 @@ const SitioCargado = (props) => {
 }
 
 export default function Sitio(props){
+  // cargado no se modifica para que solo se cargue la
+  // página una vez
   const [cargado, setCargado] = useState(false);
 
 

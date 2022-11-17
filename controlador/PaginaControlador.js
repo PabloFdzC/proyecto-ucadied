@@ -2,6 +2,7 @@ const pagina = require('../modelo/pagina');
 const multimedia = require('../modelo/multimedia');
 const queries_generales = require('./QueriesGenerales');
 const fs = require('fs');
+const path = require('path');
 
 // Función para consultar un conjunto de páginas.
 // Se debe enviar como parámetro los filtros de
@@ -80,7 +81,14 @@ async function consultar_archivos(params){
 // Función para eliminar un archivo de la
 // base de datos, recibe el id del archivo.
 async function eliminar_archivo(id){
-    return await queries_generales.eliminar(multimedia, {id});
+    const archivo = await consultar_archivos({id});
+    const lugar = path.join(__dirname, "../"+archivo[0].url);
+    return fs.unlink(lugar, async (error) => {
+        if(error){
+            throw {error: "No se pudo eliminar el archivo."};
+        }
+        return await queries_generales.eliminar(multimedia, {id});
+    });
 }
 
 module.exports = {

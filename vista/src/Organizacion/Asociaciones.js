@@ -4,27 +4,41 @@ import QueriesGenerales from "../QueriesGenerales";
 import CajasOrganizaciones from './CajasOrganizaciones';
 import Modal from 'react-bootstrap/Modal';
 import '../Estilos/Modal.css';
+import { buscarEnListaPorId } from '../Utilidades/ManejoLista';
+import ConfirmaAccion from '../Utilidades/ConfirmaAccion';
 
+/*
+Recibe los props:
+soloVer: booleano para saber si solo se muestra un botón para
+    visitar las asociaciones o los otros para modificar, eliminar
+    y redireccionar a la junta directiva
+ */
 class Asociaciones extends React.Component {
     constructor(props){
         super(props);
-        this.soloVer = props.soloVer;
         this.queriesGenerales = new QueriesGenerales();
         this.state = {
             asociaciones: [],
             asociacion:{},
-            muestra:false,
-            indiceAsociacion:null,
+            muestraForm:false,
+            muestraEliminar:false,
+            mensajeModal:"",
         };
         this.asociacionesPedidas = false;
         this.avisaCreado = this.avisaCreado.bind(this);
         this.eliminarAsociacion = this.eliminarAsociacion.bind(this);
         this.muestraModal = this.muestraModal.bind(this);
-        this.agregarAsociacion = this.agregarAsociacion.bind(this);
-        console.log("ASOCIACIONES");
     }
 
-    agregarAsociacion(asociacion,indice){
+    /*
+    muestraModal muestra el modal ya sea Form o Eliminar
+    Parámetros:
+    - nombre: string que se usa para saber cual modal abrir
+    - muestra: booleano si es true muestra el modal sino lo cierra
+    - asociacion: Objeto con los datos de la asociación solo
+        necesario si se va a modificar o eliminar
+    */
+    muestraModal(nombre, muestra, asociacion){
         if(asociacion){
             if(asociacion.puestos){
                 asociacion.puestos = [];
@@ -33,34 +47,33 @@ class Asociaciones extends React.Component {
             asociacion={};
         }
         this.setState({
-            asociacion:asociacion,
-            muestra:true,
-            indiceAsociacion: indice
+            asociacion,
+            ["muestra"+nombre]:muestra,
         })
     }
 
-    muestraModal(muestra){
-        this.setState({
-            muestra:muestra,
-        })
-    }
-
-    async eliminarAsociacion(id){
+    /*
+    eliminarAsociacion hace lo que dice la quita de la interfaz
+    */
+    async eliminarAsociacion(){
         try{
+            const id = this.state.asociacion.id;
             await this.queriesGenerales.eliminar("/organizacion/eliminar/"+id, {});
-            let i = -1;
-            for (let j = 0; j < this.state.asociaciones.length; j++){
-                if(this.state.asociaciones[j].id === id) i = j;
+            const indice = buscarEnListaPorId(this.state.asociaciones, id);
+            if(indice > -1){
+                this.state.asociaciones.splice(indice, 1);
             }
-            if (i > -1){
-                this.state.asociaciones.splice(i, 1);
-                this.setState({});
-            }
+            this.setState({
+                mensajeModal: "¡Eliminado con éxito!",
+            });
         } catch(err){
             console.log(err);
         }
     }
 
+    /*
+    cargarAsociaciones hace lo que dice las muestra
+    */
     async cargarAsociaciones(){
         try{
             var asociaciones = this.state.asociaciones;
@@ -99,17 +112,36 @@ class Asociaciones extends React.Component {
                 <div className="d-flex align-items-center justify-content-between m-3">
                     <h1>Asociaciones</h1>
                     {this.props.soloVer ? <></>:
-                    <button className="btn btn-primary" onClick={()=>this.agregarAsociacion()}><i className="lni lni-plus"></i>  Agregar asociación</button>}
+                    <button className="btn btn-primary" onClick={()=>this.muestraModal("Form", true)}><i className="lni lni-plus"></i>  Agregar asociación</button>}
                 </div>
                 <div className="row m-0">
-                    <CajasOrganizaciones organizaciones={this.state.asociaciones} modificar={this.agregarAsociacion} eliminar={this.eliminarAsociacion} soloVer={this.props.soloVer} />
+                    <CajasOrganizaciones organizaciones={this.state.asociaciones} modificar={(asociacion)=>this.muestraModal("Form",true,asociacion)} eliminar={(asociacion)=>this.muestraModal("Eliminar", true,asociacion)} soloVer={this.props.soloVer} />
                 </div>
                 {this.props.soloVer ? <></>:
-                    <Modal size="lg" show={this.state.muestra} onHide={()=>this.muestraModal(false)} className="modal-green" centered>
+                    <>
+                    <Modal size="lg" show={this.state.muestraForm} onHide={()=>this.muestraModal("Form",false)} className="modal-green" centered>
                     <Modal.Body>
-                        <OrganizacionForm titulo={"Asociación"} avisaCreado={this.avisaCreado} campos={this.state.asociacion} cerrarModal={()=>this.muestraModal(false)} />
+                        <OrganizacionForm titulo={"Asociación"} avisaCreado={this.avisaCreado} campos={this.state.asociacion} cerrarModal={()=>this.muestraModal("Form",false)} />
                     </Modal.Body>
                     </Modal>
+                    <Modal show={this.state.muestraEliminar} onHide={()=>this.muestraModal("Eliminar",false)} className="modal-green" centered>
+                    <Modal.Body>
+                        {this.state.mensajeModal === "" ?
+                            <ConfirmaAccion claseBtn={"btn-danger"} titulo={"¿Desea eliminar a "+this.state.asociacion.nombre+"?"} accion={this.eliminarAsociacion} cerrarModal={()=>this.muestraModal("Eliminar",false)} accionNombre="Eliminar" />
+                        :
+                            <>
+                                <h3 className="text-center">{this.state.mensajeModal}</h3>
+                                <div className="d-flex justify-content-end">
+                                    <div className="m-1">
+                                        <button type="button" className="btn btn-secondary" aria-label="Volver" onClick={()=>this.muestraModal("Eliminar",false)}>Volver</button>
+                                    </div>
+                                </div>
+                            </>
+                        }
+                        
+                    </Modal.Body>
+                    </Modal>
+                    </>
                     }
             </>
         );

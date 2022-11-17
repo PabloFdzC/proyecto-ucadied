@@ -54,6 +54,10 @@ class OrganizacionForm extends React.Component {
         this.crearProyecto = this.crearProyecto.bind(this);
     }
 
+    /*
+    reiniciarCampos devuelve los campos del formulario
+    a su valor inicial
+     */
     reiniciarCampos(){
         this.setState({
             titulo: this.titulo,
