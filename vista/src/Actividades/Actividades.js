@@ -274,9 +274,15 @@ class Actividades extends React.Component {
         })
     }
 
+    /*
+    habilitarReservas habilita ya sea una reserva o todas las
+    de la actividad
+     */
     async habilitarReservas(){
         var datos = {};
         if(Object.keys(this.state.Reserva).length > 0){
+            // dias se manda como lista para poder usar la
+            // misma api a que si fueramos a habilitar varias
             datos = {
                 id_inmueble: this.state.Reserva.id_inmueble,
                 dias: [{
@@ -317,6 +323,10 @@ class Actividades extends React.Component {
         
     }
 
+    /*
+     eliminaElementoTablaPrincipal esto es para actualizar los datos de la
+     tabla una vez se haya eliminado
+     */
     eliminaElementoTablaPrincipal(){
         var actividades = this.state.actividades;
         if(Object.keys(this.state.Reserva).length > 0){
@@ -328,6 +338,9 @@ class Actividades extends React.Component {
                             if(actividades[i].reserva_inmuebles.length === 0){
                                 actividades.splice(i, 1);
                             }
+                            // Al hacer un splice se modifica el array
+                            // in-place entonces solo hay que llamar
+                            // a que react actualice las cosas
                             this.setState({});
                             break;
                         }
@@ -339,6 +352,9 @@ class Actividades extends React.Component {
             for(let i = 0; i < actividades.length; i++){
                 if(actividades[i].id === this.state.Actividad.id){
                     actividades.splice(i, 1);
+                    // Al hacer un splice se modifica el array
+                    // in-place entonces solo hay que llamar
+                    // a que react actualice las cosas
                     this.setState({});
                     break;
                 }
@@ -346,6 +362,10 @@ class Actividades extends React.Component {
         }
     }
 
+    /*
+     eliminarReservas elimina la reserva seleccionada o todas las inhabilitadas
+     de la actividad esto según se haya seleccionado la reserva o la actividad
+     */
     async eliminarReservas(){
         if(Object.keys(this.state.Reserva).length > 0){
             try{

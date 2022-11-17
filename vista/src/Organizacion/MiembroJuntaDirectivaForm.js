@@ -5,6 +5,19 @@ import manejarCambio from '../Utilidades/manejarCambio';
 import Select from 'react-select';
 import listaPuestos from '../Utilidades/listaPuestos';
 
+/*
+Recibe los props:
+idOrganizacion: número entero que indica la organización actual
+campos: Objeto con la forma de los campos (es opcional porque solo se ocupa
+    si se va a usar el formulario para editar la organización)
+avisaEnviado: Función que permite enviar la información del formulario
+    al componente que sea el padre del componente actual (o sea este),
+    se usa para actualizar la tabla con la información que se agrega
+    cuando se envía el formulario
+cerrarModal: Función para que se cierre el modal que contiene al formulario
+    entonces solo si se pone en un modal es necesaria
+esUnion: booleano para mostrar el select de asociación
+*/
 class MiembroJuntaDirectivaForm extends React.Component {
     constructor(props){
         super(props);
@@ -49,11 +62,21 @@ class MiembroJuntaDirectivaForm extends React.Component {
         this.cambioAsociacion = this.cambioAsociacion.bind(this);
     }
 
+    /*
+    reiniciarCampos devuelve los campos del formulario
+    a su valor inicial
+     */
     reiniciarCampos(){
         this.setState({
             campos:{
-                id_usuario: "",
+                id_usuario: null,
                 puesto: "",
+                edita_pagina: false,
+                edita_junta: false,
+                edita_proyecto: false,
+                edita_actividad: false,
+                edita_inmueble: false,
+                id_asociacion: null,
             },
             titulo:this.titulo,
             enviado:false,
@@ -159,12 +182,6 @@ class MiembroJuntaDirectivaForm extends React.Component {
             }),
         });
     }
-
-    // componentDidUpdate(prevProps, prevState, snapshot){
-    //     if(prevProps.idOrganizacion != this.props.idOrganizacion){
-    //         this.cargarUsuarios();
-    //     }
-    // }
 
     /*
     componentDidMount es una función de react que

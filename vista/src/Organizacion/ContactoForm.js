@@ -53,11 +53,16 @@ class ContactoForm extends React.Component {
         this.captchaVerificado = this.captchaVerificado.bind(this);
     }
 
+    /*
+    reiniciarCampos devuelve los campos del formulario
+    a su valor inicial
+     */
     reiniciarCampos(){
         this.setState({
             titulo: this.props.titulo,
             enviado:false,
             campos: Object.assign({},this.state.campos, {
+                captcha:"",
                 nombre: "",
                 email: "",
                 telefono: "",

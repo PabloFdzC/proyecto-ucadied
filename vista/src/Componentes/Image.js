@@ -3,15 +3,19 @@ import Form from 'react-bootstrap/Form';
 
 import React, { useState, useEffect, useContext } from 'react';
 import { GlobalURLSettings, GlobalDimensionsSettings } from './GlobalSettings';
+
 import Accordion from 'react-bootstrap/Accordion';
+import Modal from 'react-bootstrap/Modal';
 
 import { unidades } from './Utilidades/Utilidades';
 
 import logoUcadied from '../Imagenes/logo-UCADIED.png';
 import QueriesGenerales from '../QueriesGenerales';
 import {usuarioContexto} from '../usuarioContexto';
+import ConfirmaAccion from '../Utilidades/ConfirmaAccion';
 
 import './css/estilos.css';
+import { buscarEnListaPorId } from '../Utilidades/ManejoLista';
 
 export const Image = ({
     width,
@@ -40,6 +44,9 @@ export const ImageSettings = () => {
     const cargado = false;
     const [imagenes, setImagenes] = useState([]);
     const [errorImagenes, setErrorImagenes] = useState("");
+    const [imagen, setImagen] = useState({});
+    const [muestra, setMuestra] = useState(false);
+    const [mensajeModal, setMensajeModal] = useState("");
 
     const {
         width,
@@ -63,8 +70,7 @@ export const ImageSettings = () => {
     const contexto = useContext(usuarioContexto);
 
     const cargarImagenes = async () =>{
-        const queriesG = new QueriesGenerales();
-        const resp = await queriesG.obtener("/pagina/consultarArchivos",{
+        const resp = await queriesGGlobal.obtener("/pagina/consultarArchivos",{
             id_organizacion: contexto.organizacion.id,
         });
         setImagenes(resp.data);
@@ -83,7 +89,6 @@ export const ImageSettings = () => {
         }
         try{
             const resp = await queriesG.postear("/pagina/subirArchivos",formData);
-            console.log(resp.data);
             setImagenes(imagenes.concat(resp.data));
         }catch(error){
             console.log(error);
@@ -99,17 +104,52 @@ export const ImageSettings = () => {
         cargar();
       }, [cargado]);
 
+    const seleccionaImagen = (img) => {
+        if(imagen.id === img.id){
+            setImagen({});
+        } else {
+            setImagen(img);
+        }
+    }
+
+    const muestraModal = (muestra) =>{
+        if((muestra && imagen.id && !isNaN(imagen.id) || !muestra)){
+            setMuestra(muestra);
+        }
+    }
+
+    const eliminarImagen = async () => {
+        try{
+            const resp = await queriesGGlobal.eliminar("/pagina/eliminarArchivo/"+imagen.id,{});
+            const indice = buscarEnListaPorId(imagenes, imagen.id);
+            if(indice > -1){
+                imagenes.splice(indice, 1);
+            }
+            await setMensajeModal("¡Eliminada con éxito!");
+            if(queriesGGlobal.url+imagen.url === src){
+                setProp((p) => {
+                    p.src = logoUcadied;
+                    setImagen({});
+                });
+            }
+        }catch(error){
+            console.log(error);
+        }
+    }
+
+    const usarImagen = () => {
+        if(imagen.id && !isNaN(imagen.id)){
+            setProp((p) => {
+                p.src = queriesGGlobal.url+imagen.url;
+                setImagen({});
+            });
+        }
+    }
+
     return (
+        <>
         <div className="p-2">
             <Form>
-                <h5>Lista de imágenes</h5>
-                <div className="row overflow-auto p-1" style={{maxHeight:"200px"}}>
-                    {imagenes.map((value, index)=>
-                        <div className="col-4 p-0 selecciona-imagen" key={index} onClick={()=>setProp((p) => (p.src = queriesGGlobal.url+value.url))}>
-                            <img className="w-100" key={"img"+index} src={queriesGGlobal.url+value.url} />
-                        </div>
-                    )}
-                </div> 
                 <div className="mb-3 position-relative">
                     <label htmlFor="formFile" className="form-label">Subir imagen</label>
                     <input
@@ -120,6 +160,28 @@ export const ImageSettings = () => {
                         accept=".png, .jpg, .jpeg, .gif" onChange={subirImagenes} multiple />
                     <div className="invalid-tooltip">
                         {errorImagenes}
+                    </div>
+                </div>
+                <h5>Lista de imágenes</h5>
+                <div className="row overflow-auto p-1" style={{maxHeight:"200px"}}>
+                    {imagenes.map((value, index)=>
+                        <div className={"col-4 p-0 selecciona-imagen" + (imagen.id === value.id ? " seleccionada-imagen": "")} key={index} onClick={()=>seleccionaImagen(value)}>
+                            <img className="w-100" key={"img"+index} src={queriesGGlobal.url+value.url} />
+                        </div>
+                    )}
+                </div> 
+                <div className="row">
+                    <div className="col">
+                        <button type="button" className="btn btn-danger" onClick={muestraModal}>
+                            <i className="lni lni-trash-can"></i>
+                              Eliminar imagen
+                            </button>
+                    </div>
+                    <div className="col">
+                        <button type="button" className="btn btn-primary" onClick={usarImagen}>
+                            <i className="lni lni-checkmark-circle"></i>
+                              Usar imagen
+                        </button>
                     </div>
                 </div>
                 <Accordion>
@@ -157,6 +219,24 @@ export const ImageSettings = () => {
                 </Accordion>
             </Form>
         </div>
+        <Modal show={muestra} onHide={()=>muestraModal(false)} className="modal-green" centered>
+        <Modal.Body>
+            {mensajeModal === "" ?
+                <ConfirmaAccion claseBtn={"btn-danger"} titulo={"¿Desea eliminar la imagen seleccionada?"} accion={eliminarImagen} cerrarModal={()=>muestraModal(false)} accionNombre="Eliminar" />
+            :
+                <>
+                    <h3 className="text-center">{mensajeModal}</h3>
+                    <div className="d-flex justify-content-end">
+                        <div className="m-1">
+                            <button type="button" className="btn btn-secondary" aria-label="Volver" onClick={()=>muestraModal(false)}>Volver</button>
+                        </div>
+                    </div>
+                </>
+            }
+            
+        </Modal.Body>
+        </Modal>
+        </>
     );
 };
 

@@ -96,6 +96,10 @@ class InmuebleForm extends React.Component {
       });
     }
 
+    /*
+    reiniciarCampos devuelve los campos del formulario
+    a su valor inicial
+     */
     reiniciarCampos(){
         this.setState({
             titulo: this.accion + " " +this.titulo,

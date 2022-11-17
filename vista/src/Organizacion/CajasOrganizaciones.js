@@ -29,9 +29,9 @@ class CajasOrganizaciones extends React.Component{
                           <Link key={"v"+i} className="btn btn-primary" to={"/principal/"+a.id}>Visitar</Link> :
                           <>
                               <Link key={"v"+i} className="btn btn-primary m-1" to={"/principal/"+a.id}><i className="lni lni-website"></i> Visitar</Link>
-                              <button key={"m"+i} className="btn btn-dark m-1" onClick={()=>this.props.modificar(a,i)}><i className="lni lni-pencil-alt"></i>  Modificar</button>
+                              <button key={"m"+i} className="btn btn-dark m-1" onClick={()=>this.props.modificar(a)}><i className="lni lni-pencil-alt"></i>  Modificar</button>
                               <Link key={"jd"+i} className="btn btn-secondary m-1" to={"/presidencia/juntaDirectiva/"+a.id}><i className="lni lni-users"></i> Junta Directiva</Link>
-                              <button key={"e"+i} className="btn btn-danger m-1" onClick={()=>this.props.eliminar(a.id)}><i className="lni lni-trash-can"></i> Eliminar</button>
+                              <button key={"e"+i} className="btn btn-danger m-1" onClick={()=>this.props.eliminar(a)}><i className="lni lni-trash-can"></i> Eliminar</button>
                           </>
                       }
                   </div>

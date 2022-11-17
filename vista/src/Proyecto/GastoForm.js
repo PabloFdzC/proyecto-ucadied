@@ -67,6 +67,10 @@ class GastoForm extends React.Component {
         this.reiniciarCampos = this.reiniciarCampos.bind(this);
     }
 
+    /*
+    reiniciarCampos devuelve los campos del formulario
+    a su valor inicial
+     */
     reiniciarCampos(){
         this.setState({
             titulo: this.accion + " Gasto",
