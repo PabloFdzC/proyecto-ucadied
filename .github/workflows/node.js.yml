@@ -69,7 +69,9 @@ jobs:
           else
             kill -9 $pid
           fi
-          sudo rm -rf /var/node/proyecto-ucadied !(archivos)
+
+          cd /var/node/proyecto-ucadied
+          sudo rm -rf !\(archivos\)
     - name: 'Descargar artifact del build'
       uses: actions/download-artifact@v2
       with:
