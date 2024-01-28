@@ -13,7 +13,9 @@ if (app.get('env') === 'production') {
     usuario = process.env.USUARIO;
     clave = process.env.CLAVE;
     info.host = process.env.HOST;
+    nombreBase = process.env.NOMBRE_BASE;
 }
+
 
 const sequelize = new Sequelize(nombreBase, usuario, clave, info);
 

@@ -6,6 +6,8 @@ const reserva_inmueble = require('../modelo/reserva_inmueble');
 const { Op } = require("sequelize");
 const Sequelize = require("sequelize");
 const inmueble = require('../modelo/inmueble');
+const {CODIGO_STATUS_HTTP} = require('respuestas');
+const { verificarEncontrado } = require('./verificaErrores');
 
 // Función para consultar un conjunto de actividades. Se mandan como
 // parámetros los filtro de búsqueda de actividad, de reserva, de inmueble
@@ -86,7 +88,11 @@ async function consultar(paramsActividad, paramsReserva, paramsInmueble, id_usua
         where: paramsActividad
     });
 
-    return resp.concat(resp2);
+    const resultado = resp.concat(resp2);
+
+    verificarEncontrado(resultado, "No se encontraron las actividades");
+
+    return resultado;
 }
 
 // Función para buscar disponibilidad de una fecha en el horario
@@ -157,33 +163,29 @@ async function buscar_disponibilidad_dias(dias, horario, id_inmueble){
 async function crear_habilitar(info, id_usuario, habilitar){
     if(info.id_inmueble){
         const inmuebles =  await inmuebleCtlr.consultar({id: info.id_inmueble});
-        if(inmuebles.length === 1){
-            const inmueble = inmuebles[0];
-            const horario = inmueble.horario;
-            if(info.dias){
-                const errores = await buscar_disponibilidad_dias(info.dias, horario, info.id_inmueble);
-                if(errores.length === 0){
-                    if(habilitar){
-                        info.habilitado = id_usuario && id_usuario != -1;
-                        return await cambiaHabilitado(info);
-                    }
-                    else{
-                        return await crear(info);
-                    }
+        
+        const inmueble = inmuebles[0];
+        const horario = inmueble.horario;
+        if(info.dias){
+            const errores = await buscar_disponibilidad_dias(info.dias, horario, info.id_inmueble);
+            if(errores.length === 0){
+                if(habilitar){
+                    info.habilitado = id_usuario && id_usuario != -1;
+                    return await cambiaHabilitado(info);
                 }
                 else{
-                    return {errores};
+                    return await crear(info);
                 }
             }
             else{
-                return{error: "Información de días no enviada"}
+                throw {error: "No hay disponibilidad en los siguientes días", info:errores, status:CODIGO_STATUS_HTTP.ERROR_USUARIO, errorConocido:true};
             }
         }
         else{
-            return {error: "inmueble no encontrado"};
+            throw {error: "Información de días no enviada", status: CODIGO_STATUS_HTTP.ERROR_USUARIO, errorConocido:true}
         }
     }else{
-        return {error: "inmueble no encontrado"};
+        throw {error: "inmueble no encontrado", status: CODIGO_STATUS_HTTP.NO_ENCONTRADO, errorConocido:true};
     }
 }
 
@@ -214,7 +216,11 @@ async function crear(info){
 }
 
 async function modificar(id, info){
-    return await queries_generales.modificar(actividad, {id}, info)
+    const resp = await queries_generales.modificar(actividad, {id}, info);
+    if (resp.error){
+        throw error;
+    }
+    return resp;
 }
 
 async function eliminar(id){

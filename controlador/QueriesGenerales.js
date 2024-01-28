@@ -1,10 +1,8 @@
-
 // Función para consultar algún modelo, se debe
 // mandar el modelo como parámetro y los filtros
 // para la consulta
 async function consultar(modelo, filtros){
-    const resultados = await modelo.findAll(filtros);
-    return resultados;
+    return await modelo.findAll(filtros);
 }
 
 // Función para crear una instancia de 

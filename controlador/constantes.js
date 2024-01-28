@@ -1,0 +1,14 @@
+const CODIGO_STATUS_HTTP = {
+    OK: 200,
+    CREADO: 201,
+    ACEPTADO: 202,
+    ERROR_USUARIO: 400,
+    NO_LOGGEADO: 401,
+    NO_AUTORIZADO: 403,
+    NO_ENCONTRADO: 404,
+    ERROR_SERVER: 500
+}
+
+module.exports = {
+    CODIGO_STATUS_HTTP
+}

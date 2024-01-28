@@ -1,6 +1,7 @@
 const puesto = require('../modelo/puesto');
 const usuario = require('../modelo/usuario');
 const queries_generales = require('./QueriesGenerales');
+const { verificarEncontrado } = require('./verificaErrores');
 
 // Función para modificar un puesto.
 // Se mandan como parámetros el id
@@ -34,7 +35,7 @@ async function eliminar(id){
 // Función para consultar un conjunto de puestos.
 // Se envía como parámetro los filtros de búsqueda.
 async function consultar(params){
-    return await queries_generales.consultar(puesto, {
+    const resultado = await queries_generales.consultar(puesto, {
         include: [
             {
                 model: usuario,
@@ -42,16 +43,24 @@ async function consultar(params){
             }
         ],
         where: params});
+    
+    verificarEncontrado(resultado, "No se encontró el puesto");
+    
+    return resultado;
 }
 
 // Fucnión para consultar los puestos de un usuario.
 // Se envía como parámetro el id del usuario.
 async function consultar_puestos_usuario(id_usuario){
-    return await queries_generales.consultar(puesto, {
+    const resultado = await queries_generales.consultar(puesto, {
         where: {
             id_usuario
         }
     });
+
+    verificarEncontrado(resultado, "No se encontraron los puestos del usuario");
+
+    return resultado;
 }
 
 // Función para consultar si un usuario tiene un permiso en una organización.
@@ -66,7 +75,11 @@ async function consultar_permisos(id_usuario, id_organizacion, permiso){
             return true;
         }
     }
-    return false;
+    throw {
+        status: CODIGO_STATUS_HTTP.NO_AUTORIZADO,
+        error: "No se cuenta con los permisos necesarios",
+        errorConocido: true
+    };
 }
 
 module.exports = {

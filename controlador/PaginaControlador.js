@@ -8,10 +8,14 @@ const path = require('path');
 // Se debe enviar como parámetro los filtros de
 // búsqueda.
 async function consultar(params){
-    return await queries_generales.consultar(pagina,
+    const resultado = await queries_generales.consultar(pagina,
         {
             where: params
         });
+
+    verificarEncontrado(resultados, "No se encontró la página");
+
+    return resultado;
 }
 
 // Función para crear una página. Recibe como parámetro
@@ -65,17 +69,21 @@ async function eliminar_archivos(archivos){
     for(var i = 0; i < archivos.length; i+=1){
         fs.unlink(archivos[i].path, (error) => {});
     }
-    return
+    return;
 }
 
 // Función para consultar un conjunto de archivos.
 // Se debe enviar como parámetro los filtros de
 // búsqueda.
 async function consultar_archivos(params){
-    return await queries_generales.consultar(multimedia,
+    const resultado = await queries_generales.consultar(multimedia,
         {
             where: params
         });
+
+    verificarEncontrado(resultados, "No se encontraron los archivos");
+    
+    return resultado;
 }
 
 // Función para eliminar un archivo de la

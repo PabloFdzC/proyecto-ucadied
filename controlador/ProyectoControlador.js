@@ -2,11 +2,12 @@ const proyecto = require('../modelo/proyecto');
 const usuario = require('../modelo/usuario');
 const proyecto_x_usuario = require('../modelo/proyecto_x_usuario');
 const queries_generales = require('./QueriesGenerales');
+const { verificarEncontrado } = require('./verificaErrores');
 
 // Función para consultar un conjunto de proyectos.
 // Recibe como parámetro los filtros de búsqueda.
 async function consultar(params){
-    return await queries_generales.consultar(proyecto,
+    const resultado = await queries_generales.consultar(proyecto,
         {
             where: params,
             include: {
@@ -14,6 +15,10 @@ async function consultar(params){
                 attributes:["id","nombre"]
             }
         });
+
+    verificarEncontrado(resultado, "No se encontró el proyecto");
+
+    return resultado;
 }
 
 // Función para crear un proyecto. Recibe como parámtero

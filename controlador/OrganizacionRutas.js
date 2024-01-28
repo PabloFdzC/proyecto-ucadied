@@ -3,6 +3,9 @@ const bodyParser = require('body-parser');
 const jsonParser  = bodyParser.json({ extended: false });
 const organizacionCtrl = require('./OrganizacionControlador');
 const nodemailer = require('nodemailer');
+const {estaUsuarioLoggeado,CODIGO_STATUS_HTTP} = require('respuestas');
+const { mapearError } = require('./respuestas');
+const { verificarCaptcha } = require('./captcha');
 
 
 // Ruta para consultar todas las organizaciones.
@@ -18,9 +21,7 @@ router.get('/consultar', async (req, res) => {
         const organizaciones = await organizacionCtrl.consultar(params);
         res.json(organizaciones);
     }catch(err){
-        console.log(err);
-        res.status(400);
-        res.send("Algo salió mal");
+        mapearError(res, err);
     }
 });
 
@@ -32,9 +33,7 @@ router.get('/consultarTipo/:esUnion', async (req, res) => {
         const organizaciones = await organizacionCtrl.consultarTipo(req.params.esUnion);
         res.json(organizaciones);
     }catch(err){
-        console.log(err);
-        res.status(400);
-        res.send("Algo salió mal");
+        mapearError(res, err);
     }
 });
 
@@ -42,18 +41,19 @@ router.get('/consultarTipo/:esUnion', async (req, res) => {
 // información de la organización como body.
 router.post('/crear', jsonParser, async (req, res) => {
     try{
-        if(req.session.tipoUsuario && req.session.tipoUsuario === "Administrador"){
+        if(estaUsuarioLoggeado(req) && req.session.tipoUsuario && req.session.tipoUsuario === "Administrador"){
             const organizacion_creada = await organizacionCtrl.crear(req.body);
             res.json(organizacion_creada);
         }
         else{
-            res.status(400);
-            res.send("Usuario no administrador"+ req.session.tipoUsuario);
+            throw {
+                errorConocido: true,
+                status: CODIGO_STATUS_HTTP.NO_AUTORIZADO,
+                error: "Usuario no es administrador"
+            }
         }
     }catch(err){
-        console.log(err);
-        res.status(400);
-        res.send("Algo salió mal");
+        mapearError(res, err);
     }
 });
 
@@ -61,18 +61,16 @@ router.post('/crear', jsonParser, async (req, res) => {
 // el id de la organización y en el body la información a modificar.
 router.put('/modificar/:id_organizacion', jsonParser, async (req, res) => {
     try{
-        if(req.session.idUsuario && req.session.idUsuario != -1){
+        if(estaUsuarioLoggeado(req)){
+            if(req.session.tipoUsuario !== "Administrador"){
+                await puestoCtlr.consultar_permisos(req.session.idUsuario, inmueble.id_organizacion, "edita_junta");
+            }
+
             const resultado = await organizacionCtrl.modificar(req.params.id_organizacion, req.body)
             res.json(resultado);
         }
-        else{
-            res.status(400);
-            res.send("Sesión no iniciada");
-        }
     }catch(err){
-        console.log(err);
-        res.status(400);
-        res.send("Algo salió mal");
+        mapearError(res, err);
     }
 });
 
@@ -85,13 +83,14 @@ router.delete('/eliminar/:id_organizacion', async (req, res) => {
             res.json(resultado);
         }
         else{
-            res.status(400);
-            res.send("Usuario no administrador");
+            throw {
+                errorConocido: true,
+                status: CODIGO_STATUS_HTTP.NO_AUTORIZADO,
+                error: "Usuario no es administrador"
+            }
         }
     }catch(err){
-        console.log(err);
-        res.status(400);
-        res.send("Algo salió mal");
+        mapearError(res, err);
     }
 });
 
@@ -99,18 +98,16 @@ router.delete('/eliminar/:id_organizacion', async (req, res) => {
 // venir el id del usuario y el id de la organziación.
 router.post('/agregarMiembro', jsonParser, async (req, res) => {
     try{
-        if(req.session.idUsuario && req.session.idUsuario != -1){
+        if(estaUsuarioLoggeado(req)){
+            if(req.session.tipoUsuario !== "Administrador"){
+                await puestoCtlr.consultar_permisos(req.session.idUsuario, inmueble.id_organizacion, "edita_junta");
+            }
+
             const miembro_agregado = await organizacionCtrl.agregarMiembro(req.body);
             res.json(miembro_agregado);
         }
-        else{
-            res.status(400);
-            res.send("Sesión no iniciada");
-        }
     }catch(err){
-        console.log(err);
-        res.status(400);
-        res.send("Algo salió mal");
+        mapearError(res, err);
     }
 });
 
@@ -118,18 +115,16 @@ router.post('/agregarMiembro', jsonParser, async (req, res) => {
 // venir el id del usuario y el id de la organziación.
 router.delete('/eliminarMiembro', jsonParser, async (req, res) => {
     try{
-        if(req.session.idUsuario && req.session.idUsuario != -1){
+        if(estaUsuarioLoggeado(req)){
+            if(req.session.tipoUsuario !== "Administrador"){
+                await puestoCtlr.consultar_permisos(req.session.idUsuario, inmueble.id_organizacion, "edita_junta");
+            }
+
             const resultado = await organizacionCtrl.eliminarMiembro(req.body.id_usuario);
             res.json(resultado);
         }
-        else{
-            res.status(400);
-            res.send("Sesión no iniciada");
-        }
     }catch(err){
-        console.log(err);
-        res.status(400);
-        res.send("Algo salió mal");
+        mapearError(res, err);
     }
 });
 
@@ -137,37 +132,27 @@ router.delete('/eliminarMiembro', jsonParser, async (req, res) => {
 // enviar en la dirección el id de la organización.
 router.get('/consultarMiembros/:id_organizacion', jsonParser, async (req, res) => {
     try{
-        if(req.session.idUsuario && req.session.idUsuario != -1){
+        if(estaUsuarioLoggeado(req)){
+            if(req.session.tipoUsuario !== "Administrador"){
+                await puestoCtlr.consultar_permisos(req.session.idUsuario, inmueble.id_organizacion, "edita_junta");
+            }
+
             const miembros = await organizacionCtrl.consultarMiembros(req.params.id_organizacion);
             res.json(miembros);
         }
-        else{
-            res.status(400);
-            res.send("Sesión no iniciada");
-        }
     }catch(err){
-        console.log(err);
-        res.status(400);
-        res.send("Algo salió mal");
+        mapearError(res, err);
     }
 });
 
 router.post('/externoEnviaCorreo', jsonParser, async (req, res) => {
     try{
-        const resp = await verificarCaptcha(req.body.captcha);
+        await verificarCaptcha(req.body.captcha);
         delete req.body.captcha;
-        if(resp.exito){
-            const correo = await organizacionCtrl.externoEnviaCorreo(req.body);
-            res.json(correo);
-        } else { 
-            console.log(resp);
-            res.status(400);
-            res.send(resp);    
-        }
+        const correo = await organizacionCtrl.externoEnviaCorreo(req.body);
+        res.json(correo);
     }catch(err){
-        console.log(err);
-        res.status(400);
-        res.send("Algo salió mal");
+        mapearError(res, err);
     }
 });
 

@@ -5,7 +5,7 @@ import QueriesGenerales from "../QueriesGenerales";
 import Modal from 'react-bootstrap/Modal';
 import manejarCambio from '../Utilidades/manejarCambio';
 
-import {usuarioContexto} from '../usuarioContexto';
+import { usuarioContexto } from '../usuarioContexto';
 import { fechaAHoraAMPM } from '../Utilidades/ManejoHoras';
 
 import FullCalendar from "@fullcalendar/react";
@@ -25,19 +25,19 @@ idOrganizacion: Número entero que es el id de la organización en la que se
     encuentra actualmente (es el mismo que está en la url),
  */
 class CalendarioActividades extends React.Component {
-    constructor(props){
+    constructor(props) {
         super(props);
         this.queriesGenerales = new QueriesGenerales();
         this.calendario = React.createRef();
         this.state = {
             inmuebles: [],
             actividades: [],
-            campos:{
-                id_inmueble:"",
+            campos: {
+                id_inmueble: "",
             },
-            actividadesDia:[],
-            muestraActividadForm:false,
-            muestraActividadDia:false,
+            actividadesDia: [],
+            muestraActividadForm: false,
+            muestraActividadDia: false,
             fechaSeleccionada: "",
         }
         this.actividadesPedidas = false;
@@ -49,18 +49,18 @@ class CalendarioActividades extends React.Component {
         this.muestraModalActividadesDia = this.muestraModalActividadesDia.bind(this);
     }
 
-    acomodarDatosCalendario(actividades){
+    acomodarDatosCalendario(actividades) {
         const actividadesCalendario = [];
-        for(let i = 0; i < actividades.length; i++){
-            for(let j = 0; j < actividades[i].reserva_inmuebles.length; j++){
+        for (let i = 0; i < actividades.length; i++) {
+            for (let j = 0; j < actividades[i].reserva_inmuebles.length; j++) {
                 const horaI = new Date(actividades[i].reserva_inmuebles[j].inicio);
                 const horaF = new Date(actividades[i].reserva_inmuebles[j].final);
                 let mes = horaI.getUTCMonth();
                 mes++;
-                mes = mes < 10? "0"+mes:mes;
+                mes = mes < 10 ? "0" + mes : mes;
                 let dia = horaI.getUTCDate();
-                dia = dia < 10? "0"+dia:dia;
-                const start = horaI.getUTCFullYear()+"-"+mes+"-"+dia;
+                dia = dia < 10 ? "0" + dia : dia;
+                const start = horaI.getUTCFullYear() + "-" + mes + "-" + dia;
                 actividadesCalendario.push({
                     inicio: horaI,
                     final: horaF,
@@ -69,58 +69,58 @@ class CalendarioActividades extends React.Component {
                     id: actividades[i].reserva_inmuebles[j].id,
                     id_actividad: actividades[i].reserva_inmuebles[j].id_actividad,
                     id_inmueble: actividades[i].reserva_inmuebles[j].id_inmueble,
-                    title:actividades[i].nombre ? actividades[i].nombre : "Actividad privada",
-                    start:start,
-                    nombre:actividades[i].nombre ? actividades[i].nombre : "Actividad privada",
+                    title: actividades[i].nombre ? actividades[i].nombre : "Actividad privada",
+                    start: start,
+                    nombre: actividades[i].nombre ? actividades[i].nombre : "Actividad privada",
                     persona_contacto: actividades[i].persona_contacto ? actividades[i].persona_contacto : "",
                     email: actividades[i].email ? actividades[i].email : "",
                     telefonos: actividades[i].telefonos ? actividades[i].telefonos : [],
                 });
             }
         }
-        actividadesCalendario.sort((a,b)=>{
+        actividadesCalendario.sort((a, b) => {
             if (a.inicio < b.inicio) {
                 return -1;
             }
             if (a.inicio > b.inicio) {
-            return 1;
+                return 1;
             }
             return 0;
         });
         return actividadesCalendario;
     }
-    
-    async cargarActividades(mes){
-        try{
+
+    async cargarActividades(mes) {
+        try {
             const resp = await this.queriesGenerales.obtener("/actividad/consultar", {
-                id_organizacion:this.props.idOrganizacion,
-                id_inmueble:this.state.campos.id_inmueble,
+                id_organizacion: this.props.idOrganizacion,
+                id_inmueble: this.state.campos.id_inmueble,
                 mes,
-                habilitado:true,
+                habilitado: true,
             });
             this.setState({
-                actividades:this.acomodarDatosCalendario(resp.data),
+                actividades: this.acomodarDatosCalendario(resp.data),
                 mesActual: mes,
             });
-        } catch(err){
+        } catch (err) {
             console.log(err);
-        }   
+        }
     }
 
-    async cargarInmuebles(){
-        try{
+    async cargarInmuebles() {
+        try {
             const resp = await this.queriesGenerales.obtener("/inmueble/consultar", {
-                id_organizacion:this.props.idOrganizacion,
+                id_organizacion: this.props.idOrganizacion,
             });
-            if(resp.data.length > 0){
+            if (resp.data.length > 0) {
                 this.setState({
-                    inmuebles:this.state.inmuebles.concat(resp.data),
-                    campos:Object.assign({}, this.state.campos,{
-                        id_inmueble:resp.data[0].id.toString(),
+                    inmuebles: this.state.inmuebles.concat(resp.data),
+                    campos: Object.assign({}, this.state.campos, {
+                        id_inmueble: resp.data[0].id.toString(),
                     }),
                 });
             }
-        } catch(err){
+        } catch (err) {
             console.log(err);
         }
     }
@@ -135,22 +135,22 @@ class CalendarioActividades extends React.Component {
     async componentDidMount() {
         document.title = "Calendario Actividades";
         await this.props.cargarOrganizacion(this.props.idOrganizacion);
-        if(!this.inmueblesPedidos){
+        if (!this.inmueblesPedidos) {
             this.inmueblesPedidos = true;
             this.cargarInmuebles();
         }
     }
 
-    agregarActividad(){
+    agregarActividad() {
         this.setState({
-            usuario:{},
-            muestraActividadForm:true,
+            usuario: {},
+            muestraActividadForm: true,
         })
     }
 
-    muestraModal(muestraActividadForm){
+    muestraModal(muestraActividadForm) {
         this.setState({
-            muestraActividadForm:muestraActividadForm,
+            muestraActividadForm: muestraActividadForm,
         })
     }
 
@@ -158,39 +158,39 @@ class CalendarioActividades extends React.Component {
     Se llama a la función manejarCambio que actualiza el
     estado con los valores de campos en el formulario
     */
-    async manejaCambioInmueble(evento){
+    async manejaCambioInmueble(evento) {
         // este await se ocupa porque sino va a agarrar
         // el inmueble anterior para pedir los datos
         await manejarCambio(evento, this);
         this.cargarActividades(this.state.mesActual);
     }
 
-    async fechaPuestaCalendario(event){
+    async fechaPuestaCalendario(event) {
         let mes;
-        if(event.start.getDate() > 1)
-            mes = event.start.getMonth()+2;
+        if (event.start.getDate() > 1)
+            mes = event.start.getMonth() + 2;
         else
-            mes = event.start.getMonth()+1;
+            mes = event.start.getMonth() + 1;
         this.cargarActividades(mes);
     }
 
-    buscaActividades(fecha){
+    buscaActividades(fecha) {
         const actividades = [];
-        for(let i = 0; i < this.state.actividades.length; i++){
+        for (let i = 0; i < this.state.actividades.length; i++) {
             // Aquí se revisan distintos porque en la interfaz obligatoriamente
             // se usa el local, esto para que el usuario pueda ver la fecha
             // bien donde sea que está, mientras que los datos del server
             // los tenemos como UTC
-            if(this.state.actividades[i].inicio.getUTCDate() === fecha.getDate()){
+            if (this.state.actividades[i].inicio.getUTCDate() === fecha.getDate()) {
                 actividades.push(this.state.actividades[i]);
             }
         }
         return actividades;
     }
 
-    muestraModalActividadesDia(actividades, muestra, fecha){
+    muestraModalActividadesDia(actividades, muestra, fecha) {
         this.setState({
-            fechaSeleccionada:fecha ? fecha.toLocaleDateString() : "",
+            fechaSeleccionada: fecha ? fecha.toLocaleDateString() : "",
             muestraActividadDia: muestra,
             actividadesDia: actividades,
         });
@@ -213,77 +213,84 @@ class CalendarioActividades extends React.Component {
         this.muestraModalActividadesDia(actividades, true, fecha);
     };
 
-    render(){
+    render() {
         return (
             <usuarioContexto.Consumer>
-                {({organizacion})=>{
-                return (<>
-                    <div className="d-flex align-items-center justify-content-between m-3">
-                        <div>
-                            <h1>Actividades</h1>
-                            <h2 className="ms-3 fs-4">{organizacion.nombre}</h2>
+                {({ organizacion }) => {
+                    return (<>
+                        <div className="d-flex align-items-center justify-content-between m-3">
+                            <div>
+                                <h1>Actividades</h1>
+                                <h2 className="ms-3 fs-4">{organizacion.nombre}</h2>
+                            </div>
+                            <div className="mb-3 position-relative">
+                                <label htmlFor="id_inmueble" className="form-label">Inmueble</label>
+                                <select type="text" className="form-select" key="id_inmueble" name="id_inmueble" value={this.state.campos.id_inmueble} onChange={this.manejaCambioInmueble} >
+                                    {this.state.inmuebles.map((inmueble, i) => <option key={i} value={inmueble.id}>{inmueble.nombre}</option>)}
+                                </select>
+                            </div>
+                            <button className="btn btn-primary" onClick={() => this.muestraModal(true)}><i className="lni lni-plus"></i>  Agregar actividad</button>
                         </div>
-                        <div className="mb-3 position-relative">
-                            <label htmlFor="id_inmueble" className="form-label">Inmueble</label>
-                            <select type="text" className="form-select" key="id_inmueble" name="id_inmueble" value={this.state.campos.id_inmueble} onChange={this.manejaCambioInmueble} >
-                                {this.state.inmuebles.map((inmueble, i)=><option key={i} value={inmueble.id}>{inmueble.nombre}</option>)}
-                            </select>
+                        <div className="d-flex" style={{ height: "inherit", backgroundColor: "#137e31" }}>
+                            <div style={{ width: "100%" }}>
+                                <FullCalendar
+                                    plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
+                                    initialView="dayGridMonth"
+                                    dateClick={this.seleccionaDia}
+                                    eventClick={this.seleccionaEvento}
+                                    locale={"es"}
+                                    events={this.state.actividades}
+                                    aspectRatio={2}
+                                    headerToolbar={{ left: 'prev', center: 'title', right: 'next' }}
+                                    datesSet={this.fechaPuestaCalendario}
+                                />
+                            </div>
                         </div>
-                        <button className="btn btn-primary" onClick={()=>this.muestraModal(true)}><i className="lni lni-plus"></i>  Agregar actividad</button>
-                    </div>
-                    <div className="d-flex" style={{height:"inherit",backgroundColor:"#137e31"}}>
-                        <div style={{width:"100%"}}>
-                            <FullCalendar
-                            plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
-                            initialView="dayGridMonth"
-                            dateClick={this.seleccionaDia}
-                            eventClick={this.seleccionaEvento}
-                            locale={"es"}
-                            events={this.state.actividades}
-                            aspectRatio={2}
-                            headerToolbar={{ left: 'prev', center: 'title', right: 'next'  }}
-                            datesSet={this.fechaPuestaCalendario}
-                        />
-                        </div>
-                    </div>
-                    <Modal size="lg" show={this.state.muestraActividadForm} onHide={()=>this.muestraModal(false)} className="modal-green" centered>
-                    <Modal.Body>
-                        <ActividadForm actividad={true} cerrarModal={()=>this.muestraModal(false)} idInmueble={this.state.campos.id_inmueble} idOrganizacion={this.props.idOrganizacion} inmuebles={this.state.inmuebles} />
-                    </Modal.Body>
-                    </Modal>
-                    <Modal size="lg" show={this.state.muestraActividadDia} onHide={()=>this.muestraModalActividadesDia([],false)} className="modal-green">
-                    <Modal.Body>
-                        <h2 className="text-center me-2">Actividades del {this.state.fechaSeleccionada}</h2>
-                        <Accordion >
-                        {this.state.actividadesDia.map((actividad, indice)=>
-                            <Accordion.Item key={indice} eventKey={indice}>
-                                <Accordion.Header>{actividad.nombre+" "+actividad.inicioBonito+"-"+actividad.finalBonito}</Accordion.Header>
-                                {actividad.nombre !== "Actividad privada" ? 
-                                <Accordion.Body>
-                                    <div className="row">
-                                        <div className="col">
-                                            <h5>Persona de contacto</h5>
-                                            <p>{actividad.persona_contacto}</p>
-                                            <h5>Email</h5>
-                                            <p>{actividad.email}</p>
-                                        </div>
-                                        <div className="col">
-                                            <h5>Teléfonos</h5>
-                                            {actividad.telefonos.map((t, j) => 
-                                                <div className="m-2 p-2" key={"tel"+indice+"-"+j} style={{backgroundColor:"#160C28",borderRadius:"0.2em",color:"#fff"}}>
-                                                    <p >{t}</p>
-                                                </div>
-                                            )}
-                                        </div>
-                                    </div>
-                                </Accordion.Body>
-                             : <></>}
-                            </Accordion.Item>
-                        )}
-                        </Accordion>
-                    </Modal.Body>
-                    </Modal>
-                </>);
+                        <Modal size="lg" show={this.state.muestraActividadForm} onHide={() => this.muestraModal(false)} className="modal-green" centered>
+                            <Modal.Body>
+                                <ActividadForm actividad={true} cerrarModal={() => this.muestraModal(false)} idInmueble={this.state.campos.id_inmueble} idOrganizacion={this.props.idOrganizacion} inmuebles={this.state.inmuebles} />
+                            </Modal.Body>
+                        </Modal>
+                        <Modal size="lg" show={this.state.muestraActividadDia} onHide={() => this.muestraModalActividadesDia([], false)} className="modal-green">
+                            <Modal.Body>
+                                <h2 className="text-center me-2">Actividades del {this.state.fechaSeleccionada}</h2>
+                                <Accordion >
+                                    {this.state.actividadesDia.map((actividad, indice) =>
+                                        <Accordion.Item key={indice} eventKey={indice}>
+                                            <Accordion.Header>{actividad.nombre + " " + actividad.inicioBonito + "-" + actividad.finalBonito}</Accordion.Header>
+                                            {actividad.nombre !== "Actividad privada" ?
+                                                <Accordion.Body>
+                                                    <div className="row">
+                                                        <div className="col">
+                                                            <h5>Persona de contacto</h5>
+                                                            <p>{actividad.persona_contacto}</p>
+                                                            <h5>Email</h5>
+                                                            <p>{actividad.email}</p>
+                                                        </div>
+                                                        <div className="col">
+                                                            <h5>Teléfonos</h5>
+                                                            {typeof (actividad.telefonos) === "string" ?
+                                                                JSON.parse(actividad.telefonos).map((t, j) =>
+                                                                    <div className="m-2 p-2" key={"tel" + indice + "-" + j} style={{ backgroundColor: "#160C28", borderRadius: "0.2em", color: "#fff" }}>
+                                                                        <p >{t}</p>
+                                                                    </div>
+                                                                )
+                                                                :
+                                                                actividad.telefonos.map((t, j) =>
+                                                                    <div className="m-2 p-2" key={"tel" + indice + "-" + j} style={{ backgroundColor: "#160C28", borderRadius: "0.2em", color: "#fff" }}>
+                                                                        <p >{t}</p>
+                                                                    </div>
+                                                                )}
+                                                        </div>
+                                                    </div>
+                                                </Accordion.Body>
+                                                : <></>}
+                                        </Accordion.Item>
+                                    )}
+                                </Accordion>
+                            </Modal.Body>
+                        </Modal>
+                    </>);
                 }}
             </usuarioContexto.Consumer>
         );

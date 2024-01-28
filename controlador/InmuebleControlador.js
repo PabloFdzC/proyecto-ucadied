@@ -3,53 +3,71 @@ const { Op } = require("sequelize");
 const Sequelize = require("sequelize");
 const reserva_inmueble = require('../modelo/reserva_inmueble');
 const queries_generales = require('./QueriesGenerales');
+const { verificarEncontrado } = require('verificaErrores.js');
 
 // Función para consultar un conjunto de inmuebles.
 // Se debe enviar como parámetro los filtros de búsqueda.
 async function consultar(params){
-    return await queries_generales.consultar(inmueble, {where: params});
+    const resultado = await queries_generales.consultar(inmueble, {where: params});
+    
+    verificarEncontrado(resultado, "No se encontró el inmueble");
+
+    return resultado;
 }
 
 // Función para consultar un conjunto de reservas de inmuebles.
 // Se debe enviar como parámetro los filtros de búsqueda.
 async function consultar_reservas(params){
+    let resultado;
     if(params.id_reserva_inmueble){
-        return await queries_generales.consultar(reserva_inmueble, {where: {
+        resultado = await queries_generales.consultar(reserva_inmueble, {where: {
             id: params.id_reserva_inmueble
         }});
     }
     else if(params.id_inmueble){
-        return await queries_generales.consultar(reserva_inmueble, {where: {
+        resultado = await queries_generales.consultar(reserva_inmueble, {where: {
             id_inmueble: params.id_inmueble
         }});
     }
     else{
-        return await queries_generales.consultar(reserva_inmueble, {});
+        resultado = await queries_generales.consultar(reserva_inmueble, {});
     }
+
+    verificarEncontrado(resultado, "No se encontraron las reservas");
+    
+    return resultado
+
 }
 
 // Función para consultar un conjunto de reservas de inmuebles
 // de un mes en específico. Se debe enviar como parámetro el
 // mes y el año.
 async function consultar_reservas_mes_anio(mes, anio){
-    return await queries_generales.consultar(reserva_inmueble, {where: {
+    const resultado = await queries_generales.consultar(reserva_inmueble, {where: {
         [Op.and]: [
             Sequelize.where(Sequelize.fn('MONTH', Sequelize.col('inicio')), parseInt(mes)),
             Sequelize.where(Sequelize.fn('YEAR', Sequelize.col('inicio')), parseInt(anio)),
             Sequelize.where(Sequelize.col('habilitado'), 1)
         ],
     }});
+
+    verificarEncontrado(resultado, "No se encontraron las reservas");
+
+    return resultado;
 }
 
 // Función para consultar las reservas de un inmueble un día 
 // en específico. Se debe enviar como parámetro el id del inmueble
 // y la fecha.
 async function consultar_reserva_fecha(fecha, id_inmueble){
-    fecha = new Date(fecha);
+    const mayorQue = new Date(fecha);
+    mayorQue.setUTCHours(0, 0, 0, 0);
+    const menorQue = new Date(fecha);
+    menorQue.setUTCHours(23, 59, 59);
     return await queries_generales.consultar(reserva_inmueble, {where: {
         inicio: {
-            [Op.gte]: fecha.setUTCHours(0, 0, 0, 0),
-            [Op.lte]: fecha.setUTCHours(23, 59, 59)
+            [Op.gte]: mayorQue,
+            [Op.lte]: menorQue
         },
         id_inmueble,
         habilitado: '1'

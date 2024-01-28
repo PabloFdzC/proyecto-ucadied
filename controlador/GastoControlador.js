@@ -1,10 +1,15 @@
 const gasto = require('../modelo/gasto');
 const queries_generales = require('./QueriesGenerales');
+const { verificarEncontrado } = require('./verificaErrores');
 
 // Función para consultar un conjunto de gastos.
 // Recibe como parámetro los filtros de búsqueda.
 async function consultar(params){
-    return await queries_generales.consultar(gasto, {where:params});
+    const resultado = await queries_generales.consultar(gasto, {where:params});
+    
+    verificarEncontrado(resultado, "No se encontró el gasto");
+
+    return resultado;
 }
 
 // Función para crear un gasto. Recibe como parámtero

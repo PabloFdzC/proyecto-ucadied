@@ -1,4 +1,5 @@
 const fetch = require("isomorphic-fetch");
+const {CODIGO_STATUS_HTTP} = require('respuestas');
 
 // Una vez se hace el captcha en la interfaz de usuario
 // es necesario verificar que de verdad se haya hecho
@@ -10,21 +11,18 @@ const fetch = require("isomorphic-fetch");
 // bien y sino se manda un objeto con el atributo
 // error
 async function verificarCaptcha(llave){
-  //let apiCaptcha = process.env.API_CAPTCHA;
-  let apiCaptcha = "6Leu-2kiAAAAAI3yj3WBU8U5epfKzN0zC2AWT9pE";
+  let apiCaptcha = process.env.API_CAPTCHA;
   const url = `https://www.google.com/recaptcha/api/siteverify?secret=${apiCaptcha}&response=${llave}`;
-  try{
-    var resp = await fetch(url, {
-      method: "post",
-    });
-    resp = await resp.json();
-    if(resp.success === true){
-      return {exito:"Se hizo el captcha correctamente"};
-    } else {
-      return {error:"No se hizo el captcha"};
-    }
-  } catch(err){
-    return {error:err};
+  
+  let resp = await fetch(url, {
+    method: "post",
+  });
+  resp = await resp.json();
+  
+  if(resp.success === true){
+    return {exito:"Se hizo el captcha correctamente", status:CODIGO_STATUS_HTTP.OK};
+  } else {
+    throw {error:"No se hizo el captcha", status: CODIGO_STATUS_HTTP.ERROR_USUARIO, errorConocido:true};
   }
 }
 

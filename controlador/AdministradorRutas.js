@@ -2,6 +2,7 @@ const router = require('express').Router();
 
 const bodyParser = require('body-parser');
 const jsonParser  = bodyParser.json({ extended: false });
+const {CODIGO_STATUS_HTTP} = require('respuestas.js');
 
 const usuarioCtrl = require('./UsuarioControlador');
 
@@ -16,26 +17,23 @@ router.post('/crear', jsonParser,  async (req, res) => {
             req.body.id_organizacion = null;
             const usuario_creado = await usuarioCtrl.crear(req.body);
             res.json(usuario_creado);
-        }
-        else{
+        } else {
             const existeAdministrador = await usuarioCtrl.existeAdministrador();
             if(!existeAdministrador){
                 req.body.tipo = "Administrador";
                 req.body.id_organizacion = null;
                 const usuario_creado = await usuarioCtrl.crear(req.body);
                 res.json(usuario_creado);
-            } 
-            else{
-                res.status(400);
-                res.send("Usuario no administrador");
+            } else {
+                throw {
+                    errorConocido: true,
+                    status: CODIGO_STATUS_HTTP.NO_AUTORIZADO,
+                    error: "El usuario no es administrador"
+                }
             }
         }
     }catch(err){
-        console.log(err);
-        res.status(400);
-        res.send("Algo salió mal");
-    }finally{
-        res.end();
+        mapearError(res, req);
     }
 });
 

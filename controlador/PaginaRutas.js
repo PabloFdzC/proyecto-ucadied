@@ -5,6 +5,8 @@ const paginaCtlr = require('./PaginaControlador');
 const puestoCtlr = require('./PuestoControlador');
 const multer = require('multer');
 const path = require('path');
+const {estaUsuarioLoggeado,CODIGO_STATUS_HTTP} = require('respuestas');
+const { mapearError } = require('./respuestas');
 
 // Se define la carpeta donde se guardan los archivos
 // y se define el nombre que tendrán.
@@ -54,9 +56,7 @@ router.get('/consultar', async (req, res) => {
         const paginas = await paginaCtlr.consultar(params);
         res.json(paginas);
     }catch(err){
-        console.log(err);
-        res.status(400);
-        res.send("Algo salió mal");
+        mapearError(res, err);
     }
 });
 
@@ -66,34 +66,16 @@ router.get('/consultar', async (req, res) => {
 // permiso de modificar páginas dentro de la organización.
 router.post('/crear', jsonParser, async (req, res) => {
     try{
-        var habilitado = false;
-        var error_encontrado = false;
-        if(req.session.idUsuario && req.session.idUsuario != -1){
-            if(req.session.tipoUsuario === "Administrador"){
-                habilitado = true;
+        if(estaUsuarioLoggeado(req)){
+            if(req.session.tipoUsuario !== "Administrador"){
+                await puestoCtlr.consultar_permisos(req.session.idUsuario, req.body.id_organizacion, "edita_pagina");
             }
-            if(req.body.id_organizacion){
-                habilitado = await puestoCtlr.consultar_permisos(req.session.idUsuario, req.body.id_organizacion, "edita_pagina");
-            }else{
-                error_encontrado = true;
-                res.status(400);
-                res.send("Parametros incorrectos");
-            }
-        }
-        if(habilitado){
+
             const pagina_creada = await paginaCtlr.crear(req.body);
             res.json(pagina_creada);
         }
-        else{
-            if(!error_encontrado){
-                res.status(400);
-                res.send("No se cuenta con los permisos necesarios");
-            }
-        }
     }catch(err){
-        console.log(err);
-        res.status(400);
-        res.send("Algo salió mal");
+        mapearError(res, err);
     }
 });
 
@@ -103,39 +85,19 @@ router.post('/crear', jsonParser, async (req, res) => {
 // tenga el permiso de modificar páginas dentro de la organización.
 router.put('/modificar/:id_pagina', jsonParser, async (req, res) => {
     try{
-        var habilitado = false;
-        var error_encontrado = false;
-        if(req.session.idUsuario && req.session.idUsuario != -1){
-            if(req.session.tipoUsuario === "Administrador"){
-                habilitado = true;
-            }
-            else{
+        if(estaUsuarioLoggeado(req)){
+            if(req.session.tipoUsuario !== "Administrador"){
                 const paginas = await paginaCtlr.consultar({id: req.params.id_pagina});
-                if(paginas.length === 1){
-                    const pagina = paginas[0];
-                    habilitado = await puestoCtlr.consultar_permisos(req.session.idUsuario, pagina.id_organizacion, "edita_pagina");
-                }
-                else{
-                    res.status(400);
-                    res.send("No se encontró la página");
-                    error_encontrado = true;
-                }
+
+                const pagina = paginas[0];
+                await puestoCtlr.consultar_permisos(req.session.idUsuario, pagina.id_organizacion, "edita_pagina");
             }
-        }
-        if(habilitado){
+
             const resultado = await paginaCtlr.modificar(req.params.id_pagina, req.body);
             res.json(resultado);
         }
-        else{
-            if(!error_encontrado){
-                res.status(400);
-                res.send("No se cuenta con los permisos necesarios");
-            }
-        }
     }catch(err){
-        console.log(err);
-        res.status(400);
-        res.send("Algo salió mal");
+        mapearError(res, err);
     }
 });
 
@@ -147,37 +109,19 @@ router.delete('/eliminar/:id_pagina', async (req, res) => {
     try{
         var habilitado = false;
         var error_encontrado = false;
-        if(req.session.idUsuario && req.session.idUsuario != -1){
-            if(req.session.tipoUsuario === "Administrador"){
-                habilitado = true;
-            }
-            else{
+        if(estaUsuarioLoggeado(req)){
+            if(req.session.tipoUsuario !== "Administrador"){
                 const paginas = await paginaCtlr.consultar({id: req.params.id_pagina});
-                if(paginas.length === 1){
-                    const pagina = paginas[0];
-                    habilitado = await puestoCtlr.consultar_permisos(req.session.idUsuario, pagina.id_organizacion, "edita_pagina");
-                }
-                else{
-                    res.status(400);
-                    res.send("No se encontró la página");
-                    error_encontrado = true;
-                }
+
+                const pagina = paginas[0];
+                await puestoCtlr.consultar_permisos(req.session.idUsuario, pagina.id_organizacion, "edita_pagina");
             }
-        }
-        if(habilitado){
+
             const resultado = await paginaCtlr.eliminar(req.params.id_pagina);
             res.json(resultado);
         }
-        else{
-            if(!error_encontrado){
-                res.status(400);
-                res.send("No se cuenta con los permisos necesarios");
-            }
-        }
     }catch(err){
-        console.log(err);
-        res.status(400);
-        res.send("Algo salió mal");
+        mapearError(res, err);
     }
 });
 
@@ -190,37 +134,17 @@ router.post('/subirArchivos', multi_upload, async (req, res) => {
     try{
         var error_encontrado = false;
         var habilitado = false;
-        if(req.session.idUsuario && req.session.idUsuario != -1){
-            if(req.session.tipoUsuario === "Administrador"){
-                habilitado = true;
+        if(estaUsuarioLoggeado(req)){
+            if(req.session.tipoUsuario !== "Administrador"){
+                await puestoCtlr.consultar_permisos(req.session.idUsuario, req.body.id_organizacion, "edita_pagina");
             }
-            if(req.body.id_organizacion){
-                if(!habilitado){
-                    habilitado = await puestoCtlr.consultar_permisos(req.session.idUsuario, req.body.id_organizacion, "edita_pagina");
-                }
-            }else{
-                habilitado = false;
-                error_encontrado = true;
-                res.status(400);
-                res.send("Parametros incorrectos");
-            }
-        }
-        if(habilitado){
+
             const resultado = await paginaCtlr.crear_archivos(req.files, req.body.id_organizacion);
-            res.json(resultado)
-        }
-        else{
-            paginaCtlr.eliminar_archivos(req.files);
-            if(!error_encontrado){
-                res.status(400);
-                res.send("No se cuenta con los permisos necesarios");
-            }
+            res.json(resultado);
         }
     }catch(err){
         paginaCtlr.eliminar_archivos(req.files);
-        console.log(err);
-        res.status(400);
-        res.send("Algo salió mal");
+        mapearError(res, err);
     }
 });
 
@@ -240,9 +164,7 @@ router.get('/consultarArchivos', async (req, res) => {
         const archivos = await paginaCtlr.consultar_archivos(params);
         res.json(archivos);
     }catch(err){
-        console.log(err);
-        res.status(400);
-        res.send("Algo salió mal");
+        mapearError(res, err);
     }
 });
 
@@ -254,37 +176,19 @@ router.delete('/eliminarArchivo/:id_archivo', async (req, res) => {
     try{
         var habilitado = false;
         var error_encontrado = false;
-        if(req.session.idUsuario && req.session.idUsuario != -1){
-            if(req.session.tipoUsuario === "Administrador"){
-                habilitado = true;
-            }
-            else{
+        if(estaUsuarioLoggeado(req)){
+            if(req.session.tipoUsuario !== "Administrador"){
                 const archivos = await paginaCtlr.consultar_archivos({id: req.params.id_archivo});
-                if(archivos.length === 1){
-                    const archivo = archivos[0];
-                    habilitado = await puestoCtlr.consultar_permisos(req.session.idUsuario, archivo.id_organizacion, "edita_pagina");
-                }
-                else{
-                    res.status(400);
-                    res.send("No se encontró el archivo");
-                    error_encontrado = true;
-                }
+
+                const archivo = archivos[0];
+                await puestoCtlr.consultar_permisos(req.session.idUsuario, archivo.id_organizacion, "edita_pagina");
             }
-        }
-        if(habilitado){
+
             const resultado = await paginaCtlr.eliminar_archivo(req.params.id_archivo);
             res.json(resultado);
         }
-        else{
-            if(!error_encontrado){
-                res.status(400);
-                res.send("No se cuenta con los permisos necesarios");
-            }
-        }
     }catch(err){
-        console.log(err);
-        res.status(400);
-        res.send("Algo salió mal");
+        mapearError(res, err);
     }
 });
 

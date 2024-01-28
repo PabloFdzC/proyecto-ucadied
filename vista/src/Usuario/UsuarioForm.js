@@ -24,7 +24,7 @@ class UsuarioForm extends React.Component {
             identificacion: this.campos.identificacion ? this.campos.identificacion : "",
             profesion: this.campos.profesion ? this.campos.profesion : "",
             email: this.campos.email ? this.campos.email : "",
-            telefonos:this.campos.telefonos ? this.campos.telefonos : [],
+            telefonos:this.campos.telefonos ? (typeof(this.campos.telefonos) === "string" ? JSON.parse(this.campos.telefonos) : this.campos.telefonos) : [],
             id_organizacion: this.campos.id_organizacion ? this.campos.id_organizacion : "",
             puesto: this.campos.puesto ? this.campos.puesto : "",
             edita_pagina: this.campos.edita_pagina ? this.campos.edita_pagina : false,

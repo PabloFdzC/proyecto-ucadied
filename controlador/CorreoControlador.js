@@ -3,12 +3,12 @@ const nodemailer = require('nodemailer');
 
 
 async function enviarCorreo(html, asunto, emailPara){
-    const emailDe = 'sistemaucadied@gmail.com';
+    const emailDe = process.env.EMAIL_UCADIED;
     const transporter = nodemailer.createTransport({
         service: 'gmail',
         auth: {
         user: emailDe,
-        pass: 'bxlumqofylsqxqjk'
+        pass: process.env.PASS_EMAIL_UCADIED
         }
     });
     

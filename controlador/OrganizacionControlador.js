@@ -5,11 +5,16 @@ const { Op } = require("sequelize");
 const sequelize = require("sequelize");
 const juntaDirectivaCtrl = require("./PuestoControlador");
 const { enviarCorreo } = require('./CorreoControlador');
+const { verificarEncontrado } = require('./verificaErrores');
 
 // Función para consultar un conjunto de organizaciones.
 // Se debe enviar como parámetro los filtros de búsqueda.
 async function consultar(params){
-    return await queries_generales.consultar(organizacion, {where: params});
+    const resultados = await queries_generales.consultar(organizacion, {where: params});
+    
+    verificarEncontrado(resultados, "No se encontró la organización");
+
+    return resultados;
 }
 
 // Consulta organizaciones de un tipo, si se
@@ -17,20 +22,26 @@ async function consultar(params){
 // uniones, si es false, devuelve
 // asociaciones.
 async function consultarTipo(esUnion){
+    let resultado;
+    
     if(esUnion === '1'){
-        return await queries_generales.consultar(organizacion, {where: {
+        resultado = await queries_generales.consultar(organizacion, {where: {
             id: {
                 [Op.eq]: sequelize.col('id_organizacion')
             }
         }});
     }
     else{
-        return await queries_generales.consultar(organizacion, {where: {
+        resultado = await queries_generales.consultar(organizacion, {where: {
             id: {
                 [Op.not]: sequelize.col('id_organizacion')
             }
         }});
     }
+
+    verificarEncontrado(resultados, "No se encontró la organización");
+
+    return resultado;
 }
 
 // Función para crear una organización. Recibe como parámetro
@@ -87,11 +98,15 @@ async function eliminarMiembro(id_usuario){
 // Función para consultar los miembros de una organización, recibe
 // un parámetro donde viene el id de la organización.
 async function consultarMiembros(id_organizacion){
-    return await queries_generales.consultar(usuario, {
+    const resultado = await queries_generales.consultar(usuario, {
         where: {
             id_organizacion
         }
     });
+
+    verificarEncontrado(resultados, "No se encontraron los miembros");
+
+    return resultado;
 }
 
 async function externoEnviaCorreo(info){

@@ -5,6 +5,12 @@ const actividadCtlr = require('./ActividadControlador');
 const inmuebleCtlr = require('./InmuebleControlador');
 const puestoCtlr = require('./PuestoControlador');
 const { verificarCaptcha } = require('./captcha');
+const {
+    salioBien,
+    mapearError,
+    estaUsuarioLoggeado,
+    CODIGO_STATUS_HTTP
+} = require('respuestas.js');
 
 // Ruta para consultar un conjunto de actividades.
 // Se pueden mandar parámentros por medio de variables
@@ -45,12 +51,9 @@ router.get('/consultar', async (req, res) => {
         }
         
         actividades = await actividadCtlr.consultar(paramsActividad, paramsReserva, paramsInmueble, req.session.idUsuario);
-
-        res.json(actividades);
+        salioBien(actividades);
     }catch(err){
-        console.log(err);
-        res.status(400);
-        res.send("Algo salió mal");
+        mapearError(res, err);
     }
 });
 
@@ -58,24 +61,12 @@ router.get('/consultar', async (req, res) => {
 // información de la actividad como body.
 router.post('/crear', jsonParser, async (req, res) => {
     try{
-        //const resp = {exito:true};
         const resp = await verificarCaptcha(req.body.captcha);
         delete req.body.captcha;
-        if(resp.exito){
-            const actividad_creada = await actividadCtlr.crear_habilitar(req.body, req.session.idUsuario, false);
-            if(actividad_creada.error || actividad_creada.errores){
-                res.status(400);
-            }
-            res.json(actividad_creada);
-        } else { 
-            console.log(resp);
-            res.status(400);
-            res.send(resp);    
-        }
+        const actividad_creada = await actividadCtlr.crear_habilitar(req.body, req.session.idUsuario, false);
+        res.json(actividad_creada);
     }catch(err){
-        console.log(err);
-        res.status(400);
-        res.send("Algo salió mal");
+        mapearError(res, err);
     }
 });
 
@@ -85,52 +76,30 @@ router.post('/crear', jsonParser, async (req, res) => {
 // tenga el permiso de modificar actividades dentro de la organización.
 router.put('/modificar/:id_actividad', jsonParser, async (req, res) => {
     try{
-        let habilitado = false;
-        if(req.session.idUsuario && req.session.idUsuario != -1){
-            if(req.session.tipoUsuario === "Administrador")
-                habilitado = true;
-            else
-                habilitado = verificaPermisos(req.params.id_actividad, req.session.idUsuario);
-        }
-        if(habilitado){
-            const resultado = await actividadCtlr.modificar(req.params.id_actividad, req.body);
-            if(resultado.error || resultado.errores){
-                res.status(400);
+        if(estaUsuarioLoggeado(req)){
+            if(req.session.tipoUsuario !== "Administrador"){
+                verificaPermisos(req.params.id_actividad, req.session.idUsuario);
             }
-            res.json(resultado);
         }
-        else{
-            res.status(400);
-            res.send("No se cuenta con los permisos necesarios");
-        }
+        const resultado = await actividadCtlr.modificar(req.params.id_actividad, req.body);
+        salioBien(resultado);
     }catch(err){
-        console.log(err);
-        devuelveError(err, res);
+        mapearError(res, err);
     }
 });
 
 router.delete('/eliminarReserva/:id_reserva', async (req, res) => {
     try{
         let habilitado = false;
-        if(req.session.idUsuario && req.session.idUsuario != -1){
-            if(req.session.tipoUsuario === "Administrador"){
-                habilitado = true;
+        if(estaUsuarioLoggeado(req)){
+            if(req.session.tipoUsuario !== "Administrador"){
+                verificaPermisosReserva(req.params.id_reserva, req.session.idUsuario);
             }
-            else{
-                habilitado = verificaPermisosReserva(req.params.id_reserva, req.session.idUsuario);
-            }
-        }
-        if(habilitado){
             const resp = await actividadCtlr.eliminarReserva(req.params.id_reserva);
             res.json(resp);
         }
-        else{
-            res.status(400);
-            res.send("No se cuenta con los permisos necesarios");
-        }
     }catch(err){
-        console.log(err);
-        devuelveError(err, res);
+        mapearError(res, err);
     }
 });
 
@@ -140,26 +109,15 @@ router.delete('/eliminarReserva/:id_reserva', async (req, res) => {
 // actividades dentro de la organización.
 router.delete('/eliminarReservasInhabilitadas/:id_actividad', async (req, res) => {
     try{
-        let habilitado = false;
-        if(req.session.idUsuario && req.session.idUsuario != -1){
-            if(req.session.tipoUsuario === "Administrador"){
-                habilitado = true;
+        if(estaUsuarioLoggeado(req)){
+            if(req.session.tipoUsuario !== "Administrador"){
+                verificaPermisos(req.params.id_actividad, req.session.idUsuario);
             }
-            else{
-                habilitado = verificaPermisos(req.params.id_actividad, req.session.idUsuario);
-            }
-        }
-        if(habilitado){
             const resp = await actividadCtlr.eliminarReservasInhabilitadas(req.params.id_actividad);
             res.json(resp);
         }
-        else{
-            res.status(400);
-            res.send("No se cuenta con los permisos necesarios");
-        }
     }catch(err){
-        console.log(err);
-        devuelveError(err, res);
+        mapearError(res, err);
     }
 });
 
@@ -170,48 +128,33 @@ router.delete('/eliminarReservasInhabilitadas/:id_actividad', async (req, res) =
 router.post('/habilitarReservas', jsonParser, async (req, res) => {
     try{
         var habilitado = false;
-        var error_encontrado = false;
-        if(req.session.idUsuario && req.session.idUsuario != -1){
+        if(estaUsuarioLoggeado(req)){
             if(req.session.tipoUsuario === "Administrador"){
                 habilitado = true;
             }
             else{
                 if(req.body.id_inmueble){
                     const inmuebles = await inmuebleCtlr.consultar({id: req.body.id_inmueble});
-                    if(inmuebles.length === 1){
-                        const inmueble = inmuebles[0];
-                        habilitado = await puestoCtlr.consultar_permisos(req.session.idUsuario, inmueble.id_organizacion, "edita_actividad");
+                    
+                    const inmueble = inmuebles[0];
+                    if(req.session.tipoUsuario !== "Administrador"){
+                        await puestoCtlr.consultar_permisos(req.session.idUsuario, inmueble.id_organizacion, "edita_actividad");
                     }
-                    else{
-                        error_encontrado = true;
-                        res.status(400);
-                        res.send("No se encontró el inmueble");    
-                    }
+                    
+                    const resp = await actividadCtlr.crear_habilitar(req.body, req.session.idUsuario, true);
+                    res.json(resp);
                 }
                 else{
-                    error_encontrado = true;
-                    res.status(400);
-                    res.send("Parametros incorrectos");
+                    throw {
+                        errorConocido: true,
+                        status: CODIGO_STATUS_HTTP.ERROR_USUARIO,
+                        error: "Parametros incorrectos"
+                    }
                 }
-            }
-        }
-        if(habilitado){
-            const resp = await actividadCtlr.crear_habilitar(req.body, req.session.idUsuario, true);
-            if(resp.error || resp.errores){
-                console.log(resp);
-                res.status(400);
-            }
-            res.json(resp);
-        }
-        else{
-            if(!error_encontrado){
-                res.status(400);
-                res.send("No se cuenta con los permisos necesarios");
             }
         }
     }catch(err){
-        console.log(err);
-        devuelveError(err, res);
+        mapearError(res, err);
     }
 });
 
@@ -221,26 +164,15 @@ router.post('/habilitarReservas', jsonParser, async (req, res) => {
 // de la organización.
 router.delete('/eliminar/:id_actividad', async (req, res) => {
     try{
-        let habilitado = false;
-        if(req.session.idUsuario && req.session.idUsuario != -1){
-            if(req.session.tipoUsuario === "Administrador"){
-                habilitado = true;
+        if(estaUsuarioLoggeado(req)){
+            if(req.session.tipoUsuario !== "Administrador"){
+                verificaPermisos(req.params.id_actividad, req.session.idUsuario);
             }
-            else{
-                habilitado = verificaPermisos(req.params.id_actividad, req.session.idUsuario);
-            }
-        }
-        if(habilitado){
             const resultado = await actividadCtlr.eliminar(req.params.id_actividad);
             res.json(resultado);
         }
-        else{
-            res.status(400);
-            res.send("No se cuenta con los permisos necesarios");
-        }
     }catch(err){
-        console.log(err);
-        devuelveError(err, res);
+        mapearError(res, err);
     }
 });
 
@@ -259,22 +191,25 @@ async function verificaPermisos(id_actividad, id_usuario){
             }
             else{
                 throw {
-                    status: 400,
+                    status: CODIGO_STATUS_HTTP.NO_ENCONTRADO,
                     error: "No se encontró el inmueble",
+                    errorConocido: true
                 };   
             }
         }
         else{
             throw {
-                status: 400,
+                status: CODIGO_STATUS_HTTP.NO_ENCONTRADO,
                 error: "No se encontraron las reservas",
+                errorConocido: true
             };
         }
     }
     else{
         throw {
-            status: 400,
+            status: CODIGO_STATUS_HTTP.NO_ENCONTRADO,
             error: "No se encontró la actividad",
+            errorConocido: true
         };
     }
 }
@@ -287,19 +222,10 @@ async function verificaPermisosReserva(id_reserva, id_usuario){
     }
     else{
         throw {
-            status: 400,
+            status: CODIGO_STATUS_HTTP.NO_ENCONTRADO,
             error: "No se encontró el inmueble",
+            errorConocido: true
         };   
-    }
-}
-
-function devuelveError(err, res){
-    if(typeof err === "object" && err.error && err.status){
-        res.status(err.status);
-        res.send(err.error);
-    }else{
-        res.send("Algo salió mal");
-        res.status(400);
     }
 }
 

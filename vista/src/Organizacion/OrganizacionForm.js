@@ -40,7 +40,7 @@ class OrganizacionForm extends React.Component {
             territorio: this.campos.territorio ? this.campos.territorio : "",
             domicilio: this.campos.domicilio ? this.campos.domicilio : "",
             cedula: this.campos.cedula ? this.campos.cedula : "",
-            telefonos:this.campos.telefonos ? this.campos.telefonos : [],
+            telefonos:this.campos.telefonos ? (typeof(this.campos.telefonos) === "string" ? JSON.parse(this.campos.telefonos) : this.campos.telefonos) : [],
             email:this.campos.email ? this.campos.email : "",
             id_organizacion:this.campos.id_organizacion ? this.campos.id_organizacion : "",
             puestos: [],
@@ -188,7 +188,7 @@ class OrganizacionForm extends React.Component {
                     id_organizacion:this.state.campos.id_organizacion,
                     puestos: this.state.puestos,
                 };
-                campos.email = campos.email + "@ucadied.org";
+                campos.email = campos.email + "@ucadesampa.org";
                 var mensajeExito = "¡Agregado con éxito!";
                 var resp;
                 if(this.accion === "Agregar"){
@@ -344,7 +344,7 @@ class OrganizacionForm extends React.Component {
                                         <label htmlFor="email" className="form-label">Email</label>
                                         <div className="input-group mb-3">
                                             <input type="text" className={this.state.errores.email.length > 0 ? "form-control is-invalid":"form-control"} key="email" name="email" value={this.state.campos.email} onChange={this.manejaCambio} aria-label="email" aria-describedby="email" />
-                                            <span className="input-group-text" id="email">@ucadied.org</span>
+                                            <span className="input-group-text" id="email">@ucadesampa.org</span>
                                             <div className="invalid-tooltip">
                                                 {this.state.errores.email}
                                             </div>

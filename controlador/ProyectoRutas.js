@@ -4,6 +4,8 @@ const jsonParser  = bodyParser.json({ extended: false });
 const proyectoCtlr = require('./ProyectoControlador');
 const gastoCtlr = require('./GastoControlador');
 const puestoCtlr = require('./PuestoControlador');
+const {estaUsuarioLoggeado,CODIGO_STATUS_HTTP} = require('respuestas');
+const { mapearError } = require('./respuestas');
 
 // Ruta para consultar un proyecto en específico.
 // Se manda el id del proyecto en la dirección.
@@ -14,27 +16,18 @@ router.get('/consultar/:id', async (req, res) => {
     try{
         var habilitado = false;
         var proyectos = []
-        if(req.session.idUsuario && req.session.idUsuario != -1){
+        if(estaUsuarioLoggeado(req)){
             proyectos = await proyectoCtlr.consultar(req.params);
-            if(req.session.tipoUsuario === "Administrador"){
-                habilitado = true;
-            }
-            else if(proyectos.length === 1){
+            
+            if(req.session.tipoUsuario !== "Administrador"){
                 const proyecto = proyectos[0];
-                habilitado = await puestoCtlr.consultar_permisos(req.session.idUsuario, proyecto.id_organizacion, "edita_proyecto");
+                await puestoCtlr.consultar_permisos(req.session.idUsuario, proyecto.id_organizacion, "edita_proyecto");
             }
-        }
-        if(habilitado){
+
             res.json(proyectos);
         }
-        else{
-            res.status(400);
-            res.send("No se cuenta con los permisos necesarios");
-        }
     }catch(err){
-        console.log(err);
-        res.status(400);
-        res.send("Algo salió mal");
+        mapearError(res, err);
     }
 });
 
@@ -57,7 +50,7 @@ router.get('/consultar', async (req, res) => {
         if(req.query.id_organizacion){
             params.id_organizacion = req.query.id_organizacion;
         }
-        if(req.session.idUsuario && req.session.idUsuario != -1){
+        if(estaUsuarioLoggeado(req)){
             if(req.session.tipoUsuario === "Administrador"){
                 habilitado = true;
             }
@@ -85,14 +78,8 @@ router.get('/consultar', async (req, res) => {
                 res.json(proyectos);
             }
         }
-        else{
-            res.status(400);
-            res.send("No se cuenta con los permisos necesarios");
-        }
     }catch(err){
-        console.log(err);
-        res.status(400);
-        res.send("Algo salió mal");
+        mapearError(res, err);
     }
 });
 
@@ -102,35 +89,15 @@ router.get('/consultar', async (req, res) => {
 // permiso de modificar proyectos dentro de la organización.
 router.post('/crear', jsonParser, async (req, res) => {
     try{
-        var habilitado = false;
-        var error_encontrado = false;
-        if(req.session.idUsuario && req.session.idUsuario != -1){
-            if(req.session.tipoUsuario === "Administrador"){
-                habilitado = true;
+        if(estaUsuarioLoggeado(req)){
+            if(req.session.tipoUsuario !== "Administrador"){
+                await puestoCtlr.consultar_permisos(req.session.idUsuario, req.body.id_organizacion, "edita_proyecto");
             }
-            if(req.body.id_organizacion){
-                habilitado = await puestoCtlr.consultar_permisos(req.session.idUsuario, req.body.id_organizacion, "edita_proyecto");
-            }
-            else{
-                error_encontrado = true;
-                res.status(400);
-                res.send("Parametros incorrectos");
-            }
-        }
-        if(habilitado){
             const proyecto_creado = await proyectoCtlr.crear(req.body);
             res.json(proyecto_creado);
         }
-        else{
-            if(!error_encontrado){
-                res.status(400);
-                res.send("No se cuenta con los permisos necesarios");
-            }
-        }
     }catch(err){
-        console.log(err);
-        res.status(400);
-        res.send("Algo salió mal");
+        mapearError(res, err);
     }
 });
 
@@ -142,37 +109,18 @@ router.put('/modificar/:id_proyecto', jsonParser, async (req, res) => {
     try{
         var habilitado = false;
         var error_encontrado = false;
-        if(req.session.idUsuario && req.session.idUsuario != -1){
-            if(req.session.tipoUsuario === "Administrador"){
-                habilitado = true;
-            }
-            else{
+        if(estaUsuarioLoggeado(req)){
+            if(req.session.tipoUsuario !== "Administrador"){
                 const proyectos = await proyectoCtlr.consultar({id: req.params.id_proyecto});
-                if(proyectos.length === 1){
-                    const proyecto = proyectos[0];
-                    habilitado = await puestoCtlr.consultar_permisos(req.session.idUsuario, proyecto.id_organizacion, "edita_proyecto");
-                }
-                else{
-                    res.status(400);
-                    res.send("No se encontró el proyecto");
-                    error_encontrado = true;
-                }
+
+                const proyecto = proyectos[0];
+                await puestoCtlr.consultar_permisos(req.session.idUsuario, proyecto.id_organizacion, "edita_proyecto");
             }
-        }
-        if(habilitado){
             const resultado = await proyectoCtlr.modificar(req.params.id_proyecto, req.body)
             res.json(resultado);
         }
-        else{
-            if(!error_encontrado){
-                res.status(400);
-                res.send("No se cuenta con los permisos necesarios");
-            }
-        }
     }catch(err){
-        console.log(err);
-        res.status(400);
-        res.send("Algo salió mal");
+        mapearError(res, err);
     }
 });
 
@@ -182,39 +130,19 @@ router.put('/modificar/:id_proyecto', jsonParser, async (req, res) => {
 // de la organización.
 router.delete('/eliminar/:id', async (req, res) => {
     try{
-        var habilitado = false;
-        var error_encontrado = false;
-        if(req.session.idUsuario && req.session.idUsuario != -1){
-            if(req.session.tipoUsuario === "Administrador"){
-                habilitado = true;
-            }
-            else{
+        if(estaUsuarioLoggeado(req)){
+            if(req.session.tipoUsuario !== "Administrador"){
                 const proyectos = await proyectoCtlr.consultar(req.params);
-                if(proyectos.length === 1){
-                    const proyecto = proyectos[0];
-                    habilitado = await puestoCtlr.consultar_permisos(req.session.idUsuario, proyecto.id_organizacion, "edita_proyecto");
-                }
-                else{
-                    error_encontrado = true;
-                    res.status(400);
-                    res.send("No se encontró el proyecto");
-                }
+
+                const proyecto = proyectos[0];
+                await puestoCtlr.consultar_permisos(req.session.idUsuario, proyecto.id_organizacion, "edita_proyecto");
             }
-        }
-        if(habilitado){
+
             const resultado = await proyectoCtlr.eliminar(req.params.id);
             res.json(resultado);
         }
-        else{
-            if(!error_encontrado){
-                res.status(400);
-                res.send("No se cuenta con los permisos necesarios");
-            }
-        }
     }catch(err){
-        console.log(err);
-        res.status(400);
-        res.send("Algo salió mal");
+        mapearError(res, err);
     }
 });
 
@@ -224,39 +152,19 @@ router.delete('/eliminar/:id', async (req, res) => {
 // modificar proyectos dentro de la organización.
 router.get('/consultarGastos/:id', async (req, res) => {
     try{
-        var habilitado = false;
-        var error_encontrado = false;
-        if(req.session.idUsuario && req.session.idUsuario != -1){
-            if(req.session.tipoUsuario === "Administrador"){
-                habilitado = true;
-            }
-            else{
+        if(estaUsuarioLoggeado(req)){
+            if(req.session.tipoUsuario !== "Administrador"){
                 const proyectos = await proyectoCtlr.consultar(req.params);
-                if(proyectos.length === 1){
-                    const proyecto = proyectos[0];
-                    habilitado = await puestoCtlr.consultar_permisos(req.session.idUsuario, proyecto.id_organizacion, "edita_proyecto");
-                }
-                else{
-                    error_encontrado = true;
-                    res.status(400);
-                    res.send("No se encontró el proyecto");
-                }
+
+                const proyecto = proyectos[0];
+                await puestoCtlr.consultar_permisos(req.session.idUsuario, proyecto.id_organizacion, "edita_proyecto");
             }
-        }
-        if(habilitado){
+
             const gastos = await gastoCtlr.consultar(req.params);
             res.json(gastos);
         }
-        else{
-            if(!error_encontrado){
-                res.status(400);
-                res.send("No se cuenta con los permisos necesarios");
-            }
-        }
     }catch(err){
-        console.log(err);
-        res.status(400);
-        res.send("Algo salió mal");
+        mapearError(res, err);
     }
 });
 
