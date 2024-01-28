@@ -130,7 +130,7 @@ class GastoForm extends React.Component {
           }catch(error){
               this.setState({
                 muestraMensajeError: true,
-                mensajeError:error.response.data,
+                mensajeError:error.response.data.error,
               });
           }
       }

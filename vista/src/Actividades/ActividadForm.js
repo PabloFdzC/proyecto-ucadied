@@ -328,7 +328,7 @@ class ActividadForm extends React.Component {
                 });
             } catch (error) {
                 console.log(error);
-                if (error.response.data.errores.length === datos.dias.length) {
+                if (error.response.data.info.length === datos.dias.length) {
                     this.setState({
                         procesando: false,
                         mensajeError: "No hay espacios disponibles en las fechas seleccionadas.",

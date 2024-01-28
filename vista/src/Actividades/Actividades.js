@@ -306,8 +306,8 @@ class Actividades extends React.Component {
                 });
                 this.eliminaElementoTablaPrincipal();
             } catch(error){
-                if(error.response.data.errores){
-                    if(error.response.data.errores.length > 1){
+                if(error.response.data.error){
+                    if(error.response.data.info.length > 1){
                         this.setState({
                             mensajeModal: "No se puede habilitar, ya hay reservas habilitadas en esos horarios.",
                         });
