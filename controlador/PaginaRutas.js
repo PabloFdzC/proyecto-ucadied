@@ -5,8 +5,7 @@ const paginaCtlr = require('./PaginaControlador');
 const puestoCtlr = require('./PuestoControlador');
 const multer = require('multer');
 const path = require('path');
-const {estaUsuarioLoggeado,CODIGO_STATUS_HTTP} = require('respuestas');
-const { mapearError } = require('./respuestas');
+const {estaUsuarioLoggeado, mapearError} = require('./respuestas');
 
 // Se define la carpeta donde se guardan los archivos
 // y se define el nombre que tendrán.

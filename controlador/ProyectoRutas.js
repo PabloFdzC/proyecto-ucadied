@@ -4,8 +4,7 @@ const jsonParser  = bodyParser.json({ extended: false });
 const proyectoCtlr = require('./ProyectoControlador');
 const gastoCtlr = require('./GastoControlador');
 const puestoCtlr = require('./PuestoControlador');
-const {estaUsuarioLoggeado,CODIGO_STATUS_HTTP} = require('respuestas');
-const { mapearError } = require('./respuestas');
+const { mapearError, estaUsuarioLoggeado } = require('./respuestas');
 
 // Ruta para consultar un proyecto en específico.
 // Se manda el id del proyecto en la dirección.

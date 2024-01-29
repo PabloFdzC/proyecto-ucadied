@@ -5,7 +5,7 @@ const queries_generales = require('./QueriesGenerales');
 const organizacionCtrl = require('./OrganizacionControlador');
 const puestoCtlr = require('./PuestoControlador');
 const correoCtlr = require('./CorreoControlador');
-const {CODIGO_STATUS_HTTP} = require('respuestas.js');
+const {CODIGO_STATUS_HTTP} = require('./respuestas');
 const { verificarEncontrado } = require('./verificaErrores');
 
 // Esta función se encarga de crear una contraseña aleatoria de 16 dígitos

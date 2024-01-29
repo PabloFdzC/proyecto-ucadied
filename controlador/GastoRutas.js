@@ -4,7 +4,7 @@ const jsonParser  = bodyParser.json({ extended: false });
 const gastoCtlr = require('./GastoControlador');
 const puestoCtlr = require('./PuestoControlador');
 const proyectoCtlr = require('./ProyectoControlador');
-const {estaUsuarioLoggeado,CODIGO_STATUS_HTTP} = require('respuestas');
+const {estaUsuarioLoggeado,CODIGO_STATUS_HTTP} = require('./respuestas');
 
 // Ruta para consultar un conjunto de gastos.
 // Se pueden mandar parámetros por medio de variables

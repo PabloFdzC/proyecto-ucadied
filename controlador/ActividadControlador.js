@@ -6,7 +6,7 @@ const reserva_inmueble = require('../modelo/reserva_inmueble');
 const { Op } = require("sequelize");
 const Sequelize = require("sequelize");
 const inmueble = require('../modelo/inmueble');
-const {CODIGO_STATUS_HTTP} = require('respuestas');
+const {CODIGO_STATUS_HTTP} = require('./respuestas');
 const { verificarEncontrado } = require('./verificaErrores');
 
 // Función para consultar un conjunto de actividades. Se mandan como

@@ -2,8 +2,7 @@ const router = require('express').Router();
 const bodyParser = require('body-parser');
 const jsonParser  = bodyParser.json({ extended: false });
 const puestoCtlr = require('./PuestoControlador');
-const {estaUsuarioLoggeado,CODIGO_STATUS_HTTP} = require('respuestas');
-const { mapearError } = require('./respuestas');
+const {estaUsuarioLoggeado,CODIGO_STATUS_HTTP,mapearError} = require('./respuestas');
 
 // Ruta para modificar un puesto, se debe mandar
 // el id del puesto en la dirección del puesto y 

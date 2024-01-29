@@ -2,7 +2,7 @@ const router = require('express').Router();
 
 const bodyParser = require('body-parser');
 const jsonParser  = bodyParser.json({ extended: false });
-const {CODIGO_STATUS_HTTP} = require('respuestas.js');
+const {CODIGO_STATUS_HTTP} = require('./respuestas.js');
 
 const usuarioCtrl = require('./UsuarioControlador');
 

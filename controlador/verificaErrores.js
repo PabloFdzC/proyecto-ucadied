@@ -1,4 +1,4 @@
-const { CODIGO_STATUS_HTTP } = require('respuestas.js');
+const { CODIGO_STATUS_HTTP } = require('./respuestas');
 
 const verificarEncontrado = (listaResultados, error) => {
     if(listaResultados.length === 0){

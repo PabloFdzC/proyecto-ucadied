@@ -4,8 +4,7 @@ const bodyParser = require('body-parser');
 const jsonParser  = bodyParser.json({ extended: false });
 const usuarioCtrl = require('./UsuarioControlador');
 const { verificarCaptcha } = require('./captcha');
-const {estaUsuarioLoggeado,CODIGO_STATUS_HTTP} = require('respuestas');
-const { mapearError } = require('./respuestas');
+const {mapearError,estaUsuarioLoggeado,CODIGO_STATUS_HTTP} = require('./respuestas');
 
 // Ruta para saber si hay una sesión activa
 // en el sistema.

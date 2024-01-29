@@ -10,7 +10,7 @@ const {
     mapearError,
     estaUsuarioLoggeado,
     CODIGO_STATUS_HTTP
-} = require('respuestas.js');
+} = require('./respuestas.js');
 
 // Ruta para consultar un conjunto de actividades.
 // Se pueden mandar parámentros por medio de variables

@@ -3,7 +3,7 @@ const { Op } = require("sequelize");
 const Sequelize = require("sequelize");
 const reserva_inmueble = require('../modelo/reserva_inmueble');
 const queries_generales = require('./QueriesGenerales');
-const { verificarEncontrado } = require('verificaErrores.js');
+const { verificarEncontrado } = require('./verificaErrores');
 
 // Función para consultar un conjunto de inmuebles.
 // Se debe enviar como parámetro los filtros de búsqueda.

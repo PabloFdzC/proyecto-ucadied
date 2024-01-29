@@ -1,5 +1,5 @@
 const fetch = require("isomorphic-fetch");
-const {CODIGO_STATUS_HTTP} = require('respuestas');
+const {CODIGO_STATUS_HTTP} = require('./respuestas');
 
 // Una vez se hace el captcha en la interfaz de usuario
 // es necesario verificar que de verdad se haya hecho

@@ -3,8 +3,7 @@ const bodyParser = require('body-parser');
 const jsonParser  = bodyParser.json({ extended: false });
 const organizacionCtrl = require('./OrganizacionControlador');
 const nodemailer = require('nodemailer');
-const {estaUsuarioLoggeado,CODIGO_STATUS_HTTP} = require('respuestas');
-const { mapearError } = require('./respuestas');
+const {estaUsuarioLoggeado,CODIGO_STATUS_HTTP, mapearError} = require('./respuestas');
 const { verificarCaptcha } = require('./captcha');
 
 
