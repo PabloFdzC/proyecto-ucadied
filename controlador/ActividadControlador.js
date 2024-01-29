@@ -101,6 +101,7 @@ async function buscar_disponibilidad_horario(inicio, final, horario){
     const dias_semana = ['D', 'L', 'K', 'M', 'J', 'V', 'S'];
     const dia = dias_semana[inicio.getDay()];
     var dia_horario;
+    console.log(horario);
     for(var i = 0; i < horario.length; i+=1){
         dia_horario = horario[i].dia;
         if(dia_horario === dia){
@@ -166,7 +167,7 @@ async function crear_habilitar(info, id_usuario, habilitar){
         
         const inmueble = inmuebles[0];
         const horario = inmueble.horario;
-        if(info.dias){
+        if(info.dias && Array.isArray(info.dias) && info.dias.length){
             const errores = await buscar_disponibilidad_dias(info.dias, horario, info.id_inmueble);
             if(errores.length === 0){
                 if(habilitar){
@@ -184,8 +185,6 @@ async function crear_habilitar(info, id_usuario, habilitar){
         else{
             throw {error: "Información de días no enviada", status: CODIGO_STATUS_HTTP.ERROR_USUARIO, errorConocido:true}
         }
-    }else{
-        throw {error: "inmueble no encontrado", status: CODIGO_STATUS_HTTP.NO_ENCONTRADO, errorConocido:true};
     }
 }
 

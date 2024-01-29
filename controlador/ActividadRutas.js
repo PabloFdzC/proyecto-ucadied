@@ -51,7 +51,7 @@ router.get('/consultar', async (req, res) => {
         }
         
         actividades = await actividadCtlr.consultar(paramsActividad, paramsReserva, paramsInmueble, req.session.idUsuario);
-        salioBien(actividades);
+        salioBien(res, actividades);
     }catch(err){
         mapearError(res, err);
     }
@@ -61,6 +61,9 @@ router.get('/consultar', async (req, res) => {
 // información de la actividad como body.
 router.post('/crear', jsonParser, async (req, res) => {
     try{
+        console.log("=======================");
+        console.log(req.body);
+        console.log("=======================");
         const resp = await verificarCaptcha(req.body.captcha);
         delete req.body.captcha;
         const actividad_creada = await actividadCtlr.crear_habilitar(req.body, req.session.idUsuario, false);

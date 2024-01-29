@@ -35,7 +35,7 @@ async function consultar_reservas(params){
 
     verificarEncontrado(resultado, "No se encontraron las reservas");
     
-    return resultado
+    return resultado;
 
 }
 

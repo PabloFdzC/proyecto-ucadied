@@ -249,8 +249,10 @@ class ActividadForm extends React.Component {
         var dias = [];
         var fechaInicio = stringAFecha(this.state.campos.fechaInicio);
         var fechaFinal = stringAFecha(this.state.campos.fechaFinal);
-        while (fechaInicio <= fechaFinal) {
-            if (this.state.campos.repeticion[fechaInicio.getUTCDay()]) {
+        const mismoDia = fechaInicio.toUTCString() === fechaFinal.toUTCString();
+        console.log(fechaInicio, fechaFinal);
+        while (fechaInicio < fechaFinal || mismoDia) {
+            if (this.state.campos.repeticion[fechaInicio.getDay()] || mismoDia) {
                 let [horaI, minI] = partirStringHora(this.state.campos.horaInicio.value);
                 let [horaF, minF] = partirStringHora(this.state.campos.horaFinal.value);
                 let inicio = new Date(fechaInicio);
@@ -261,6 +263,9 @@ class ActividadForm extends React.Component {
                     inicio: inicio.toUTCString(),
                     final: final.toUTCString(),
                 })
+            }
+            if(mismoDia){
+                break;
             }
             fechaInicio.setUTCDate(fechaInicio.getUTCDate() + 1);
         }
@@ -327,16 +332,20 @@ class ActividadForm extends React.Component {
                     titulo: "¡Agregada con éxito!",
                 });
             } catch (error) {
-                console.log(error);
-                if (error.response.data.info.length === datos.dias.length) {
+                if (error.response.data.info && error.response.data.info.length === datos.dias.length) {
                     this.setState({
                         procesando: false,
                         mensajeError: "No hay espacios disponibles en las fechas seleccionadas.",
                         muestraMensajeError: true,
                     });
+                } else if(error.response.data.info){
+                    this.diasPosibles(datos.dias, error.response.data.info);
                 } else {
-                    this.diasPosibles(datos.dias, error.response.data.errores);
+                    this.setState({
+                        procesando: false,
+                    });
                 }
+                
             }
         } else {
             if (this.state.errores.nombre.length !== 0 || this.state.errores.tipo.length !== 0 ||

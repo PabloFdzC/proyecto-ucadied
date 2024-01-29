@@ -51,7 +51,10 @@ class Navegacion extends React.Component {
                                 </NavDropdown>
                                 <Nav.Link as={Link} to="/asociaciones">Asociaciones</Nav.Link>
                                 <Nav.Link as={Link} to={"/proyectos/"+organizacion.id}>Proyectos</Nav.Link>
-                                <Nav.Link as={Link} to={"/actividades/"+organizacion.id}>Actividades</Nav.Link>
+                                <NavDropdown title="Actividades">
+                                <NavDropdown.Item as={Link} to={"/actividades/"+organizacion.id} >Administrar</NavDropdown.Item>
+                                <NavDropdown.Item as={Link} to={"/calendarioActividades/"+organizacion.id} >Agregar actividad</NavDropdown.Item>
+                                </NavDropdown>
                                 <Nav.Link as={Link} to={"/inmuebles/"+organizacion.id}>Inmuebles</Nav.Link>
                                 <Nav.Link as={Link} to={"/editarSitio/"+organizacion.id}>Editar Sitio</Nav.Link>
 
