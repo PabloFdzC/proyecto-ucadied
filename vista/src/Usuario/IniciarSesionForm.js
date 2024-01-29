@@ -47,6 +47,7 @@ class IniciarSesionForm extends React.Component {
                 const resp = await this.queriesGenerales.postear("/usuario/iniciarSesion", this.state.campos);
                 iniciarSesionUsuario(resp.data);
             }catch(error){
+                console.log(error);
                 this.setState({
                     mensajeError:error.response.data.error,
                     muestraMensajeError:true,

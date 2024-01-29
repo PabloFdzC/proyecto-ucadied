@@ -5,8 +5,8 @@ class QueriesGenerales {
         if(!config){
             config = {};
         }
-        //this.url = config.url ? config.url : "http://localhost:8080/";
-        this.url = config.url ? config.url : "https://ucadesampa.org/api";
+        this.url = config.url ? config.url : "http://localhost:8080/api";
+        //this.url = config.url ? config.url : "https://ucadesampa.org/api";
         this.http = axios.create({
             baseURL: this.url, 
             headers: (typeof config.headers) === "object" &&  config.headers ? config.headers : {

@@ -3,19 +3,20 @@ const multimedia = require('../modelo/multimedia');
 const queries_generales = require('./QueriesGenerales');
 const fs = require('fs');
 const path = require('path');
+const { verificarEncontrado } = require('./verificaErrores');
 
 // Función para consultar un conjunto de páginas.
 // Se debe enviar como parámetro los filtros de
 // búsqueda.
 async function consultar(params){
-    const resultado = await queries_generales.consultar(pagina,
+    const resultados = await queries_generales.consultar(pagina,
         {
             where: params
         });
 
     verificarEncontrado(resultados, "No se encontró la página");
 
-    return resultado;
+    return resultados;
 }
 
 // Función para crear una página. Recibe como parámetro
@@ -76,14 +77,14 @@ async function eliminar_archivos(archivos){
 // Se debe enviar como parámetro los filtros de
 // búsqueda.
 async function consultar_archivos(params){
-    const resultado = await queries_generales.consultar(multimedia,
+    const resultados = await queries_generales.consultar(multimedia,
         {
             where: params
         });
 
     verificarEncontrado(resultados, "No se encontraron los archivos");
     
-    return resultado;
+    return resultados;
 }
 
 // Función para eliminar un archivo de la

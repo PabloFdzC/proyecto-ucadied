@@ -1,3 +1,5 @@
+const { inspect } = require('util');
+
 const CODIGO_STATUS_HTTP = {
     OK: 200,
     CREADO: 201,
@@ -7,9 +9,12 @@ const CODIGO_STATUS_HTTP = {
     NO_AUTORIZADO: 403,
     NO_ENCONTRADO: 404,
     ERROR_SERVER: 500
-}
+};
 
 const mapearError = (res, err) => {
+    console.log("====================");
+    console.log(err);
+    console.log("====================");
     if(err.errorConocido){
         respuestaError(res, err);
     }else{
@@ -17,23 +22,24 @@ const mapearError = (res, err) => {
     }
 };
 
-const respuestaError = (res, err, mensaje) => {
+const respuestaError = (res, err) => {
     res.status(err.status);
-    res.send({error:mensaje, info: err.info});
+    delete err.errorConocido;
+    res.json(err);
 };
 
 const estaUsuarioLoggeado = (req) => {
     if(req.session.idUsuario && req.session.idUsuario != -1){
         return true;
     }
-    throw {error:"Debe iniciar sesión", info: err}
+    throw {error:"Debe iniciar sesión", errorConocido: true}
 }
 
 
 
 const algoSalioMal = (res, err) => {
     res.status(CODIGO_STATUS_HTTP.ERROR_SERVER);
-    res.send({error:"Algo salió mal", info: err});
+    res.json({error:"Algo salió mal", info: inspect(myObject, {depth: null})});
 }
 
 const creado = (res, obj) => {
@@ -51,5 +57,6 @@ module.exports = {
     algoSalioMal,
     creado,
     salioBien,
-    estaUsuarioLoggeado
+    estaUsuarioLoggeado,
+    CODIGO_STATUS_HTTP
 };

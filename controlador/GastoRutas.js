@@ -114,8 +114,8 @@ router.put('/modificar/:id_gasto', jsonParser, async (req, res) => {
                 const proyecto = proyectos[0];
                 await puestoCtlr.consultar_permisos(req.session.idUsuario, proyecto.id_organizacion, "edita_proyecto");
             }
-            const resultado = await gastoCtlr.modificar(req.params.id_gasto, req.body)
-            res.json(resultado);
+
+            res.json(await gastoCtlr.modificar(req.params.id_gasto, req.body));
         }
     }catch(err){
         mapearError(res, err);
@@ -137,8 +137,8 @@ router.delete('/eliminar/:id_gasto', async (req, res) => {
                 const proyectos = await proyectoCtlr.consultar({id: gasto.id_proyecto});
                 const proyecto = proyectos[0];
                 habilitado = await puestoCtlr.consultar_permisos(req.session.idUsuario, proyecto.id_organizacion, "edita_proyecto");
-                const resultado = await gastoCtlr.eliminar(req.params.id_gasto);
-                res.json(resultado);
+
+                res.json(await gastoCtlr.eliminar(req.params.id_gasto));
             }
         }
     }catch(err){

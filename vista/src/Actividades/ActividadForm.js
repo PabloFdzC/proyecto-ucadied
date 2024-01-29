@@ -9,7 +9,7 @@ import Row from 'react-bootstrap/Row';
 import Tab from 'react-bootstrap/Tab';
 import listaHoras from '../Utilidades/listaHoras';
 import Select from 'react-select';
-import { fechaAHoraAMPM, horaAFecha, partirStringHora } from '../Utilidades/ManejoHoras';
+import { fechaAHoraAMPM, partirStringHora } from '../Utilidades/ManejoHoras';
 
 import Reaptcha from 'reaptcha';
 
@@ -320,7 +320,7 @@ class ActividadForm extends React.Component {
                 this.setState({
                     procesando: true,
                 });
-                const resp = await this.queriesGenerales.postear("/actividad/crear", datos);
+                await this.queriesGenerales.postear("/actividad/crear", datos);
                 this.setState({
                     creado: true,
                     procesando: false,
@@ -412,7 +412,7 @@ class ActividadForm extends React.Component {
                     onVerify={this.captchaVerificado}
                     onExpired={() => this.captchaVerificado("")}
                     onError={() => this.captchaVerificado("")}
-                    sitekey="6LeOWEYpAAAAAFULQwCm9d-J1iWgrY8TmI1YKefW" />
+                    sitekey="6Leu-2kiAAAAAMHi78aFYa-E444kM55j7bRqQyMa" />
                 <input className={this.state.errores.captcha.length > 0 ? "form-control is-invalid" : "form-control"} style={{ display: "none" }} />
                 <div className="invalid-tooltip">
                     {this.state.errores.captcha}

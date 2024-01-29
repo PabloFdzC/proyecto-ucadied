@@ -22,17 +22,17 @@ async function consultar(params){
 // uniones, si es false, devuelve
 // asociaciones.
 async function consultarTipo(esUnion){
-    let resultado;
+    let resultados;
     
     if(esUnion === '1'){
-        resultado = await queries_generales.consultar(organizacion, {where: {
+        resultados = await queries_generales.consultar(organizacion, {where: {
             id: {
                 [Op.eq]: sequelize.col('id_organizacion')
             }
         }});
     }
     else{
-        resultado = await queries_generales.consultar(organizacion, {where: {
+        resultados = await queries_generales.consultar(organizacion, {where: {
             id: {
                 [Op.not]: sequelize.col('id_organizacion')
             }
@@ -41,7 +41,7 @@ async function consultarTipo(esUnion){
 
     verificarEncontrado(resultados, "No se encontró la organización");
 
-    return resultado;
+    return resultados;
 }
 
 // Función para crear una organización. Recibe como parámetro
@@ -98,7 +98,7 @@ async function eliminarMiembro(id_usuario){
 // Función para consultar los miembros de una organización, recibe
 // un parámetro donde viene el id de la organización.
 async function consultarMiembros(id_organizacion){
-    const resultado = await queries_generales.consultar(usuario, {
+    const resultados = await queries_generales.consultar(usuario, {
         where: {
             id_organizacion
         }
@@ -106,7 +106,7 @@ async function consultarMiembros(id_organizacion){
 
     verificarEncontrado(resultados, "No se encontraron los miembros");
 
-    return resultado;
+    return resultados;
 }
 
 async function externoEnviaCorreo(info){

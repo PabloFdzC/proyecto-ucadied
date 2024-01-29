@@ -295,7 +295,7 @@ class MiembroJuntaDirectivaForm extends React.Component {
                     <div className="form-check">
                         <input className="form-check-input" type="checkbox" id="edita_inmueble" name="edita_inmueble" checked={this.state.campos.edita_inmueble} onChange={this.manejaCambio} />
                         <label className="form-check-label" htmlFor="edita_inmueble" >
-                            ¿Puede editar actividades?
+                            ¿Puede editar inmuebles?
                         </label>
                     </div>
                 </div>

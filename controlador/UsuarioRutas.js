@@ -10,9 +10,10 @@ const {mapearError,estaUsuarioLoggeado,CODIGO_STATUS_HTTP} = require('./respuest
 // en el sistema.
 router.get('/sesionActiva', async (req, res) => {
     try{
-        res.send(estaUsuarioLoggeado(req));
+        estaUsuarioLoggeado(req);
+        res.send(true);
     } catch(err){
-        return false;
+        res.send(false);
     }
 });
 

@@ -81,8 +81,7 @@ router.put('/modificar/:id_actividad', jsonParser, async (req, res) => {
                 verificaPermisos(req.params.id_actividad, req.session.idUsuario);
             }
         }
-        const resultado = await actividadCtlr.modificar(req.params.id_actividad, req.body);
-        salioBien(resultado);
+        salioBien(await actividadCtlr.modificar(req.params.id_actividad, req.body));
     }catch(err){
         mapearError(res, err);
     }
@@ -168,8 +167,7 @@ router.delete('/eliminar/:id_actividad', async (req, res) => {
             if(req.session.tipoUsuario !== "Administrador"){
                 verificaPermisos(req.params.id_actividad, req.session.idUsuario);
             }
-            const resultado = await actividadCtlr.eliminar(req.params.id_actividad);
-            res.json(resultado);
+            res.json(await actividadCtlr.eliminar(req.params.id_actividad));
         }
     }catch(err){
         mapearError(res, err);

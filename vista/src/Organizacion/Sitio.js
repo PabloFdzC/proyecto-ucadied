@@ -25,7 +25,7 @@ const SitioCargado = (props) => {
   const { actions } = useEditor();
   // cargado no se modifica para que solo se cargue la
   // página una vez
-  const [cargado, setCargado] = useState(false);
+  const [cargado, ] = useState(false);
   const [mensaje, setMensaje] = useState("");
   const queriesG = new QueriesGenerales();
 
@@ -41,10 +41,11 @@ const SitioCargado = (props) => {
         const json = lz.decompress(lz.decodeBase64(pagina.data[0].componentes));
         // y luego usar deserialice que recibe un string json
         actions.deserialize(json);
-      } else {
-        setMensaje("Se debe crear el sitio");
       }
     } catch (error) {
+      if(error.response.data.status === 404) {
+        setMensaje("Se debe crear el sitio");
+      }
       console.log(error);
     }
   }
@@ -74,7 +75,7 @@ const SitioCargado = (props) => {
 export default function Sitio(props){
   // cargado no se modifica para que solo se cargue la
   // página una vez
-  const [cargado, setCargado] = useState(false);
+  const [cargado, ] = useState(false);
 
 
   useEffect(() => {

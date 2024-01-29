@@ -92,8 +92,7 @@ router.put('/modificar/:id_pagina', jsonParser, async (req, res) => {
                 await puestoCtlr.consultar_permisos(req.session.idUsuario, pagina.id_organizacion, "edita_pagina");
             }
 
-            const resultado = await paginaCtlr.modificar(req.params.id_pagina, req.body);
-            res.json(resultado);
+            res.json(await paginaCtlr.modificar(req.params.id_pagina, req.body));
         }
     }catch(err){
         mapearError(res, err);
@@ -116,8 +115,7 @@ router.delete('/eliminar/:id_pagina', async (req, res) => {
                 await puestoCtlr.consultar_permisos(req.session.idUsuario, pagina.id_organizacion, "edita_pagina");
             }
 
-            const resultado = await paginaCtlr.eliminar(req.params.id_pagina);
-            res.json(resultado);
+            res.json(await paginaCtlr.eliminar(req.params.id_pagina));
         }
     }catch(err){
         mapearError(res, err);
@@ -138,8 +136,7 @@ router.post('/subirArchivos', multi_upload, async (req, res) => {
                 await puestoCtlr.consultar_permisos(req.session.idUsuario, req.body.id_organizacion, "edita_pagina");
             }
 
-            const resultado = await paginaCtlr.crear_archivos(req.files, req.body.id_organizacion);
-            res.json(resultado);
+            res.json(await paginaCtlr.crear_archivos(req.files, req.body.id_organizacion));
         }
     }catch(err){
         paginaCtlr.eliminar_archivos(req.files);
@@ -183,8 +180,7 @@ router.delete('/eliminarArchivo/:id_archivo', async (req, res) => {
                 await puestoCtlr.consultar_permisos(req.session.idUsuario, archivo.id_organizacion, "edita_pagina");
             }
 
-            const resultado = await paginaCtlr.eliminar_archivo(req.params.id_archivo);
-            res.json(resultado);
+            res.json(await paginaCtlr.eliminar_archivo(req.params.id_archivo));
         }
     }catch(err){
         mapearError(res, err);

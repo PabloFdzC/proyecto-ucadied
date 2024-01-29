@@ -33,7 +33,7 @@ router.post('/crear', jsonParser,  async (req, res) => {
             }
         }
     }catch(err){
-        mapearError(res, req);
+        mapearError(res, err);
     }
 });
 

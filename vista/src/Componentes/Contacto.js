@@ -78,7 +78,7 @@ export const Contacto = ({
                                 <li className="mb-2"><span>Territorio:</span> {organizacion.territorio}</li>
                                 <li className="mb-2"><span>Domicilio:</span> {organizacion.domicilio}</li>
                                 <li className="mb-2"><span>Email:</span> {organizacion.email}</li>
-                                <li className="mb-2"><span>Teléfono:</span> {organizacion.telefonos}</li>
+                                <li className="mb-2"><span>Teléfono:</span> {typeof(organizacion.telefonos) === 'string' ? JSON.parse(organizacion.telefonos) : organizacion.telefonos}</li>
                             </ul>
                         }
                     </usuarioContexto.Consumer>

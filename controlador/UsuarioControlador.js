@@ -63,7 +63,7 @@ async function crear(info){
             contrasenna
         };
     }catch(err){
-        if (error.name === 'SequelizeUniqueConstraintError') {
+        if (err.name === 'SequelizeUniqueConstraintError') {
             throw {
                 errorConocido: true,
                 status:CODIGO_STATUS_HTTP.ERROR_USUARIO,

@@ -310,7 +310,7 @@ class JuntaDirectiva extends React.Component {
                                     <>
                                     <h3 className="text-center">No puede eliminar su propio puesto</h3>
                                     <div className="d-flex justify-content-end">
-                                        <button className="btn btn-secondary" onClick={()=>this.muestraModal("Puesto",false)}>Volver</button>
+                                        <button className="btn btn-secondary" onClick={()=>this.muestraModalEliminar("Puesto",false)}>Volver</button>
                                     </div>
                                     
                                     </>

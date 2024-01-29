@@ -116,7 +116,7 @@ class ContactoForm extends React.Component {
                 onVerify={this.captchaVerificado}
                 onExpired={()=>this.captchaVerificado("")}
                 onError={()=>this.captchaVerificado("")}
-                sitekey="6LeOWEYpAAAAAFULQwCm9d-J1iWgrY8TmI1YKefW" />
+                sitekey="6Leu-2kiAAAAAMHi78aFYa-E444kM55j7bRqQyMa" />
             <input className={this.state.errores.captcha.length > 0 ? "form-control is-invalid":"form-control"} style={{display:"none"}} />
             <div className="invalid-tooltip">
                 {this.state.errores.captcha}

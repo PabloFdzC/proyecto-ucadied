@@ -33,23 +33,23 @@ var sess = {
   }
 
 
+app.use(session(sess));
+app.use('/api', ApiRouter);
+
 if (app.get('env') === 'production') {
     //app.set('trust proxy', 1);
     //sess.cookie.secure = true;
     app.use(express.static(path.join(__dirname, 'vista/build')));
-    app.use(session(sess));
-    app.use('/api', ApiRouter);
+    
 
-    app.get('/*', function (req, res) {
+    app.get('*', function (req, res) {
         res.sendFile(path.join(__dirname, 'vista/build', 'index.html'));
     });
-} else {
-    app.use(session(sess));
-    app.use('/', ApiRouter);
 }
 
 
-app.listen();
+app.set('port', 8080);
+app.listen(app.get('port'));
 
 // https.createServer({
 //     key: fs.readFileSync(path.join(__dirname, 'SSH/key.pem'), 'utf-8'),

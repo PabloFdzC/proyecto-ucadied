@@ -65,8 +65,7 @@ router.put('/modificar/:id_organizacion', jsonParser, async (req, res) => {
                 await puestoCtlr.consultar_permisos(req.session.idUsuario, inmueble.id_organizacion, "edita_junta");
             }
 
-            const resultado = await organizacionCtrl.modificar(req.params.id_organizacion, req.body)
-            res.json(resultado);
+            res.json(await organizacionCtrl.modificar(req.params.id_organizacion, req.body));
         }
     }catch(err){
         mapearError(res, err);
@@ -78,8 +77,7 @@ router.put('/modificar/:id_organizacion', jsonParser, async (req, res) => {
 router.delete('/eliminar/:id_organizacion', async (req, res) => {
     try{
         if(req.session.tipoUsuario && req.session.tipoUsuario === "Administrador"){
-            const resultado = await organizacionCtrl.eliminar(req.params.id_organizacion);
-            res.json(resultado);
+            res.json(await organizacionCtrl.eliminar(req.params.id_organizacion));
         }
         else{
             throw {
@@ -119,8 +117,7 @@ router.delete('/eliminarMiembro', jsonParser, async (req, res) => {
                 await puestoCtlr.consultar_permisos(req.session.idUsuario, inmueble.id_organizacion, "edita_junta");
             }
 
-            const resultado = await organizacionCtrl.eliminarMiembro(req.body.id_usuario);
-            res.json(resultado);
+            res.json(await organizacionCtrl.eliminarMiembro(req.body.id_usuario));
         }
     }catch(err){
         mapearError(res, err);

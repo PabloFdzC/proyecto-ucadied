@@ -22,7 +22,7 @@ router.get('/consultar', async (req, res) => {
         const inmuebles = await inmuebleCtlr.consultar(params);
         res.json(inmuebles);
     }catch(err){
-        mapearError(res, req)
+        mapearError(res, err)
     }
 });
 
@@ -59,8 +59,7 @@ router.put('/modificar/:id_inmueble', jsonParser, async (req, res) => {
                 const inmueble = inmuebles[0];
                 habilitado = await puestoCtlr.consultar_permisos(req.session.idUsuario, inmueble.id_organizacion, "edita_inmueble");
             }
-            const resultado = await inmuebleCtlr.modificar(req.params.id_inmueble, req.body)
-            res.json(resultado);
+            res.json(await inmuebleCtlr.modificar(req.params.id_inmueble, req.body));
         }
     }catch(err){
         mapearError(res, err);
@@ -79,8 +78,7 @@ router.delete('/eliminar/:id_inmueble', async (req, res) => {
                 const inmueble = inmuebles[0];
                 await puestoCtlr.consultar_permisos(req.session.idUsuario, inmueble.id_organizacion, "edita_inmueble");
             }
-            const resultado = await inmuebleCtlr.eliminar(req.params.id_inmueble);
-            res.json(resultado);
+            res.json(await inmuebleCtlr.eliminar(req.params.id_inmueble));
         }
     }catch(err){
         mapearError(res, err);
@@ -106,8 +104,7 @@ router.delete('/eliminarReserva/:id_reserva', async (req, res) => {
                 habilitado = await puestoCtlr.consultar_permisos(req.session.idUsuario, inmueble.id_organizacion, "edita_inmueble");
             }
 
-            const resultado = await inmuebleCtlr.eliminar_reserva(req.params.id_reserva);
-            res.json(resultado);
+            res.json(await inmuebleCtlr.eliminar_reserva(req.params.id_reserva));
         }
     }catch(err){
         mapearError(res, err);
@@ -133,8 +130,7 @@ router.post('/habilitarReserva/:id_reserva', async (req, res) => {
                 await puestoCtlr.consultar_permisos(req.session.idUsuario, inmueble.id_organizacion, "edita_inmueble");
             }
 
-            const resultado = await inmuebleCtlr.habilitar_reserva(req.params.id_reserva);
-            res.json(resultado);
+            res.json(await inmuebleCtlr.habilitar_reserva(req.params.id_reserva));
         }
     }catch(err){
         mapearError(res, err);
@@ -207,7 +203,7 @@ router.get('/consultarReserva/:id_reserva', async (req, res) => {
             res.json(reservas);
         }
     }catch(err){
-        mapearError(err, res);
+        mapearError(res, err);
     }
 });
 

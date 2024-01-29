@@ -45,7 +45,7 @@ class Actividades extends React.Component {
             {name:'Inmueble',selector:row=>row.inmuebles[0].nombre,sortable:true},
             {name:'Persona de contacto',selector:row=>row.persona_contacto,sortable:true},
             {name:'Email',selector:row=>row.email,sortable:true},
-            {name:'Teléfonos',selector:row=>row.telefonos},
+            {name:'Teléfonos',selector:row=>typeof(row.telefonos) === 'string' ? JSON.parse(row.telefonos) : row.telefonos},
             ];
         this.titulosAnidados = [
             {name:'Día',selector:row=>row.diaBonito},
@@ -191,7 +191,7 @@ class Actividades extends React.Component {
     async cargarActividades(habilitado, dia, mes, anio,id_inmueble){
         let params = {
             id_organizacion:this.props.idOrganizacion,
-            habilitado:habilitado == undefined ? false : habilitado,
+            habilitado:habilitado ? habilitado : false,
         };
         if(dia){
             params.dia = dia;
@@ -300,7 +300,7 @@ class Actividades extends React.Component {
         if(Object.keys(datos).length > 0){
             try{
                 
-                const resp = await this.queriesGenerales.postear("/actividad/habilitarReservas", datos);
+                await this.queriesGenerales.postear("/actividad/habilitarReservas", datos);
                 this.setState({
                     mensajeModal: "¡Habilitada con éxito!",
                 });
@@ -369,7 +369,7 @@ class Actividades extends React.Component {
     async eliminarReservas(){
         if(Object.keys(this.state.Reserva).length > 0){
             try{
-                const resp = await this.queriesGenerales.eliminar("/actividad/eliminarReserva/"+this.state.Reserva.id, {});
+                await this.queriesGenerales.eliminar("/actividad/eliminarReserva/"+this.state.Reserva.id, {});
                 this.setState({
                     mensajeModal: "¡Eliminada con éxito!",
                 });
@@ -379,7 +379,7 @@ class Actividades extends React.Component {
             }
         } else if(Object.keys(this.state.Actividad).length > 0){
             try{
-                const resp = await this.queriesGenerales.eliminar("/actividad/eliminarReservasInhabilitadas/"+this.state.Actividad.id, {});
+                await this.queriesGenerales.eliminar("/actividad/eliminarReservasInhabilitadas/"+this.state.Actividad.id, {});
                 this.setState({
                     mensajeModal: "¡Eliminada con éxito!",
                 });
